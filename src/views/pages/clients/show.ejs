@@ -1,0 +1,374 @@
+<style>
+  :root { --grad:linear-gradient(135deg,#667eea,#764ba2); --radius:14px; }
+
+  .bc { font-size:.82rem; color:#94a3b8; margin-bottom:1.25rem; display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
+  .bc a { color:#667eea; text-decoration:none; }
+
+  /* SIDEBAR */
+  .profile-card { border-radius:var(--radius); border:none; box-shadow:0 4px 20px rgba(0,0,0,.07); overflow:hidden; }
+  .profile-header { background:var(--grad); padding:2rem 1.25rem 1.5rem; text-align:center; }
+  .profile-av {
+    width:72px; height:72px; border-radius:18px; background:rgba(255,255,255,.22);
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-weight:900; font-size:1.6rem; margin:0 auto .8rem;
+    border:3px solid rgba(255,255,255,.35);
+  }
+  .profile-name  { color:#fff; font-weight:800; font-size:1.1rem; }
+  .profile-ville { color:rgba(255,255,255,.72); font-size:.8rem; margin-top:.2rem; }
+  .profile-badge { display:inline-block; margin-top:.65rem; padding:.22rem .8rem; border-radius:20px; font-size:.72rem; font-weight:700; }
+  .pb-on  { background:rgba(255,255,255,.2);  color:#fff; }
+  .pb-off { background:rgba(0,0,0,.15);        color:rgba(255,255,255,.65); }
+
+  .profile-stats { padding:1rem 1.25rem; background:#fff; }
+  .ps-row { display:flex; justify-content:space-between; align-items:center; padding:.5rem 0; border-bottom:1px solid #f1f5f9; }
+  .ps-row:last-child { border:none; }
+  .ps-label { font-size:.77rem; color:#94a3b8; }
+  .ps-val   { font-weight:700; font-size:.88rem; color:#1e293b; }
+
+  .profile-actions { padding:1rem 1.25rem; background:#f8fafc; display:flex; flex-direction:column; gap:.45rem; border-top:1px solid #f1f5f9; }
+  .pa-btn {
+    padding:.6rem 1rem; border-radius:10px; border:1.5px solid #e2e8f0; background:#fff;
+    font-size:.83rem; font-weight:600; color:#475569; cursor:pointer; text-decoration:none;
+    text-align:center; transition:.15s; display:flex; align-items:center; justify-content:center; gap:.45rem;
+  }
+  .pa-btn:hover          { border-color:#667eea; color:#667eea; }
+  .pa-btn.prim           { background:var(--grad); border-color:transparent; color:#fff; }
+  .pa-btn.prim:hover     { opacity:.85; color:#fff; }
+  .pa-btn.danger         { border-color:#fecaca; color:#ef4444; }
+  .pa-btn.danger:hover   { background:#fef2f2; }
+
+  /* LIEN ACCES */
+  .link-card  { border-radius:var(--radius); border:none; box-shadow:0 2px 10px rgba(0,0,0,.05); background:#fff; margin-top:.9rem; overflow:hidden; }
+  .link-head  { padding:.85rem 1.25rem; border-bottom:1px solid #f1f5f9; font-weight:700; font-size:.88rem; color:#1e293b; }
+  .link-body  { padding:1rem 1.25rem; }
+  .link-box   { background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:10px; padding:.6rem .9rem; display:flex; align-items:center; gap:.6rem; }
+  .link-box code { flex:1; font-size:.72rem; color:#475569; word-break:break-all; }
+  .copy-btn   { border:none; background:none; color:#667eea; cursor:pointer; font-size:.78rem; font-weight:700; white-space:nowrap; padding:0; }
+  .copy-btn:hover { text-decoration:underline; }
+
+  /* CARTES CONTENU */
+  .ic { border-radius:var(--radius); border:none; box-shadow:0 2px 10px rgba(0,0,0,.05); background:#fff; margin-bottom:1.1rem; overflow:hidden; }
+  .ic-head { padding:.9rem 1.25rem; border-bottom:1px solid #f1f5f9; font-weight:700; font-size:.9rem; color:#1e293b; display:flex; align-items:center; justify-content:space-between; }
+  .ic-head > span { display:flex; align-items:center; gap:.45rem; }
+  .ic-head a  { font-size:.78rem; color:#667eea; text-decoration:none; }
+  .ic-body    { padding:1.1rem 1.25rem; }
+
+  /* GRILLE INFOS */
+  .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:.8rem 1.5rem; }
+  .info-grid .full { grid-column:span 2; }
+  .ig-label { font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:#94a3b8; font-weight:700; margin-bottom:.25rem; }
+  .ig-val   { font-size:.88rem; color:#1e293b; margin:0; line-height:1.5; }
+  .ig-val a { color:#475569; text-decoration:none; }
+  .ig-val a:hover { color:#667eea; }
+  .code-badge { background:#fef3c7; color:#92400e; padding:.22rem .65rem; border-radius:8px; font-family:monospace; font-size:.83rem; font-weight:700; display:inline-block; }
+
+  /* LISTE INTERVENTIONS */
+  .int-row { padding:.7rem 0; border-bottom:1px solid #f8fafc; display:flex; align-items:center; gap:.7rem; }
+  .int-row:last-child { border:none; }
+  .int-dot   { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .int-type  { font-size:.83rem; font-weight:700; color:#1e293b; }
+  .int-meta  { font-size:.73rem; color:#94a3b8; margin-top:.05rem; }
+  .int-badge { margin-left:auto; padding:.2rem .55rem; border-radius:20px; font-size:.68rem; font-weight:700; white-space:nowrap; flex-shrink:0; }
+  .b-eff  { background:#dcfce7; color:#16a34a; }
+  .b-plan { background:#fef9c3; color:#92400e; }
+  .b-ann  { background:#f1f5f9; color:#94a3b8; }
+
+  /* MINI TABLE FACTURES */
+  .ftable    { width:100%; border-collapse:collapse; }
+  .ftable th { padding:.4rem 1rem; font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:#94a3b8; font-weight:700; }
+  .ftable td { padding:.6rem 1rem; font-size:.83rem; color:#475569; border-top:1px solid #f8fafc; vertical-align:middle; }
+  .ftable tbody tr:first-child td { border-top:none; }
+
+  .empty-mini { text-align:center; padding:1.75rem 1rem; color:#cbd5e1; font-size:.85rem; }
+</style>
+
+<nav class="bc">
+  <a href="/dashboard">Tableau de bord</a> <span>/</span>
+  <a href="/clients">Clients</a> <span>/</span>
+  <span style="color:#475569;"><%= client.prenom %> <%= client.nom %></span>
+</nav>
+
+<div class="row">
+
+  <!-- SIDEBAR -->
+  <div class="col-lg-4 mb-4">
+
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="profile-av">
+          <%= client.prenom.charAt(0).toUpperCase() %><%= client.nom.charAt(0).toUpperCase() %>
+        </div>
+        <div class="profile-name"><%= client.prenom %> <%= client.nom %></div>
+        <div class="profile-ville"><i class="fas fa-map-marker-alt me-1"></i><%= client.ville %></div>
+        <span class="profile-badge <%= client.statut_actif ? 'pb-on' : 'pb-off' %>">
+          <%= client.statut_actif ? '&#10003; Actif' : 'Inactif' %>
+        </span>
+      </div>
+
+      <div class="profile-stats">
+        <div class="ps-row">
+          <span class="ps-label">Interventions totales</span>
+          <span class="ps-val"><%= stats.total_interventions || 0 %></span>
+        </div>
+        <div class="ps-row">
+          <span class="ps-label">Heures effectuees</span>
+          <span class="ps-val"><%= parseFloat(stats.heures_totales || 0).toFixed(1) %>h</span>
+        </div>
+        <div class="ps-row">
+          <span class="ps-label">Montant facture</span>
+          <span class="ps-val" style="color:#667eea;"><%= parseFloat(stats.montant_total_facture || 0).toFixed(2) %>&#8364;</span>
+        </div>
+        <div class="ps-row">
+          <span class="ps-label">Montant paye</span>
+          <span class="ps-val" style="color:#16a34a;"><%= parseFloat(stats.montant_paye || 0).toFixed(2) %>&#8364;</span>
+        </div>
+        <% if (stats.derniere_intervention) {
+             var rawD = new Date(stats.derniere_intervention);
+             var derniereStr = new Date(rawD.getFullYear(), rawD.getMonth(), rawD.getDate())
+               .toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
+        %>
+        <div class="ps-row">
+          <span class="ps-label">Derniere intervention</span>
+          <span class="ps-val" style="font-size:.8rem;"><%= derniereStr %></span>
+        </div>
+        <% } %>
+      </div>
+
+      <div class="profile-actions">
+        <a href="/clients/<%= client.id %>/edit" class="pa-btn prim">
+          <i class="fas fa-edit"></i> Modifier la fiche
+        </a>
+        <a href="/interventions/create?client_id=<%= client.id %>" class="pa-btn">
+          <i class="fas fa-calendar-plus"></i> Nouvelle intervention
+        </a>
+        <a href="<%= lienAccesClient %>" class="pa-btn" target="_blank">
+          <i class="fas fa-external-link-alt"></i> Voir l'espace client
+        </a>
+        <button onclick="toggleClient(<%= client.id %>, <%= client.statut_actif ? 'true' : 'false' %>)" class="pa-btn danger">
+          <i class="fas fa-<%= client.statut_actif ? 'user-slash' : 'user-check' %>"></i>
+          <%= client.statut_actif ? 'Desactiver le client' : 'Reactiver le client' %>
+        </button>
+      </div>
+    </div>
+
+    <!-- Lien d'acces securise (construit cote serveur dans le controleur) -->
+    <div class="link-card">
+      <div class="link-head"><i class="fas fa-link me-2 text-primary"></i>Lien d'acces client</div>
+      <div class="link-body">
+        <div class="link-box">
+          <code id="linkText"><%= lienAccesClient %></code>
+          <button class="copy-btn" onclick="copyLink()"><i class="fas fa-copy me-1"></i>Copier</button>
+        </div>
+        <small class="text-muted d-block mt-2" style="font-size:.72rem;">
+          Partagez ce lien pour que votre client accede a son espace personnel.
+        </small>
+      </div>
+    </div>
+
+  </div>
+  <!-- FIN SIDEBAR -->
+
+  <!-- CONTENU PRINCIPAL -->
+  <div class="col-lg-8">
+
+    <!-- Informations de contact -->
+    <div class="ic">
+      <div class="ic-head">
+        <span><i class="fas fa-address-card text-primary"></i> Informations de contact</span>
+        <a href="/clients/<%= client.id %>/edit"><i class="fas fa-pen me-1"></i>Modifier</a>
+      </div>
+      <div class="ic-body">
+        <div class="info-grid">
+
+          <div>
+            <div class="ig-label">Telephone</div>
+            <p class="ig-val">
+              <a href="tel:<%= client.telephone %>">
+                <i class="fas fa-phone me-1 text-muted"></i><%= client.telephone %>
+              </a>
+            </p>
+          </div>
+
+          <div>
+            <div class="ig-label">Email</div>
+            <p class="ig-val">
+              <% if (client.email) { %>
+                <a href="mailto:<%= client.email %>">
+                  <i class="fas fa-envelope me-1 text-muted"></i><%= client.email %>
+                </a>
+              <% } else { %>
+                <span style="color:#cbd5e1;font-size:.83rem;">Non renseigne</span>
+              <% } %>
+            </p>
+          </div>
+
+          <div class="full">
+            <div class="ig-label">Adresse complete</div>
+            <p class="ig-val">
+              <i class="fas fa-map-marker-alt me-1 text-muted"></i>
+              <%= client.adresse %>, <%= client.code_postal %> <%= client.ville %>
+            </p>
+          </div>
+
+          <% if (client.code_acces) { %>
+          <div class="full">
+            <div class="ig-label">Code d'acces</div>
+            <p class="ig-val">
+              <span class="code-badge"><i class="fas fa-key me-1"></i><%= client.code_acces %></span>
+            </p>
+          </div>
+          <% } %>
+
+          <% if (client.informations_complementaires) { %>
+          <div class="full">
+            <div class="ig-label">Notes</div>
+            <p class="ig-val" style="white-space:pre-wrap;color:#475569;font-size:.85rem;line-height:1.6;">
+              <%= client.informations_complementaires %>
+            </p>
+          </div>
+          <% } %>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Interventions recentes -->
+    <div class="ic">
+      <div class="ic-head">
+        <span><i class="fas fa-calendar-alt text-primary"></i> Dernieres interventions</span>
+        <a href="/interventions?client_id=<%= client.id %>">Voir tout &rarr;</a>
+      </div>
+      <div class="ic-body" style="padding:.5rem 1.25rem 1rem;">
+        <% if (history.interventions && history.interventions.length > 0) { %>
+          <% history.interventions.slice(0, 6).forEach(function(interv) {
+               var rawI = new Date(interv.date_intervention);
+               var dateI = new Date(rawI.getFullYear(), rawI.getMonth(), rawI.getDate())
+                 .toLocaleDateString('fr-FR', { weekday:'short', day:'numeric', month:'short' });
+               var hd = interv.heure_debut ? interv.heure_debut.slice(0,5) : '';
+               var hf = interv.heure_fin   ? interv.heure_fin.slice(0,5)   : '';
+          %>
+          <div class="int-row">
+            <div class="int-dot" style="background:<%= interv.couleur || '#667eea' %>"></div>
+            <div style="flex:1;min-width:0;">
+              <div class="int-type"><%= interv.type_service_nom %></div>
+              <div class="int-meta">
+                <%= dateI %>
+                <% if (hd) { %> &middot; <%= hd %><% if (hf) { %> &rarr; <%= hf %><% } %><% } %>
+              </div>
+            </div>
+            <% var badgeClass = interv.statut==='effectuee' ? 'b-eff' : interv.statut==='planifiee' ? 'b-plan' : 'b-ann'; %>
+            <% var badgeLabel = interv.statut==='effectuee' ? 'Effectuee' : interv.statut==='planifiee' ? 'Planifiee' : 'Annulee'; %>
+            <span class="int-badge <%= badgeClass %>"><%= badgeLabel %></span>
+          </div>
+          <% }); %>
+        <% } else { %>
+          <div class="empty-mini">
+            <i class="fas fa-calendar-times me-2"></i>Aucune intervention enregistree
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Factures du client -->
+    <% if (history.factures && history.factures.length > 0) { %>
+    <div class="ic">
+      <div class="ic-head">
+        <span><i class="fas fa-file-invoice-dollar text-primary"></i> Factures</span>
+        <a href="/factures?client_id=<%= client.id %>">Voir tout &rarr;</a>
+      </div>
+      <div style="padding:.25rem 0 .5rem;">
+        <table class="ftable">
+          <thead>
+            <tr>
+              <th>N&#176; Facture</th>
+              <th>Periode</th>
+              <th>Montant</th>
+              <th>Statut</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% history.factures.slice(0, 5).forEach(function(f) {
+                 var rawF = new Date(f.date_emission);
+                 var dateF = new Date(rawF.getFullYear(), rawF.getMonth(), rawF.getDate())
+                   .toLocaleDateString('fr-FR', { month:'short', year:'numeric' });
+            %>
+            <tr>
+              <td style="font-weight:700;color:#1e293b;font-family:monospace;"><%= f.numero_facture %></td>
+              <td><%= dateF %></td>
+              <td style="font-weight:700;color:#1e293b;"><%= parseFloat(f.montant_ttc).toFixed(2) %>&#8364;</td>
+              <td>
+                <% if (f.statut === 'payee') { %>
+                  <span style="background:#dcfce7;color:#16a34a;padding:.18rem .55rem;border-radius:20px;font-size:.68rem;font-weight:700;">Payee</span>
+                <% } else if (f.statut === 'en_retard') { %>
+                  <span style="background:#fef2f2;color:#ef4444;padding:.18rem .55rem;border-radius:20px;font-size:.68rem;font-weight:700;">En retard</span>
+                <% } else { %>
+                  <span style="background:#fef9c3;color:#92400e;padding:.18rem .55rem;border-radius:20px;font-size:.68rem;font-weight:700;">Emise</span>
+                <% } %>
+              </td>
+              <td>
+                <a href="/factures/<%= f.id %>" style="color:#667eea;font-size:.8rem;text-decoration:none;">
+                  <i class="fas fa-eye"></i>
+                </a>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <% } %>
+
+  </div>
+  <!-- FIN CONTENU PRINCIPAL -->
+
+</div>
+
+<script>
+function copyLink() {
+  var text = document.getElementById('linkText').textContent.trim();
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(function() {
+      Swal.fire({ title:'Lien copie !', icon:'success', timer:1500, showConfirmButton:false });
+    });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    Swal.fire({ title:'Lien copie !', icon:'success', timer:1500, showConfirmButton:false });
+  }
+}
+
+function toggleClient(id, actif) {
+  Swal.fire({
+    title: actif ? 'Desactiver ce client ?' : 'Reactiver ce client ?',
+    text:  actif ? 'Il ne sera plus liste comme actif.' : 'Il sera de nouveau actif.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: actif ? '#ef4444' : '#22c55e',
+    confirmButtonText: actif ? 'Oui, desactiver' : 'Oui, reactiver',
+    cancelButtonText: 'Annuler'
+  }).then(function(r) {
+    if (!r.isConfirmed) return;
+    fetch('/clients/' + id, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(d) {
+      if (d.success) {
+        Swal.fire({ title:'Mis a jour !', icon:'success', timer:1500, showConfirmButton:false })
+          .then(function() { location.reload(); });
+      } else {
+        Swal.fire('Erreur', d.message || 'Impossible de modifier le statut', 'error');
+      }
+    });
+  });
+}
+</script>

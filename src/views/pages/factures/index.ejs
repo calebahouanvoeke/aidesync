@@ -1,0 +1,252 @@
+<style>
+  :root { --grad:linear-gradient(135deg,#667eea,#764ba2); --radius:14px; }
+
+  .page-title { font-size:1.4rem; font-weight:800; color:#1e293b; }
+
+  /* STAT CARDS */
+  .fstat { border-radius:var(--radius); padding:1.1rem 1.25rem; border:none; box-shadow:0 2px 10px rgba(0,0,0,.06); background:#fff; display:flex; align-items:center; gap:1rem; }
+  .fstat-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+  .fstat-label { font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:#94a3b8; font-weight:700; }
+  .fstat-val { font-size:1.3rem; font-weight:900; color:#1e293b; line-height:1.1; }
+
+  /* FILTERS */
+  .filter-bar { background:#fff; border-radius:var(--radius); padding:1rem 1.25rem; box-shadow:0 2px 10px rgba(0,0,0,.05); margin-bottom:1.25rem; display:flex; flex-wrap:wrap; gap:.75rem; align-items:flex-end; }
+  .filter-bar label { font-size:.75rem; font-weight:700; color:#64748b; display:block; margin-bottom:.3rem; text-transform:uppercase; letter-spacing:.04em; }
+  .filter-bar select, .filter-bar input { border:1.5px solid #e2e8f0; border-radius:9px; padding:.5rem .8rem; font-size:.85rem; outline:none; transition:.15s; }
+  .filter-bar select:focus, .filter-bar input:focus { border-color:#667eea; }
+  .btn-filter { background:var(--grad); border:none; color:#fff; border-radius:9px; padding:.55rem 1.1rem; font-size:.85rem; font-weight:700; cursor:pointer; }
+  .btn-filter-reset { background:none; border:1.5px solid #e2e8f0; color:#64748b; border-radius:9px; padding:.55rem .9rem; font-size:.85rem; font-weight:600; cursor:pointer; text-decoration:none; }
+
+  /* TABLE */
+  .ftable-wrap { border-radius:var(--radius); box-shadow:0 2px 10px rgba(0,0,0,.05); background:#fff; overflow:hidden; }
+  .ftable { width:100%; border-collapse:collapse; }
+  .ftable thead th { padding:.75rem 1.1rem; font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:#94a3b8; font-weight:700; border-bottom:1px solid #f1f5f9; white-space:nowrap; background:#fff; }
+  .ftable tbody td { padding:.8rem 1.1rem; font-size:.85rem; color:#475569; border-bottom:1px solid #f8fafc; vertical-align:middle; }
+  .ftable tbody tr:last-child td { border:none; }
+  .ftable tbody tr:hover td { background:#fafbff; }
+
+  .f-num { font-weight:700; color:#1e293b; font-family:monospace; font-size:.88rem; }
+  .f-client { font-weight:600; color:#1e293b; }
+  .f-amount { font-weight:800; color:#1e293b; }
+
+  .s-badge { padding:.22rem .65rem; border-radius:20px; font-size:.7rem; font-weight:700; white-space:nowrap; }
+  .s-payee    { background:#dcfce7; color:#16a34a; }
+  .s-retard   { background:#fef2f2; color:#ef4444; }
+  .s-emise    { background:#fef9c3; color:#92400e; }
+  .s-annulee  { background:#f1f5f9; color:#94a3b8; }
+
+  .act-btn { border:none; background:none; padding:.3rem .5rem; border-radius:7px; cursor:pointer; transition:.15s; font-size:.85rem; }
+  .act-btn:hover { background:#f1f5f9; }
+  .act-btn.green:hover { background:#dcfce7; color:#16a34a; }
+  .act-btn a { color:inherit; text-decoration:none; }
+
+  .empty-state { text-align:center; padding:4rem 2rem; color:#cbd5e1; }
+  .empty-state i { font-size:3rem; margin-bottom:1rem; display:block; }
+
+  /* MODAL */
+  .modal-card { border-radius:var(--radius); border:none; overflow:hidden; }
+  .modal-card .modal-header { background:var(--grad); color:#fff; border:none; padding:1.1rem 1.5rem; }
+  .modal-card .modal-header .btn-close { filter:invert(1); }
+  .modal-card .modal-body { padding:1.5rem; }
+  .modal-card label { font-size:.82rem; font-weight:600; color:#475569; margin-bottom:.35rem; display:block; }
+  .modal-card select { border:1.5px solid #e2e8f0; border-radius:10px; padding:.6rem .9rem; width:100%; font-size:.87rem; outline:none; }
+  .modal-card select:focus { border-color:#667eea; }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <div class="page-title"><i class="fas fa-file-invoice-dollar me-2 text-primary"></i>Factures</div>
+  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#genModal"
+    style="border-radius:10px;background:var(--grad);border:none;font-weight:600;padding:.6rem 1.2rem;">
+    <i class="fas fa-cog me-2"></i>Générer factures
+  </button>
+</div>
+
+<!-- STATS -->
+<div class="row mb-4">
+  <div class="col-6 col-md-3 mb-3">
+    <div class="fstat">
+      <div class="fstat-icon" style="background:#eff6ff;color:#3b82f6;"><i class="fas fa-file-invoice"></i></div>
+      <div><div class="fstat-label">Total</div><div class="fstat-val"><%= stats.total_factures||0 %></div></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3 mb-3">
+    <div class="fstat">
+      <div class="fstat-icon" style="background:#f5f3ff;color:#7c3aed;"><i class="fas fa-euro-sign"></i></div>
+      <div><div class="fstat-label">Montant total</div><div class="fstat-val"><%= parseFloat(stats.montant_total||0).toFixed(2) %>€</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3 mb-3">
+    <div class="fstat">
+      <div class="fstat-icon" style="background:#dcfce7;color:#16a34a;"><i class="fas fa-check-circle"></i></div>
+      <div><div class="fstat-label">Payées</div><div class="fstat-val" style="color:#16a34a;"><%= parseFloat(stats.montant_paye||0).toFixed(2) %>€</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3 mb-3">
+    <div class="fstat">
+      <div class="fstat-icon" style="background:#fef2f2;color:#ef4444;"><i class="fas fa-exclamation-circle"></i></div>
+      <div><div class="fstat-label">Impayées</div><div class="fstat-val" style="color:#ef4444;"><%= parseFloat(stats.montant_impaye||0).toFixed(2) %>€</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FILTRES -->
+<form method="GET" action="/factures" class="filter-bar">
+  <div>
+    <label>Statut</label>
+    <select name="statut">
+      <option value="">Tous les statuts</option>
+      <option value="emise"    <%= filters.statut==='emise'    ?'selected':'' %>>Émises</option>
+      <option value="payee"    <%= filters.statut==='payee'    ?'selected':'' %>>Payées</option>
+      <option value="en_retard"<%= filters.statut==='en_retard'?'selected':'' %>>En retard</option>
+    </select>
+  </div>
+  <div>
+    <label>Année</label>
+    <select name="annee">
+      <option value="">Toutes</option>
+      <% for(let y=new Date().getFullYear(); y>=new Date().getFullYear()-2; y--) { %>
+        <option value="<%= y %>" <%= filters.annee==y?'selected':'' %>><%= y %></option>
+      <% } %>
+    </select>
+  </div>
+  <div>
+    <label>Mois</label>
+    <select name="mois">
+      <option value="">Tous</option>
+      <% for(let m=1;m<=12;m++) { %>
+        <option value="<%= m %>" <%= filters.mois==m?'selected':'' %>>
+          <%= new Date(2025,m-1).toLocaleDateString('fr-FR',{month:'long'}) %>
+        </option>
+      <% } %>
+    </select>
+  </div>
+  <div>
+    <label>&nbsp;</label>
+    <div style="display:flex;gap:.4rem;">
+      <button type="submit" class="btn-filter"><i class="fas fa-filter me-1"></i>Filtrer</button>
+      <a href="/factures" class="btn-filter-reset"><i class="fas fa-times"></i></a>
+    </div>
+  </div>
+</form>
+
+<!-- TABLEAU -->
+<div class="ftable-wrap">
+  <% if (factures && factures.length > 0) { %>
+  <div class="table-responsive">
+    <table class="ftable">
+      <thead>
+        <tr>
+          <th>N° Facture</th>
+          <th>Client</th>
+          <th>Émission</th>
+          <th>Échéance</th>
+          <th>Montant TTC</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% factures.forEach(f => {
+             const de = new Date(f.date_emission);
+             const dech = new Date(f.date_echeance);
+             const deStr = new Date(de.getFullYear(),de.getMonth(),de.getDate()).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
+             const dechStr = new Date(dech.getFullYear(),dech.getMonth(),dech.getDate()).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
+        %>
+        <tr>
+          <td><span class="f-num"><%= f.numero_facture %></span></td>
+          <td><span class="f-client"><%= f.client_prenom %> <%= f.client_nom %></span></td>
+          <td style="font-size:.8rem;"><%= deStr %></td>
+          <td style="font-size:.8rem;color:<%= f.statut==='en_retard'?'#ef4444':'inherit' %>;font-weight:<%= f.statut==='en_retard'?'700':'400' %>;"><%= dechStr %></td>
+          <td><span class="f-amount"><%= parseFloat(f.montant_ttc).toFixed(2) %>€</span></td>
+          <td>
+            <% if(f.statut==='payee'){ %><span class="s-badge s-payee">Payée</span>
+            <% }else if(f.statut==='en_retard'){ %><span class="s-badge s-retard">En retard</span>
+            <% }else if(f.statut==='emise'){ %><span class="s-badge s-emise">Émise</span>
+            <% }else{ %><span class="s-badge s-annulee"><%= f.statut %></span>
+            <% } %>
+          </td>
+          <td>
+            <div style="display:flex;gap:.2rem;align-items:center;">
+              <button class="act-btn" title="Voir"><a href="/factures/<%= f.id %>"><i class="fas fa-eye" style="color:#667eea;"></i></a></button>
+              <button class="act-btn" title="Télécharger PDF"><a href="/factures/<%= f.id %>/pdf"><i class="fas fa-file-pdf" style="color:#ef4444;"></i></a></button>
+              <% if(f.statut!=='payee') { %>
+              <button class="act-btn green" title="Marquer payée" onclick="markPaid(<%= f.id %>)"><i class="fas fa-check" style="color:#16a34a;"></i></button>
+              <% } %>
+            </div>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } else { %>
+    <div class="empty-state">
+      <i class="fas fa-file-invoice"></i>
+      <h5 style="color:#475569;">Aucune facture</h5>
+      <p style="font-size:.85rem;">Générez vos factures depuis le bouton ci-dessus</p>
+    </div>
+  <% } %>
+</div>
+
+<!-- MODAL GÉNÉRATION -->
+<div class="modal fade" id="genModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-card modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-cog me-2"></i>Générer les factures du mois</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/factures/generate" method="POST">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label>Mois</label>
+            <select name="mois" required>
+              <% for(let m=1;m<=12;m++) { %>
+                <option value="<%= m %>" <%= m===new Date().getMonth()+1?'selected':'' %>>
+                  <%= new Date(2025,m-1).toLocaleDateString('fr-FR',{month:'long'}) %>
+                </option>
+              <% } %>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label>Année</label>
+            <select name="annee" required>
+              <% const cy=new Date().getFullYear(); for(let y=cy-1;y<=cy+1;y++) { %>
+                <option value="<%= y %>" <%= y===cy?'selected':'' %>><%= y %></option>
+              <% } %>
+            </select>
+          </div>
+          <div class="alert" style="background:#fef9c3;border:none;border-radius:10px;border-left:3px solid #f59e0b;font-size:.82rem;color:#92400e;padding:.75rem 1rem;">
+            <i class="fas fa-info-circle me-1"></i>
+            Une facture sera générée pour chaque client ayant des interventions effectuées sur la période sélectionnée.
+          </div>
+        </div>
+        <div class="modal-footer" style="border:none;padding:1rem 1.5rem;">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
+          <button type="submit" class="btn btn-primary btn-sm" style="background:var(--grad);border:none;font-weight:700;border-radius:8px;">
+            <i class="fas fa-cog me-1"></i>Générer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function markPaid(id) {
+  Swal.fire({
+    title:'Marquer comme payée ?',
+    icon:'question', showCancelButton:true,
+    confirmButtonColor:'#22c55e', confirmButtonText:'Oui, payée', cancelButtonText:'Annuler'
+  }).then(r => {
+    if (!r.isConfirmed) return;
+    fetch(`/factures/${id}/paid`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({mode_paiement:'virement'})
+    }).then(r=>r.json()).then(d => {
+      if(d.success) Swal.fire({title:'Enregistré !',icon:'success',timer:1500,showConfirmButton:false}).then(()=>location.reload());
+      else Swal.fire('Erreur','Impossible de mettre à jour','error');
+    });
+  });
+}
+</script>

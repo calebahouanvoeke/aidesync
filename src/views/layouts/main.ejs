@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title || 'AideSync' %></title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/style.css">
+
+  <!-- SweetAlert2 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #3498db;
+      --secondary: #2c3e50;
+      --success: #27ae60;
+      --danger: #e74c3c;
+      --warning: #f39c12;
+      --light: #ecf0f1;
+      --dark: #34495e;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    .navbar {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .sidebar {
+      min-height: calc(100vh - 56px);
+      background-color: white;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+      padding: 1rem 0;
+    }
+
+    .sidebar .nav-link {
+      color: var(--dark);
+      padding: 0.75rem 1.5rem;
+      border-left: 3px solid transparent;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+    }
+
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link.active {
+      background-color: var(--light);
+      border-left-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .sidebar .nav-link i {
+      width: 20px;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .main-content {
+      padding: 2rem;
+    }
+
+    .card {
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: #2980b9;
+    }
+
+    .alert {
+      border-radius: 10px;
+      border: none;
+    }
+
+    .badge {
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+    }
+
+    /* ── Badge messages non lus ── */
+    .nav-unread-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      border-radius: 9px;
+      background: #e74c3c;
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-left: auto;
+      animation: badgePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      flex-shrink: 0;
+    }
+
+    @keyframes badgePop {
+      0%   { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Icône messages avec position relative pour le badge dans la navbar mobile */
+    .msg-nav-wrapper {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="/dashboard">
+        <i class="fas fa-hand-holding-heart me-2"></i>
+        AideSync
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <% if (user) { %>
+
+            <!-- Icône messages dans la NAVBAR (visible mobile) -->
+            <% if (unreadMessagesCount > 0) { %>
+            <li class="nav-item d-md-none me-2">
+              <a class="nav-link" href="/messages">
+                <span class="msg-nav-wrapper">
+                  <i class="fas fa-envelope"></i>
+                  <span style="
+                    position:absolute; top:-6px; right:-8px;
+                    min-width:16px; height:16px; padding:0 4px;
+                    border-radius:8px; background:#e74c3c; color:#fff;
+                    font-size:0.6rem; font-weight:800;
+                    display:flex; align-items:center; justify-content:center;
+                  "><%= unreadMessagesCount > 99 ? '99+' : unreadMessagesCount %></span>
+                </span>
+              </a>
+            </li>
+            <% } %>
+
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                <i class="fas fa-user-circle me-1"></i>
+                <%= user.prenom %> <%= user.nom %>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="/profil"><i class="fas fa-user me-2"></i>Mon profil</a></li>
+                <li><a class="dropdown-item" href="/parametres"><i class="fas fa-cog me-2"></i>Param&egrave;tres</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <form action="/auth/logout" method="POST" style="display:inline;">
+                    <button type="submit" class="dropdown-item text-danger">
+                      <i class="fas fa-sign-out-alt me-2"></i>D&eacute;connexion
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </li>
+          <% } %>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+
+      <!-- Sidebar -->
+      <% if (user) { %>
+      <nav class="col-md-2 d-none d-md-block sidebar">
+        <div class="nav flex-column">
+
+          <a class="nav-link <%= currentPage === 'dashboard' ? 'active' : '' %>" href="/dashboard">
+            <i class="fas fa-chart-line"></i>
+            Tableau de bord
+          </a>
+
+          <a class="nav-link <%= currentPage === 'clients' ? 'active' : '' %>" href="/clients">
+            <i class="fas fa-users"></i>
+            Clients
+          </a>
+
+          <a class="nav-link <%= currentPage === 'planning' ? 'active' : '' %>" href="/interventions">
+            <i class="fas fa-calendar-alt"></i>
+            Planning
+          </a>
+
+          <a class="nav-link <%= currentPage === 'factures' ? 'active' : '' %>" href="/factures">
+            <i class="fas fa-file-invoice-dollar"></i>
+            Factures
+          </a>
+
+          <!-- Messages avec badge non lus -->
+          <a class="nav-link <%= currentPage === 'messages' ? 'active' : '' %>" href="/messages">
+            <i class="fas fa-envelope"></i>
+            Messages
+            <% if (unreadMessagesCount > 0) { %>
+              <span class="nav-unread-badge">
+                <%= unreadMessagesCount > 99 ? '99+' : unreadMessagesCount %>
+              </span>
+            <% } %>
+          </a>
+
+        </div>
+      </nav>
+      <% } %>
+
+      <!-- Main content -->
+      <main class="<%= user ? 'col-md-10 ms-sm-auto' : 'col-12' %> main-content">
+
+        <!-- Flash Messages -->
+        <% if (success && success.length > 0) { %>
+          <% success.forEach(msg => { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <i class="fas fa-check-circle me-2"></i>
+              <%= msg %>
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          <% }) %>
+        <% } %>
+
+        <% if (error && error.length > 0) { %>
+          <% error.forEach(msg => { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <i class="fas fa-exclamation-circle me-2"></i>
+              <%= msg %>
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          <% }) %>
+        <% } %>
+
+        <!-- Page Content -->
+        <%- body %>
+      </main>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- SweetAlert2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- Custom JS -->
+  <script src="/js/main.js"></script>
+
+  <script>
+  // ── Refresh du badge messages toutes les 30s (sans rechargement de page) ──
+  (function pollUnreadMessages() {
+    var badgeEl = document.querySelector('.nav-unread-badge');
+    var navLinkMsg = document.querySelector('a[href="/messages"].nav-link');
+
+    setInterval(async function() {
+      try {
+        var r = await fetch('/messages/unread-count');
+        if (!r.ok) return;
+        var data = await r.json();
+        var count = data.count || 0;
+
+        if (count > 0) {
+          var label = count > 99 ? '99+' : count;
+          if (badgeEl) {
+            // Mettre à jour le badge existant
+            badgeEl.textContent = label;
+          } else if (navLinkMsg) {
+            // Créer le badge s'il n'existe pas encore
+            var span = document.createElement('span');
+            span.className = 'nav-unread-badge';
+            span.textContent = label;
+            navLinkMsg.appendChild(span);
+            badgeEl = span;
+          }
+        } else {
+          // Plus de messages non lus — supprimer le badge
+          if (badgeEl) { badgeEl.remove(); badgeEl = null; }
+        }
+      } catch(e) {}
+    }, 30000);
+  })();
+  </script>
+
+</body>
+</html>

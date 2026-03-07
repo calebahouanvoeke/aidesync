@@ -1,0 +1,78 @@
+<h2 class="text-center mb-4">Créer un compte</h2>
+
+<form action="/auth/register" method="POST">
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label for="nom" class="form-label">Nom *</label>
+      <input type="text" class="form-control" id="nom" name="nom" 
+             value="<%= formData.nom || '' %>" required>
+    </div>
+    
+    <div class="col-md-6 mb-3">
+      <label for="prenom" class="form-label">Prénom *</label>
+      <input type="text" class="form-control" id="prenom" name="prenom" 
+             value="<%= formData.prenom || '' %>" required>
+    </div>
+  </div>
+  
+  <div class="mb-3">
+    <label for="email" class="form-label">Email *</label>
+    <input type="email" class="form-control" id="email" name="email" 
+           value="<%= formData.email || '' %>" required>
+  </div>
+  
+  <div class="mb-3">
+    <label for="telephone" class="form-label">Téléphone *</label>
+    <input type="tel" class="form-control" id="telephone" name="telephone" 
+           value="<%= formData.telephone || '' %>" required>
+  </div>
+  
+  <div class="mb-3">
+    <label for="siret" class="form-label">SIRET</label>
+    <input type="text" class="form-control" id="siret" name="siret" 
+           value="<%= formData.siret || '' %>">
+  </div>
+  
+  <div class="mb-3">
+    <label for="adresse" class="form-label">Adresse</label>
+    <input type="text" class="form-control" id="adresse" name="adresse" 
+           value="<%= formData.adresse || '' %>">
+  </div>
+  
+  <div class="row">
+    <div class="col-md-8 mb-3">
+      <label for="ville" class="form-label">Ville</label>
+      <input type="text" class="form-control" id="ville" name="ville" 
+             value="<%= formData.ville || '' %>">
+    </div>
+    
+    <div class="col-md-4 mb-3">
+      <label for="code_postal" class="form-label">Code postal</label>
+      <input type="text" class="form-control" id="code_postal" name="code_postal" 
+             value="<%= formData.code_postal || '' %>">
+    </div>
+  </div>
+  
+  <div class="mb-3">
+    <label for="mot_de_passe" class="form-label">Mot de passe *</label>
+    <input type="password" class="form-control" id="mot_de_passe" name="mot_de_passe" 
+           minlength="6" required>
+    <small class="text-muted">Au moins 6 caractères</small>
+  </div>
+  
+  <div class="mb-3">
+    <label for="confirm_password" class="form-label">Confirmer le mot de passe *</label>
+    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+  </div>
+  
+  <button type="submit" class="btn btn-primary w-100 mb-3">
+    <i class="fas fa-user-plus me-2"></i>
+    Créer mon compte
+  </button>
+  
+  <div class="text-center">
+    <p class="mb-0">Déjà un compte ? 
+      <a href="/auth/login" class="text-decoration-none">Se connecter</a>
+    </p>
+  </div>
+</form>

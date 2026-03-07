@@ -1,0 +1,126 @@
+<div class="text-center mb-5">
+  <h1 class="display-5">Bonjour <%= client.prenom %> !</h1>
+  <p class="lead text-muted">Bienvenue dans votre espace personnel</p>
+</div>
+
+<div class="row g-4">
+  <!-- Prochaines interventions -->
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h3 class="card-title mb-4">
+          <i class="fas fa-calendar-check text-primary me-2"></i>
+          Prochaines interventions
+        </h3>
+        
+        <% if (interventions.length > 0) { %>
+          <div class="list-group list-group-flush">
+            <% interventions.slice(0, 3).forEach(intervention => { %>
+              <div class="list-group-item px-0">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h5 class="mb-1">
+                      <%= new Date(intervention.date_intervention).toLocaleDateString('fr-FR', { 
+                        weekday: 'long', 
+                        day: 'numeric', 
+                        month: 'long' 
+                      }) %>
+                    </h5>
+                    <p class="mb-1">
+                      <i class="fas fa-clock me-1"></i>
+                      <%= intervention.heure_debut %> - <%= intervention.heure_fin %>
+                    </p>
+                    <span class="badge bg-primary"><%= intervention.type_service_nom %></span>
+                  </div>
+                  <% if (intervention.statut === 'effectuee') { %>
+                    <span class="badge bg-success">
+                      <i class="fas fa-check"></i> Effectuée
+                    </span>
+                  <% } %>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+          
+          <a href="/client/<%= client.lien_acces_securise %>/interventions" 
+             class="btn btn-outline-primary w-100 mt-3">
+            Voir tout mon planning
+          </a>
+        <% } else { %>
+          <p class="text-muted text-center py-4">
+            <i class="fas fa-calendar-times fa-3x mb-3"></i><br>
+            Aucune intervention planifiée pour le moment
+          </p>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Factures récentes -->
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h3 class="card-title mb-4">
+          <i class="fas fa-file-invoice text-success me-2"></i>
+          Mes factures
+        </h3>
+        
+        <% if (factures.length > 0) { %>
+          <div class="list-group list-group-flush">
+            <% factures.slice(0, 3).forEach(facture => { %>
+              <div class="list-group-item px-0">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6 class="mb-1"><%= facture.numero_facture %></h6>
+                    <small class="text-muted">
+                      <%= new Date(facture.date_emission).toLocaleDateString('fr-FR') %>
+                    </small>
+                  </div>
+                  <div class="text-end">
+                    <h5 class="mb-1"><%= facture.montant_ttc %>€</h5>
+                    <% if (facture.statut === 'payee') { %>
+                      <span class="badge bg-success">Payée</span>
+                    <% } else { %>
+                      <span class="badge bg-warning">En attente</span>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+          
+          <a href="/client/<%= client.lien_acces_securise %>/factures" 
+             class="btn btn-outline-success w-100 mt-3">
+            Voir toutes mes factures
+          </a>
+        <% } else { %>
+          <p class="text-muted text-center py-4">
+            <i class="fas fa-inbox fa-3x mb-3"></i><br>
+            Aucune facture disponible
+          </p>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Messages -->
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body text-center py-5">
+        <h3 class="mb-3">
+          <i class="fas fa-envelope text-info me-2"></i>
+          Besoin de nous contacter ?
+        </h3>
+        <p class="lead mb-4">Envoyez-nous un message, nous vous répondrons rapidement</p>
+        <a href="/client/<%= client.lien_acces_securise %>/messages" 
+           class="btn btn-info btn-lg">
+          <i class="fas fa-paper-plane me-2"></i>
+          Accéder à la messagerie
+          <% if (unreadCount > 0) { %>
+            <span class="badge bg-danger ms-2"><%= unreadCount %></span>
+          <% } %>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

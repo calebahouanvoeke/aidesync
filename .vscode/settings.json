@@ -1,0 +1,13 @@
+
+{
+  "$schema": "vscode://schemas/settings/user",
+  "files.associations": {
+    "*.ejs": "html"
+  },
+  "emmet.includeLanguages": {
+    "ejs": "html"
+  },
+  "html.validate.scripts": false,
+  "html.validate.styles": false
+}
+

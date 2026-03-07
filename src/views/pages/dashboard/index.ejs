@@ -1,0 +1,569 @@
+<style>
+  /* ─── VARIABLES ─── */
+  :root {
+    --grad: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --grad-green: linear-gradient(135deg, #11998e, #38ef7d);
+    --grad-orange: linear-gradient(135deg, #f7971e, #ffd200);
+    --grad-red: linear-gradient(135deg, #f953c6, #b91d73);
+    --grad-blue: linear-gradient(135deg, #4facfe, #00f2fe);
+    --shadow-sm: 0 2px 10px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 24px rgba(0,0,0,0.09);
+    --radius: 16px;
+  }
+
+  /* ─── HEADER ─── */
+  .dash-header { margin-bottom: 2rem; }
+  .dash-greeting { font-size: 1.5rem; font-weight: 800; color: #1e293b; }
+  .dash-date { font-size: 0.85rem; color: #94a3b8; margin-top: 0.15rem; }
+
+  /* ─── STAT CARDS ─── */
+  .stat-card {
+    border-radius: var(--radius); border: none; overflow: hidden;
+    box-shadow: var(--shadow-md); transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default; height: 100%;
+  }
+  .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,0.13); }
+  .stat-card .card-body { padding: 1.4rem 1.5rem; }
+  .stat-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; opacity: 0.82; }
+  .stat-value { font-size: 2.4rem; font-weight: 900; line-height: 1.1; margin: 0.3rem 0 0; }
+  .stat-sub { font-size: 0.75rem; opacity: 0.75; margin-top: 0.2rem; }
+  .stat-icon { font-size: 2.5rem; opacity: 0.2; }
+  .stat-trend { font-size: 0.72rem; display: flex; align-items: center; gap: 0.3rem; margin-top: 0.4rem; opacity: 0.85; }
+
+  /* ─── SECTION CARDS ─── */
+  .dash-card {
+    border-radius: var(--radius); border: none;
+    box-shadow: var(--shadow-sm); background: #fff;
+  }
+  .dash-card .card-header {
+    background: #fff; border-bottom: 1px solid #f1f5f9;
+    border-radius: var(--radius) var(--radius) 0 0 !important;
+    padding: 1.1rem 1.4rem;
+  }
+  .dash-card .card-header h6 { font-weight: 700; font-size: 0.92rem; color: #1e293b; margin: 0; }
+  .dash-card .card-body { padding: 1.1rem 1.4rem; }
+
+  /* ─── TODAY INTERVENTIONS ─── */
+  .today-item {
+    border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 0.6rem;
+    border-left: 3px solid #667eea; background: #fafbff;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; transition: all 0.15s;
+  }
+  .today-item:hover { box-shadow: 0 2px 12px rgba(102,126,234,0.1); transform: translateX(2px); }
+  .today-item:last-child { margin-bottom: 0; }
+  .ti-time { font-size: 0.78rem; font-weight: 700; color: #667eea; white-space: nowrap; }
+  .ti-client { font-size: 0.92rem; font-weight: 700; color: #1e293b; }
+  .ti-service { font-size: 0.75rem; color: #64748b; }
+  .ti-ville { font-size: 0.72rem; color: #94a3b8; display: flex; align-items: center; gap: 0.25rem; }
+
+  .btn-done {
+    font-size: 0.75rem; padding: 0.3rem 0.75rem; border-radius: 8px;
+    border: 1.5px solid #22c55e; color: #22c55e; background: none;
+    cursor: pointer; font-weight: 600; transition: all 0.15s; white-space: nowrap;
+  }
+  .btn-done:hover { background: #22c55e; color: #fff; }
+  .badge-done {
+    font-size: 0.72rem; padding: 0.25rem 0.65rem; border-radius: 20px;
+    background: #dcfce7; color: #16a34a; font-weight: 600; white-space: nowrap;
+  }
+
+  .empty-state {
+    text-align: center; padding: 2rem 1rem; color: #cbd5e1;
+  }
+  .empty-state i { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+  .empty-state p { font-size: 0.85rem; margin: 0; }
+
+  /* ─── PROCHAINES ─── */
+  .proch-item {
+    padding: 0.6rem 0; border-bottom: 1px solid #f8fafc;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .proch-item:last-child { border-bottom: none; }
+  .proch-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--grad); flex-shrink: 0; }
+  .proch-date { font-size: 0.72rem; color: #94a3b8; white-space: nowrap; }
+  .proch-client { font-size: 0.85rem; font-weight: 700; color: #1e293b; }
+  .proch-type { font-size: 0.72rem; color: #64748b; }
+  .proch-time { font-size: 0.72rem; font-weight: 600; color: #667eea; margin-left: auto; white-space: nowrap; }
+
+  /* ─── ALERTES ─── */
+  .alert-row {
+    border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 0.5rem;
+    display: flex; align-items: center; gap: 0.75rem;
+    background: #fef2f2; border-left: 3px solid #ef4444;
+  }
+  .alert-row.info { background: #eff6ff; border-left-color: #3b82f6; }
+  .alert-row i { font-size: 1rem; }
+  .alert-row .ar-text { flex: 1; font-size: 0.83rem; }
+  .alert-row .ar-text strong { color: #1e293b; }
+  .alert-row .ar-text small { color: #64748b; display: block; }
+
+  /* ─── TABLEAU PAIEMENTS ─── */
+  .pay-table { width: 100%; border-collapse: collapse; }
+  .pay-table th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 700; padding: 0.5rem 0.75rem; border-bottom: 1px solid #f1f5f9; }
+  .pay-table td { font-size: 0.85rem; color: #475569; padding: 0.65rem 0.75rem; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
+  .pay-table tr:last-child td { border-bottom: none; }
+  .pay-table tr:hover td { background: #fafbff; }
+
+  /* ─── QUICK ACTIONS ─── */
+  .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .qa-btn {
+    border-radius: 12px; padding: 0.9rem; border: 1.5px solid #e2e8f0;
+    background: #fff; cursor: pointer; transition: all 0.15s; text-decoration: none;
+    display: flex; flex-direction: column; align-items: center; gap: 0.4rem; text-align: center;
+  }
+  .qa-btn:hover { border-color: #667eea; background: rgba(102,126,234,0.04); transform: translateY(-1px); }
+  .qa-btn i { font-size: 1.3rem; color: #667eea; }
+  .qa-btn span { font-size: 0.78rem; font-weight: 600; color: #475569; }
+
+  /* ─── LIVE PULSE ─── */
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .live-dot { width:7px; height:7px; border-radius:50%; background:#22c55e; display:inline-block; animation: pulse 2s infinite; margin-right:5px; }
+</style>
+
+<!-- HEADER -->
+<div class="dash-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+  <div>
+    <div class="dash-greeting">
+      👋 Bonjour, <%= user.prenom %> !
+    </div>
+    <div class="dash-date" id="liveClock">
+      <span class="live-dot"></span> <span id="clockText"></span>
+    </div>
+  </div>
+  <a href="/interventions/create" class="btn btn-primary" style="border-radius:10px;padding:0.6rem 1.25rem;background:var(--grad);border:none;font-weight:600;">
+    <i class="fas fa-plus me-2"></i>Nouvelle intervention
+  </a>
+</div>
+
+<!-- STAT CARDS -->
+<div class="row mb-4" id="statsRow">
+  <div class="col-6 col-md-3 mb-3">
+    <div class="stat-card" style="background:var(--grad);">
+      <div class="card-body text-white">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="stat-label">Clients actifs</div>
+            <div class="stat-value" id="statClients"><%= stats.clients_actifs || 0 %></div>
+            <div class="stat-sub">bénéficiaires suivis</div>
+          </div>
+          <i class="fas fa-users stat-icon"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-3 mb-3">
+    <div class="stat-card" style="background:var(--grad-green);">
+      <div class="card-body text-white" style="padding:1rem 1.25rem;">
+        <div class="stat-label mb-1">Interventions du mois</div>
+        <div class="d-flex align-items-center justify-content-between gap-2">
+          <!-- Chiffres -->
+          <div style="min-width:0;flex:1;">
+            <div style="font-size:1.9rem;font-weight:900;line-height:1;" id="statInterventions"><%= stats.interventions_mois || 0 %></div>
+            <div style="font-size:0.68rem;opacity:.8;margin-top:2px;">au total</div>
+            <div style="margin-top:.55rem;display:flex;flex-direction:column;gap:3px;">
+              <div style="display:flex;align-items:center;gap:5px;font-size:0.72rem;">
+                <span style="width:8px;height:8px;border-radius:50%;background:#fff;display:inline-block;flex-shrink:0;"></span>
+                <span id="statEffectuees"><%= stats.interventions_effectuees || 0 %></span>
+                <span style="opacity:.75;">effectuée(s)</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:0.72rem;">
+                <span style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.4);display:inline-block;flex-shrink:0;"></span>
+                <span id="statPlanifiees"><%= stats.interventions_planifiees || 0 %></span>
+                <span style="opacity:.75;">planifiée(s)</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:0.72rem;">
+                <span style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.18);display:inline-block;flex-shrink:0;"></span>
+                <span id="statAnnulees"><%= stats.interventions_annulees || 0 %></span>
+                <span style="opacity:.75;">annulée(s)</span>
+              </div>
+            </div>
+          </div>
+          <!-- Donut SVG -->
+          <div style="flex-shrink:0;position:relative;width:68px;height:68px;">
+            <svg viewBox="0 0 36 36" style="width:68px;height:68px;transform:rotate(-90deg);">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="4"/>
+              <!-- Annulées (segment de base) -->
+              <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="4"
+                stroke-dasharray="<%= stats.interventions_mois > 0 ? ((stats.interventions_annulees||0) / stats.interventions_mois * 87.96).toFixed(1) : 0 %> 87.96"
+                id="donutAnnulees"/>
+              <!-- Planifiées -->
+              <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="4"
+                stroke-dasharray="<%= stats.interventions_mois > 0 ? ((stats.interventions_planifiees||0) / stats.interventions_mois * 87.96).toFixed(1) : 0 %> 87.96"
+                stroke-dashoffset="-<%= stats.interventions_mois > 0 ? ((stats.interventions_annulees||0) / stats.interventions_mois * 87.96).toFixed(1) : 0 %>"
+                id="donutPlanifiees"/>
+              <!-- Effectuées -->
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#fff" stroke-width="4"
+                stroke-dasharray="<%= stats.interventions_mois > 0 ? ((stats.interventions_effectuees||0) / stats.interventions_mois * 87.96).toFixed(1) : 0 %> 87.96"
+                stroke-dashoffset="-<%= stats.interventions_mois > 0 ? (((stats.interventions_annulees||0) + (stats.interventions_planifiees||0)) / stats.interventions_mois * 87.96).toFixed(1) : 0 %>"
+                id="donutEffectuees"/>
+            </svg>
+            <!-- % effectuées au centre -->
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transform:none;">
+              <span style="font-size:0.72rem;font-weight:800;color:#fff;line-height:1;text-align:center;">
+                <%= stats.interventions_mois > 0 ? Math.round((stats.interventions_effectuees||0) / stats.interventions_mois * 100) : 0 %>%
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-3 mb-3">
+    <div class="stat-card" style="background:var(--grad-orange);">
+      <div class="card-body text-white">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="stat-label">CA du mois</div>
+            <div class="stat-value" id="statCA"><%= (stats.ca_mois || 0).toFixed(0) %>€</div>
+            <div class="stat-sub">chiffre d'affaires</div>
+          </div>
+          <i class="fas fa-euro-sign stat-icon"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-3 mb-3">
+    <div class="stat-card" style="background:var(--grad-red);">
+      <div class="card-body text-white">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="stat-label">Factures en retard</div>
+            <div class="stat-value" id="statRetard"><%= facturesEnRetard.length || 0 %></div>
+            <div class="stat-sub">à régulariser</div>
+          </div>
+          <i class="fas fa-exclamation-triangle stat-icon"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ALERTES -->
+<% if (paiementsAValider && paiementsAValider.length > 0) { %>
+<div class="alert-row info mb-3">
+  <i class="fas fa-bell text-primary"></i>
+  <div class="ar-text">
+    <strong><%= paiementsAValider.length %> paiement(s) à valider</strong>
+    <small>Des clients ont déclaré avoir payé — vérifiez votre compte bancaire</small>
+  </div>
+  <button class="btn btn-sm" style="border-radius:8px;background:#3b82f6;color:#fff;font-size:0.78rem;border:none;padding:0.3rem 0.75rem;" onclick="document.getElementById('sectionPaiements').scrollIntoView({behavior:'smooth'})">
+    Voir <i class="fas fa-arrow-down ms-1"></i>
+  </button>
+</div>
+<% } %>
+
+<% if (facturesEnRetard && facturesEnRetard.length > 0) { %>
+<div class="alert-row mb-3">
+  <i class="fas fa-exclamation-circle text-danger"></i>
+  <div class="ar-text">
+    <strong><%= facturesEnRetard.length %> facture(s) en retard</strong>
+    <small>Pensez à relancer vos clients</small>
+  </div>
+  <button class="btn btn-sm" style="border-radius:8px;background:#ef4444;color:#fff;font-size:0.78rem;border:none;padding:0.3rem 0.75rem;" onclick="document.getElementById('sectionRetard').scrollIntoView({behavior:'smooth'})">
+    Voir <i class="fas fa-arrow-down ms-1"></i>
+  </button>
+</div>
+<% } %>
+
+<!-- CONTENU PRINCIPAL -->
+<div class="row">
+  <!-- INTERVENTIONS DU JOUR -->
+  <div class="col-lg-7 mb-4">
+    <div class="dash-card h-100">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h6><i class="fas fa-calendar-day me-2 text-primary"></i>Interventions du jour</h6>
+        <span class="badge" style="background:rgba(102,126,234,0.1);color:#667eea;font-size:0.75rem;border-radius:20px;padding:0.3rem 0.75rem;">
+          <span id="todayCount"><%= interventionsAujourdhui ? interventionsAujourdhui.length : 0 %></span> prévue(s)
+        </span>
+      </div>
+      <div class="card-body">
+        <% if (interventionsAujourdhui && interventionsAujourdhui.length > 0) { %>
+          <% interventionsAujourdhui.forEach(intervention => { %>
+            <div class="today-item" style="border-left-color:<%= intervention.couleur || '#667eea' %>">
+              <div style="flex:1;min-width:0;">
+                <div class="ti-time"><i class="fas fa-clock me-1"></i><%= intervention.heure_debut.slice(0,5) %> → <%= intervention.heure_fin.slice(0,5) %></div>
+                <div class="ti-client"><%= intervention.client_prenom %> <%= intervention.client_nom %></div>
+                <div class="ti-service"><i class="fas <%= intervention.icone || 'fa-star' %> me-1" style="color:<%= intervention.couleur || '#667eea' %>"></i><%= intervention.type_service_nom %></div>
+                <div class="ti-ville"><i class="fas fa-map-marker-alt"></i><%= intervention.ville %></div>
+              </div>
+              <% if (intervention.statut === 'planifiee') { %>
+                <button class="btn-done" onclick="markAsDone(<%= intervention.id %>)">
+                  <i class="fas fa-check me-1"></i>Terminer
+                </button>
+              <% } else { %>
+                <span class="badge-done"><i class="fas fa-check-circle me-1"></i>Effectuée</span>
+              <% } %>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="empty-state">
+            <i class="fas fa-sun"></i>
+            <p>Aucune intervention prévue aujourd'hui</p>
+            <a href="/interventions/create" style="font-size:0.8rem;color:#667eea;text-decoration:none;">+ En planifier une</a>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLONNE DROITE -->
+  <div class="col-lg-5 mb-4">
+    <div class="row">
+      <!-- PROCHAINES -->
+      <div class="col-12 mb-3">
+        <div class="dash-card">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <h6><i class="fas fa-arrow-circle-right me-2 text-primary"></i>Prochaines interventions</h6>
+            <a href="/interventions" style="font-size:0.78rem;color:#667eea;text-decoration:none;">Voir planning →</a>
+          </div>
+          <div class="card-body">
+            <% if (prochainesInterventions && prochainesInterventions.length > 0) { %>
+              <% prochainesInterventions.slice(0,5).forEach(intervention => { %>
+                <div class="proch-item">
+                  <div class="proch-dot" style="background:<%= intervention.couleur || '#667eea' %>"></div>
+                  <div style="flex:1;min-width:0;">
+                    <div class="proch-client"><%= intervention.client_prenom %> <%= intervention.client_nom %></div>
+                    <div class="proch-type"><%= intervention.type_service_nom %></div>
+                    <div class="proch-date">
+                      <%
+                        const d = new Date(intervention.date_intervention);
+                        const y = d.getFullYear(), m = d.getMonth(), j = d.getDate();
+                        const dateLocale = new Date(y, m, j);
+                      %>
+                      <%= dateLocale.toLocaleDateString('fr-FR', {weekday:'short', day:'numeric', month:'short'}) %>
+                    </div>
+                  </div>
+                  <div class="proch-time"><%= intervention.heure_debut.slice(0,5) %></div>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <div class="empty-state" style="padding:1rem;">
+                <i class="fas fa-calendar-plus" style="font-size:1.5rem;"></i>
+                <p>Aucune intervention à venir</p>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIONS RAPIDES -->
+      <div class="col-12">
+        <div class="dash-card">
+          <div class="card-header"><h6><i class="fas fa-bolt me-2 text-primary"></i>Actions rapides</h6></div>
+          <div class="card-body">
+            <div class="quick-actions">
+              <a href="/interventions/create" class="qa-btn">
+                <i class="fas fa-calendar-plus"></i>
+                <span>Intervention</span>
+              </a>
+              <a href="/clients/create" class="qa-btn">
+                <i class="fas fa-user-plus"></i>
+                <span>Nouveau client</span>
+              </a>
+              <a href="/factures" class="qa-btn">
+                <i class="fas fa-file-invoice"></i>
+                <span>Factures</span>
+              </a>
+              <a href="/messages" class="qa-btn">
+                <i class="fas fa-envelope"></i>
+                <span>Messages</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAIEMENTS À VALIDER -->
+<% if (paiementsAValider && paiementsAValider.length > 0) { %>
+<div id="sectionPaiements" class="dash-card mb-4">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <h6><i class="fas fa-bell me-2" style="color:#3b82f6;"></i>Paiements déclarés à valider</h6>
+    <span class="badge" style="background:#eff6ff;color:#3b82f6;border-radius:20px;padding:0.3rem 0.75rem;font-size:0.75rem;"><%= paiementsAValider.length %></span>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="pay-table">
+        <thead>
+          <tr>
+            <th>Facture</th>
+            <th>Client</th>
+            <th>Montant</th>
+            <th>Méthode</th>
+            <th>Déclaré le</th>
+            <th>Preuve</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% paiementsAValider.forEach(facture => { %>
+          <tr>
+            <td><strong style="color:#1e293b;"><%= facture.numero_facture %></strong></td>
+            <td><%= facture.client_prenom %> <%= facture.client_nom %></td>
+            <td><strong style="color:#16a34a;"><%= facture.montant_ttc %>€</strong></td>
+            <td><span style="background:#f1f5f9;padding:0.2rem 0.5rem;border-radius:6px;font-size:0.78rem;"><%= facture.methode_paiement_declaree || 'N/A' %></span></td>
+            <td style="font-size:0.8rem;">
+              <%= new Date(facture.date_declaration_paiement).toLocaleDateString('fr-FR', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) %>
+            </td>
+            <td>
+              <% if (facture.preuve_paiement_path) { %>
+                <a href="<%= facture.preuve_paiement_path %>" target="_blank" style="font-size:0.8rem;color:#3b82f6;"><i class="fas fa-file-image me-1"></i>Voir</a>
+              <% } else { %>
+                <span style="color:#cbd5e1;font-size:0.8rem;">—</span>
+              <% } %>
+            </td>
+            <td>
+              <div style="display:flex;gap:0.4rem;">
+                <button onclick="validerPaiement(<%= facture.id %>)" style="background:#22c55e;border:none;color:#fff;border-radius:7px;padding:0.28rem 0.55rem;cursor:pointer;font-size:0.78rem;" title="Valider"><i class="fas fa-check"></i></button>
+                <button onclick="invaliderPaiement(<%= facture.id %>)" style="background:#ef4444;border:none;color:#fff;border-radius:7px;padding:0.28rem 0.55rem;cursor:pointer;font-size:0.78rem;" title="Invalider"><i class="fas fa-times"></i></button>
+                <a href="/factures/<%= facture.id %>" style="background:#f1f5f9;border:none;color:#475569;border-radius:7px;padding:0.28rem 0.55rem;font-size:0.78rem;text-decoration:none;" title="Voir"><i class="fas fa-eye"></i></a>
+              </div>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <div style="padding:0.75rem 1rem;background:#fffbeb;border-top:1px solid #fef3c7;border-radius:0 0 var(--radius) var(--radius);">
+      <small style="color:#92400e;"><i class="fas fa-exclamation-triangle me-1"></i><strong>Important :</strong> Vérifiez votre compte bancaire avant de valider.</small>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<!-- FACTURES EN RETARD -->
+<% if (facturesEnRetard && facturesEnRetard.length > 0) { %>
+<div id="sectionRetard" class="dash-card mb-4">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <h6><i class="fas fa-exclamation-circle me-2 text-danger"></i>Factures en retard</h6>
+    <span class="badge" style="background:#fef2f2;color:#ef4444;border-radius:20px;padding:0.3rem 0.75rem;font-size:0.75rem;"><%= facturesEnRetard.length %></span>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="pay-table">
+        <thead>
+          <tr><th>N° Facture</th><th>Client</th><th>Montant</th><th>Échéance</th><th>Retard</th><th></th></tr>
+        </thead>
+        <tbody>
+          <% facturesEnRetard.forEach(facture => { %>
+          <tr>
+            <td><strong style="color:#1e293b;"><%= facture.numero_facture %></strong></td>
+            <td><%= facture.client_prenom %> <%= facture.client_nom %></td>
+            <td><strong style="color:#ef4444;"><%= facture.montant_ttc %>€</strong></td>
+            <td style="font-size:0.82rem;"><%= new Date(facture.date_echeance).toLocaleDateString('fr-FR') %></td>
+            <td><span style="background:#fef2f2;color:#ef4444;padding:0.2rem 0.55rem;border-radius:20px;font-size:0.75rem;font-weight:700;"><%= facture.jours_retard %>j</span></td>
+            <td><a href="/factures/<%= facture.id %>" style="color:#667eea;font-size:0.8rem;text-decoration:none;"><i class="fas fa-eye me-1"></i>Voir</a></td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<script>
+// ─── HORLOGE LIVE ───
+(function clock() {
+  const el = document.getElementById('clockText');
+  function tick() {
+    const now = new Date();
+    const date = now.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    const time = now.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    el.textContent = `${date} — ${time}`;
+  }
+  tick(); setInterval(tick, 1000);
+})();
+
+// ─── REFRESH STATS AUTO (toutes les 60s) ───
+(function autoRefreshStats() {
+  setInterval(async () => {
+    try {
+      const r = await fetch('/dashboard/stats');
+      const data = await r.json();
+      if (!data.success) return;
+      const s = data.data;
+
+      // Animer les changements
+      animateValue('statClients', parseInt(document.getElementById('statClients').textContent), s.clients_actifs || 0);
+      animateValue('statInterventions', parseInt(document.getElementById('statInterventions').textContent), s.interventions_mois || 0);
+      animateValue('statEffectuees', parseInt(document.getElementById('statEffectuees').textContent), s.interventions_effectuees || 0);
+      animateValue('statPlanifiees', parseInt(document.getElementById('statPlanifiees').textContent), s.interventions_planifiees || 0);
+      animateValue('statAnnulees', parseInt(document.getElementById('statAnnulees').textContent), s.interventions_annulees || 0);
+
+      const caEl = document.getElementById('statCA');
+      const newCA = (s.ca_mois || 0).toFixed(0) + '€';
+      if (caEl.textContent !== newCA) caEl.textContent = newCA;
+
+    } catch(e) {}
+  }, 60000);
+})();
+
+function animateValue(id, from, to) {
+  if (from === to) return;
+  const el = document.getElementById(id);
+  const duration = 600, start = performance.now();
+  requestAnimationFrame(function step(now) {
+    const p = Math.min((now - start) / duration, 1);
+    el.textContent = Math.round(from + (to - from) * p);
+    if (p < 1) requestAnimationFrame(step);
+  });
+}
+
+// ─── ACTIONS ───
+function markAsDone(id) {
+  Swal.fire({
+    title: 'Marquer comme effectuée ?',
+    icon: 'question', showCancelButton: true,
+    confirmButtonColor: '#22c55e', cancelButtonColor: '#94a3b8',
+    confirmButtonText: '<i class="fas fa-check me-1"></i> Oui, terminer',
+    cancelButtonText: 'Annuler'
+  }).then(r => {
+    if (!r.isConfirmed) return;
+    fetch(`/interventions/${id}/done`, { method:'POST', headers:{'Content-Type':'application/json'} })
+      .then(r => r.json()).then(d => {
+        if (d.success) Swal.fire({ title:'Terminée !', icon:'success', timer:1800, showConfirmButton:false }).then(() => location.reload());
+        else Swal.fire('Erreur', 'Impossible de mettre à jour', 'error');
+      });
+  });
+}
+
+function validerPaiement(id) {
+  Swal.fire({
+    title: 'Valider le paiement ?',
+    text: 'Confirmez-vous avoir reçu ce paiement ?',
+    icon: 'question', showCancelButton: true,
+    confirmButtonColor: '#22c55e', confirmButtonText: 'Oui, valider', cancelButtonText: 'Annuler'
+  }).then(r => {
+    if (!r.isConfirmed) return;
+    fetch(`/factures/${id}/paid`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ mode_paiement:'client_declare' }) })
+      .then(r => r.json()).then(d => {
+        if (d.success) Swal.fire({ title:'Validé !', icon:'success', timer:1800, showConfirmButton:false }).then(() => location.reload());
+        else Swal.fire('Erreur', 'Impossible de valider', 'error');
+      });
+  });
+}
+
+async function invaliderPaiement(id) {
+  const { value: raison } = await Swal.fire({
+    title: 'Invalider le paiement',
+    input: 'textarea', inputLabel: 'Raison',
+    inputPlaceholder: 'Ex : Paiement non reçu sur le compte',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444', confirmButtonText: 'Invalider', cancelButtonText: 'Annuler',
+    inputValidator: v => !v ? 'Veuillez indiquer une raison' : null
+  });
+  if (!raison) return;
+  fetch(`/factures/${id}/invalidate-payment`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ raison }) })
+    .then(r => r.json()).then(d => {
+      if (d.success) Swal.fire({ title:'Invalidé', icon:'success', timer:1800, showConfirmButton:false }).then(() => location.reload());
+      else Swal.fire('Erreur', 'Impossible d\'invalider', 'error');
+    });
+}
+</script>

@@ -1,0 +1,327 @@
+<div class="mb-4">
+  <a href="/client/<%= client.lien_acces_securise %>" class="text-decoration-none">
+    <i class="fas fa-arrow-left me-2"></i>Retour à l'accueil
+  </a>
+</div>
+
+<div class="text-center mb-5">
+  <h1 class="display-5">
+    <i class="fas fa-file-invoice-dollar text-success me-2"></i>
+    Mes factures
+  </h1>
+  <p class="lead text-muted">Consultez et téléchargez vos factures</p>
+</div>
+
+<% if (factures.length > 0) { %>
+  <%
+  const impayees = factures.filter(f => f.statut !== 'payee' && f.statut !== 'annulee');
+  const payees = factures.filter(f => f.statut === 'payee');
+  const total_impaye = impayees.reduce((sum, f) => sum + parseFloat(f.montant_ttc), 0);
+  %>
+
+  <!-- Résumé -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <h6 class="text-muted text-uppercase mb-2">Total factures</h6>
+          <h2 class="mb-0"><%= factures.length %></h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-center border-success">
+        <div class="card-body">
+          <h6 class="text-muted text-uppercase mb-2">Factures payées</h6>
+          <h2 class="mb-0 text-success"><%= payees.length %></h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-center border-warning">
+        <div class="card-body">
+          <h6 class="text-muted text-uppercase mb-2">Montant à payer</h6>
+          <h2 class="mb-0 text-warning"><%= total_impaye.toFixed(2) %>€</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Factures impayées -->
+  <% if (impayees.length > 0) { %>
+    <div class="card mb-4">
+      <div class="card-header bg-warning text-dark">
+        <h4 class="mb-0">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          Factures en attente de paiement (<%= impayees.length %>)
+        </h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>N° Facture</th>
+                <th>Date d'émission</th>
+                <th>Période</th>
+                <th>Montant TTC</th>
+                <th>Échéance</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% impayees.forEach(facture => { %>
+                <tr>
+                  <td><strong><%= facture.numero_facture %></strong></td>
+                  <td><%= new Date(facture.date_emission).toLocaleDateString('fr-FR') %></td>
+                  <td>
+                    <%= new Date(facture.periode_debut).toLocaleDateString('fr-FR', { 
+                      month: 'long', 
+                      year: 'numeric' 
+                    }) %>
+                  </td>
+                  <td><strong class="text-warning"><%= facture.montant_ttc %>€</strong></td>
+                  <td>
+                    <%= new Date(facture.date_echeance).toLocaleDateString('fr-FR') %>
+                    <%
+                    const echeance = new Date(facture.date_echeance);
+                    const now = new Date();
+                    const isOverdue = echeance < now;
+                    %>
+                    <% if (isOverdue) { %>
+                      <span class="badge bg-danger ms-2">En retard</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <!-- Bouton PDF -->
+                    <a href="/client/<%= client.lien_acces_securise %>/factures/<%= facture.id %>/pdf" 
+                       class="btn btn-sm btn-outline-primary mb-1">
+                      <i class="fas fa-download me-1"></i>
+                      PDF
+                    </a>
+                    <br>
+                    <!-- Bouton J'ai payé ou Statut -->
+                    <% if (facture.paiement_declare_par_client) { %>
+                      <span class="badge bg-info" style="font-size: 0.9rem;">
+                        <i class="fas fa-clock me-1"></i>
+                        En attente validation
+                      </span>
+                    <% } else { %>
+                      <button class="btn btn-sm btn-success" 
+                              data-bs-toggle="modal" 
+                              data-bs-target="#declarePaiementModal<%= facture.id %>">
+                        <i class="fas fa-check me-1"></i>
+                        J'ai payé
+                      </button>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Factures payées -->
+  <% if (payees.length > 0) { %>
+    <div class="card">
+      <div class="card-header bg-light">
+        <h4 class="mb-0">
+          <i class="fas fa-check-circle text-success me-2"></i>
+          Factures payées (<%= payees.length %>)
+        </h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>N° Facture</th>
+                <th>Date d'émission</th>
+                <th>Période</th>
+                <th>Montant TTC</th>
+                <th>Date de paiement</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% payees.forEach(facture => { %>
+                <tr>
+                  <td><%= facture.numero_facture %></td>
+                  <td><%= new Date(facture.date_emission).toLocaleDateString('fr-FR') %></td>
+                  <td>
+                    <%= new Date(facture.periode_debut).toLocaleDateString('fr-FR', { 
+                      month: 'long', 
+                      year: 'numeric' 
+                    }) %>
+                  </td>
+                  <td><%= facture.montant_ttc %>€</td>
+                  <td>
+                    <span class="badge bg-success">
+                      <i class="fas fa-check"></i>
+                      <%= facture.date_paiement ? 
+                          new Date(facture.date_paiement).toLocaleDateString('fr-FR') : 
+                          'Payée' %>
+                    </span>
+                  </td>
+                  <td>
+                    <a href="/client/<%= client.lien_acces_securise %>/factures/<%= facture.id %>/pdf"
+                       class="btn btn-sm btn-outline-primary">
+                      <i class="fas fa-download me-1"></i>
+                      Télécharger PDF
+                    </a>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+<% } else { %>
+  <div class="card">
+    <div class="card-body text-center py-5">
+      <i class="fas fa-inbox fa-4x text-muted mb-4"></i>
+      <h4>Aucune facture</h4>
+      <p class="text-muted">Vous n'avez pas encore de facture</p>
+    </div>
+  </div>
+<% } %>
+
+<!-- MODALS DE DÉCLARATION DE PAIEMENT (en dehors des tableaux) -->
+<% if (factures.length > 0) { %>
+  <% const impayees = factures.filter(f => f.statut !== 'payee' && f.statut !== 'annulee'); %>
+  <% impayees.forEach(facture => { %>
+    <% if (!facture.paiement_declare_par_client) { %>
+      <div class="modal fade" id="declarePaiementModal<%= facture.id %>" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Déclarer le paiement - <%= facture.numero_facture %></h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formPaiement<%= facture.id %>" enctype="multipart/form-data">
+              <div class="modal-body">
+                <div class="alert alert-info">
+                  <i class="fas fa-info-circle me-2"></i>
+                  <strong>Important :</strong> Joignez une preuve de paiement 
+                  (photo du chèque, capture d'écran du virement, etc.)
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label">Méthode de paiement *</label>
+                  <select class="form-select" name="methode_paiement" required>
+                    <option value="">Sélectionner...</option>
+                    <option value="virement">Virement bancaire</option>
+                    <option value="cheque">Chèque</option>
+                    <option value="especes">Espèces</option>
+                    <option value="carte">Carte bancaire</option>
+                    <option value="cesu">CESU</option>
+                  </select>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label">Preuve de paiement * (image ou PDF)</label>
+                  <input type="file" 
+                         class="form-control" 
+                         name="preuve" 
+                         accept="image/*,.pdf"
+                         required>
+                  <small class="text-muted">
+                    Formats acceptés : JPG, PNG, PDF (max 5 Mo)
+                  </small>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label">Référence transaction (optionnel)</label>
+                  <input type="text" 
+                         class="form-control" 
+                         name="numero_transaction"
+                         placeholder="Ex: numéro chèque, référence virement...">
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label">Notes (optionnel)</label>
+                  <textarea class="form-control" 
+                            name="notes" 
+                            rows="2"
+                            placeholder="Informations complémentaires..."></textarea>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" class="btn btn-success">
+                  <i class="fas fa-check me-2"></i>
+                  Confirmer le paiement
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  <% }) %>
+<% } %>
+
+<script>
+document.querySelectorAll('[id^="formPaiement"]').forEach(form => {
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const factureId = e.target.id.replace('formPaiement', '');
+    
+    // Désactiver le bouton
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Envoi en cours...';
+    
+    try {
+      const response = await fetch('/client/<%= client.lien_acces_securise %>/factures/' + factureId + '/declare-paid', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await response.json();
+      
+      // Fermer le modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('declarePaiementModal' + factureId));
+      if (modal) modal.hide();
+      
+      if (data.success) {
+        await Swal.fire({
+          title: 'Paiement déclaré !',
+          text: data.message,
+          icon: 'success',
+          confirmButtonColor: '#28a745',
+          confirmButtonText: 'OK'
+        });
+        location.reload();
+      } else {
+        await Swal.fire({
+          title: 'Erreur',
+          text: data.message,
+          icon: 'error',
+          confirmButtonColor: '#dc3545'
+        });
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Confirmer le paiement';
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      await Swal.fire({
+        title: 'Erreur',
+        text: 'Problème de connexion. Vérifiez votre connexion internet.',
+        icon: 'error',
+        confirmButtonColor: '#dc3545'
+      });
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Confirmer le paiement';
+    }
+  });
+});
+</script>

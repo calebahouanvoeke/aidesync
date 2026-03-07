@@ -1,0 +1,240 @@
+<style>
+  :root { --grad:linear-gradient(135deg,#667eea,#764ba2); --radius:14px; }
+
+  .bc { font-size:.82rem; color:#94a3b8; margin-bottom:1.25rem; display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
+  .bc a { color:#667eea; text-decoration:none; }
+
+  .form-card { border-radius:var(--radius); border:none; box-shadow:0 4px 20px rgba(0,0,0,.07); background:#fff; overflow:hidden; }
+  .form-card-header { padding:1.25rem 1.75rem; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; gap:.75rem; }
+  .form-card-header h4 { font-weight:800; font-size:1.1rem; color:#1e293b; margin:0; }
+  .fch-icon { width:40px; height:40px; border-radius:10px; background:var(--grad); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .form-card-body { padding:1.5rem 1.75rem; }
+
+  .section-label {
+    font-size:.7rem; text-transform:uppercase; letter-spacing:.08em; font-weight:700;
+    color:#94a3b8; margin:1.25rem 0 .9rem; display:flex; align-items:center; gap:.5rem;
+  }
+  .section-label:first-child { margin-top:0; }
+  .section-label::after { content:''; flex:1; height:1px; background:#f1f5f9; }
+
+  .form-label { font-size:.82rem; font-weight:600; color:#475569; margin-bottom:.35rem; }
+  .req { color:#ef4444; margin-left:.1rem; }
+
+  .form-control, .form-select {
+    border:1.5px solid #e2e8f0; border-radius:10px; font-size:.88rem;
+    padding:.6rem .9rem; transition:.15s; width:100%; outline:none;
+  }
+  .form-control:focus, .form-select:focus {
+    border-color:#667eea; box-shadow:0 0 0 3px rgba(102,126,234,.1);
+  }
+  .form-control.is-invalid { border-color:#ef4444; }
+  .form-text { font-size:.73rem; color:#94a3b8; margin-top:.3rem; display:block; }
+
+  .field-wrap { position:relative; }
+  .field-wrap .fi {
+    position:absolute; left:.9rem; top:50%; transform:translateY(-50%);
+    color:#94a3b8; font-size:.8rem; pointer-events:none; z-index:1;
+  }
+  .field-wrap textarea ~ .fi { top:.85rem; transform:none; }
+  .field-wrap .form-control { padding-left:2.3rem; }
+  .field-wrap textarea.form-control { padding-left:2.3rem; padding-top:.65rem; }
+
+  .char-row { display:flex; justify-content:flex-end; }
+  .char-count { font-size:.72rem; color:#94a3b8; margin-top:.25rem; }
+
+  .form-footer { display:flex; align-items:center; gap:.75rem; padding-top:.5rem; margin-top:.75rem; border-top:1px solid #f1f5f9; flex-wrap:wrap; }
+  .btn-submit {
+    background:var(--grad); border:none; color:#fff; font-weight:700;
+    padding:.7rem 1.5rem; border-radius:10px; font-size:.9rem; cursor:pointer; transition:.15s;
+    display:flex; align-items:center; gap:.45rem;
+  }
+  .btn-submit:hover { opacity:.88; }
+  .btn-cancel {
+    background:none; border:1.5px solid #e2e8f0; color:#64748b; font-weight:600;
+    padding:.7rem 1.25rem; border-radius:10px; font-size:.9rem; cursor:pointer;
+    transition:.15s; text-decoration:none; display:flex; align-items:center; gap:.4rem;
+  }
+  .btn-cancel:hover { border-color:#94a3b8; color:#1e293b; }
+</style>
+
+<%
+  // ── Déterminer le mode (create ou edit) ──
+  // Le contrôleur doit passer isEdit:true/false et formData:{} pour create, client:{} pour edit
+  const editMode = (typeof isEdit !== 'undefined' && isEdit === true);
+  const fd = editMode ? client : (typeof formData !== 'undefined' && formData ? formData : {});
+%>
+
+<!-- BREADCRUMB -->
+<nav class="bc">
+  <a href="/dashboard">Tableau de bord</a> <span>/</span>
+  <a href="/clients">Clients</a> <span>/</span>
+  <% if (editMode) { %>
+    <a href="/clients/<%= client.id %>"><%= client.prenom %> <%= client.nom %></a> <span>/</span>
+    <span style="color:#475569;">Modifier</span>
+  <% } else { %>
+    <span style="color:#475569;">Nouveau client</span>
+  <% } %>
+</nav>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="form-card">
+
+      <div class="form-card-header">
+        <div class="fch-icon">
+          <i class="fas fa-<%= editMode ? 'edit' : 'user-plus' %> text-white" style="font-size:.9rem;"></i>
+        </div>
+        <h4><%= editMode ? 'Modifier le client' : 'Nouveau client' %></h4>
+      </div>
+
+      <div class="form-card-body">
+        <form action="<%= editMode ? `/clients/${client.id}?_method=PUT` : '/clients' %>" method="POST" id="clientForm" novalidate>
+
+          <!-- ── IDENTITÉ ── -->
+          <div class="section-label"><i class="fas fa-user"></i> Identité</div>
+          <div class="row mb-3">
+            <div class="col-md-6 mb-3 mb-md-0">
+              <label class="form-label">Nom <span class="req">*</span></label>
+              <div class="field-wrap">
+                <i class="fi fas fa-id-card"></i>
+                <input type="text" class="form-control" name="nom"
+                       value="<%= fd.nom || '' %>" required placeholder="Dupont">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Prénom <span class="req">*</span></label>
+              <div class="field-wrap">
+                <i class="fi fas fa-id-card"></i>
+                <input type="text" class="form-control" name="prenom"
+                       value="<%= fd.prenom || '' %>" required placeholder="Marie">
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-md-6 mb-3 mb-md-0">
+              <label class="form-label">Email</label>
+              <div class="field-wrap">
+                <i class="fi fas fa-envelope"></i>
+                <input type="email" class="form-control" name="email"
+                       value="<%= fd.email || '' %>" placeholder="marie.dupont@email.fr">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Téléphone <span class="req">*</span></label>
+              <div class="field-wrap">
+                <i class="fi fas fa-phone"></i>
+                <input type="tel" class="form-control" name="telephone"
+                       value="<%= fd.telephone || '' %>" required placeholder="06 12 34 56 78">
+              </div>
+            </div>
+          </div>
+
+          <!-- ── ADRESSE ── -->
+          <div class="section-label"><i class="fas fa-map-marker-alt"></i> Adresse</div>
+          <div class="mb-3">
+            <label class="form-label">Adresse complète <span class="req">*</span></label>
+            <div class="field-wrap">
+              <i class="fi fas fa-home"></i>
+              <input type="text" class="form-control" name="adresse"
+                     value="<%= fd.adresse || '' %>" required placeholder="12 rue des Lilas">
+            </div>
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-md-8 mb-3 mb-md-0">
+              <label class="form-label">Ville <span class="req">*</span></label>
+              <div class="field-wrap">
+                <i class="fi fas fa-city"></i>
+                <input type="text" class="form-control" name="ville"
+                       value="<%= fd.ville || '' %>" required placeholder="Paris">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Code postal <span class="req">*</span></label>
+              <input type="text" class="form-control" name="code_postal"
+                     value="<%= fd.code_postal || '' %>"
+                     pattern="[0-9]{5}" maxlength="5" required placeholder="75001">
+            </div>
+          </div>
+
+          <!-- ── COMPLÉMENTAIRES ── -->
+          <div class="section-label"><i class="fas fa-info-circle"></i> Informations complémentaires</div>
+          <div class="mb-3">
+            <label class="form-label">Code d'accès</label>
+            <div class="field-wrap">
+              <i class="fi fas fa-key"></i>
+              <input type="text" class="form-control" name="code_acces"
+                     value="<%= fd.code_acces || '' %>"
+                     placeholder="Digicode A1234, clé sous le paillasson…">
+            </div>
+            <span class="form-text">Digicode, badge ou instructions d'accès particulières</span>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Notes</label>
+            <div class="field-wrap">
+              <i class="fi fas fa-sticky-note" style="top:.85rem;transform:none;"></i>
+              <textarea class="form-control" name="informations_complementaires"
+                        id="notesTA" rows="4" maxlength="500"
+                        placeholder="Informations utiles : allergies, animaux, préférences, difficultés particulières…"><%= fd.informations_complementaires || '' %></textarea>
+            </div>
+            <div class="char-row">
+              <span class="char-count"><span id="charCount">0</span>/500</span>
+            </div>
+          </div>
+
+          <!-- ── BOUTONS ── -->
+          <div class="form-footer">
+            <button type="submit" class="btn-submit">
+              <i class="fas fa-save"></i>
+              <%= editMode ? 'Enregistrer les modifications' : 'Créer le client' %>
+            </button>
+            <a href="<%= editMode ? `/clients/${client.id}` : '/clients' %>" class="btn-cancel">
+              <i class="fas fa-times"></i> Annuler
+            </a>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Compteur caractères notes
+const ta = document.getElementById('notesTA');
+const cc = document.getElementById('charCount');
+function updateCount() { cc.textContent = ta.value.length; }
+ta.addEventListener('input', updateCount);
+updateCount();
+
+// Validation inline
+document.getElementById('clientForm').addEventListener('submit', function(e) {
+  const required = this.querySelectorAll('[required]');
+  let ok = true;
+  required.forEach(field => {
+    field.classList.remove('is-invalid');
+    if (!field.value.trim()) {
+      field.classList.add('is-invalid');
+      ok = false;
+    }
+  });
+  // Validation code postal
+  const cp = this.querySelector('[name="code_postal"]');
+  if (cp && cp.value && !/^[0-9]{5}$/.test(cp.value.trim())) {
+    cp.classList.add('is-invalid');
+    ok = false;
+  }
+  if (!ok) {
+    e.preventDefault();
+    const firstInvalid = this.querySelector('.is-invalid');
+    if (firstInvalid) firstInvalid.focus();
+    Swal.fire({
+      title: 'Champs manquants',
+      text: 'Veuillez remplir tous les champs obligatoires.',
+      icon: 'warning', confirmButtonColor: '#667eea'
+    });
+  }
+});
+</script>

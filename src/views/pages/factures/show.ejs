@@ -1,0 +1,236 @@
+<style>
+  :root { --grad:linear-gradient(135deg,#667eea,#764ba2); --radius:14px; }
+  .bc a { color:#667eea; text-decoration:none; font-size:.82rem; }
+  .bc { font-size:.82rem; color:#94a3b8; margin-bottom:1.25rem; display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
+
+  .act-card { border-radius:var(--radius); border:none; box-shadow:0 4px 20px rgba(0,0,0,.07); background:#fff; overflow:hidden; }
+  .act-card-head { padding:1rem 1.25rem; border-bottom:1px solid #f1f5f9; font-weight:700; font-size:.9rem; color:#1e293b; }
+  .act-card-body { padding:1.1rem 1.25rem; }
+
+  .aa-btn {
+    display:flex; align-items:center; gap:.6rem; width:100%; padding:.65rem 1rem;
+    border-radius:10px; border:1.5px solid #e2e8f0; background:#fff;
+    font-size:.85rem; font-weight:600; color:#475569; cursor:pointer; text-decoration:none;
+    transition:.15s; margin-bottom:.5rem;
+  }
+  .aa-btn:hover { border-color:#667eea; color:#667eea; background:rgba(102,126,234,.04); }
+  .aa-btn:last-child { margin-bottom:0; }
+  .aa-btn.prim { background:var(--grad); border-color:transparent; color:#fff; }
+  .aa-btn.prim:hover { opacity:.85; color:#fff; }
+  .aa-btn.green { border-color:#22c55e; color:#16a34a; }
+  .aa-btn.green:hover { background:#dcfce7; }
+  .aa-btn i { width:18px; text-align:center; }
+
+  /* FACTURE PREVIEW */
+  .invoice-wrap { border-radius:var(--radius); border:none; box-shadow:0 4px 20px rgba(0,0,0,.07); background:#fff; overflow:hidden; }
+  .invoice-top { padding:2rem 2.5rem 1.5rem; border-bottom:3px solid #f1f5f9; }
+  .inv-title { font-size:2rem; font-weight:900; color:#1e293b; letter-spacing:.03em; }
+  .inv-num { font-size:.92rem; color:#94a3b8; font-weight:600; margin-top:.2rem; }
+
+  .s-badge { padding:.28rem .8rem; border-radius:20px; font-size:.75rem; font-weight:700; }
+  .s-payee   { background:#dcfce7; color:#16a34a; }
+  .s-retard  { background:#fef2f2; color:#ef4444; }
+  .s-emise   { background:#fef9c3; color:#92400e; }
+
+  .inv-parties { display:flex; gap:2rem; flex-wrap:wrap; margin:1.5rem 0; }
+  .inv-party { flex:1; min-width:180px; }
+  .inv-party-label { font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; color:#94a3b8; font-weight:700; margin-bottom:.4rem; }
+  .inv-party-name { font-weight:800; font-size:.95rem; color:#1e293b; }
+  .inv-party-detail { font-size:.83rem; color:#64748b; line-height:1.55; margin-top:.2rem; }
+
+  .inv-dates { display:flex; gap:1.5rem; flex-wrap:wrap; padding:.75rem 0; border-top:1px solid #f1f5f9; border-bottom:1px solid #f1f5f9; margin-bottom:1.5rem; }
+  .inv-date-item label { font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:#94a3b8; font-weight:700; display:block; margin-bottom:.15rem; }
+  .inv-date-item p { font-size:.88rem; font-weight:700; color:#1e293b; margin:0; }
+
+  .inv-table { width:100%; border-collapse:collapse; font-size:.87rem; }
+  .inv-table thead th { padding:.6rem 1rem; font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:#94a3b8; font-weight:700; border-bottom:2px solid #f1f5f9; }
+  .inv-table tbody td { padding:.75rem 1rem; border-bottom:1px solid #f8fafc; color:#475569; }
+  .inv-table tbody tr:last-child td { border:none; }
+  .inv-table tfoot td { padding:.75rem 1rem; font-weight:800; color:#1e293b; border-top:2px solid #f1f5f9; font-size:1rem; }
+
+  .invoice-foot { padding:1.25rem 2.5rem; background:#f8fafc; border-top:1px solid #f1f5f9; }
+  .inv-footer-text { font-size:.75rem; color:#94a3b8; }
+
+  /* INFO PANEL */
+  .info-panel { background:#f8fafc; border-radius:10px; padding:.75rem 1rem; margin-bottom:.6rem; }
+  .info-panel-label { font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; color:#94a3b8; font-weight:700; margin-bottom:.2rem; }
+  .info-panel-val { font-size:.9rem; font-weight:700; color:#1e293b; }
+</style>
+
+<nav class="bc">
+  <a href="/dashboard">Tableau de bord</a><span>/</span>
+  <a href="/factures">Factures</a><span>/</span>
+  <span style="color:#475569;"><%= facture.numero_facture %></span>
+</nav>
+
+<div class="row">
+  <!-- FACTURE PREVIEW -->
+  <div class="col-lg-8 mb-4">
+    <div class="invoice-wrap">
+      <div class="invoice-top">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <div>
+            <div class="inv-title">FACTURE</div>
+            <div class="inv-num"><%= facture.numero_facture %></div>
+          </div>
+          <% if(facture.statut==='payee'){ %><span class="s-badge s-payee"><i class="fas fa-check-circle me-1"></i>Payée</span>
+          <% }else if(facture.statut==='en_retard'){ %><span class="s-badge s-retard"><i class="fas fa-exclamation-circle me-1"></i>En retard</span>
+          <% }else{ %><span class="s-badge s-emise"><i class="fas fa-clock me-1"></i>Émise</span>
+          <% } %>
+        </div>
+
+        <div class="inv-parties">
+          <div class="inv-party">
+            <div class="inv-party-label">Client</div>
+            <div class="inv-party-name"><%= facture.client_prenom %> <%= facture.client_nom %></div>
+            <div class="inv-party-detail">
+              <%= facture.adresse %><br>
+              <%= facture.code_postal %> <%= facture.ville %>
+            </div>
+          </div>
+        </div>
+
+        <%
+          const de  = new Date(facture.date_emission);
+          const dech= new Date(facture.date_echeance);
+          const deStr   = new Date(de.getFullYear(),de.getMonth(),de.getDate()).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+          const dechStr = new Date(dech.getFullYear(),dech.getMonth(),dech.getDate()).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+          let periodeStr = '';
+          if (facture.periode_debut && facture.periode_fin) {
+            const pd = new Date(facture.periode_debut), pf = new Date(facture.periode_fin);
+            periodeStr = new Date(pd.getFullYear(),pd.getMonth(),pd.getDate()).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})
+              + ' – ' + new Date(pf.getFullYear(),pf.getMonth(),pf.getDate()).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
+          }
+        %>
+        <div class="inv-dates">
+          <div class="inv-date-item"><label>Date d'émission</label><p><%= deStr %></p></div>
+          <div class="inv-date-item"><label>Échéance</label><p style="color:<%= facture.statut==='en_retard'?'#ef4444':'inherit' %>"><%= dechStr %></p></div>
+          <% if(periodeStr) { %><div class="inv-date-item"><label>Période</label><p><%= periodeStr %></p></div><% } %>
+        </div>
+
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;">Description</th>
+              <th style="text-align:center;">Qté</th>
+              <th style="text-align:right;">Prix unitaire</th>
+              <th style="text-align:right;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% lignes.forEach(l => { %>
+            <tr>
+              <td><%= l.description %></td>
+              <td style="text-align:center;"><%= l.quantite %></td>
+              <td style="text-align:right;"><%= parseFloat(l.prix_unitaire).toFixed(2) %>€</td>
+              <td style="text-align:right;font-weight:700;color:#1e293b;"><%= (l.quantite*l.prix_unitaire).toFixed(2) %>€</td>
+            </tr>
+            <% }) %>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" style="text-align:right;">Total TTC</td>
+              <td style="text-align:right;color:#667eea;"><%= parseFloat(facture.montant_ttc).toFixed(2) %>€</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="invoice-foot">
+        <div class="inv-footer-text">
+          <i class="fas fa-info-circle me-1"></i>
+          TVA non applicable — Art. 293 B du CGI · Paiement à réception
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR ACTIONS -->
+  <div class="col-lg-4">
+    <!-- ACTIONS -->
+    <div class="act-card mb-3">
+      <div class="act-card-head"><i class="fas fa-bolt me-2 text-primary"></i>Actions</div>
+      <div class="act-card-body">
+        <a href="/factures/<%= facture.id %>/pdf" class="aa-btn prim">
+          <i class="fas fa-download"></i> Télécharger PDF
+        </a>
+        <button class="aa-btn" onclick="sendEmail(<%= facture.id %>)">
+          <i class="fas fa-envelope"></i> Envoyer par email
+        </button>
+        <% if(facture.statut !== 'payee') { %>
+        <button class="aa-btn green" onclick="markPaid(<%= facture.id %>)">
+          <i class="fas fa-check-circle"></i> Marquer comme payée
+        </button>
+        <% } %>
+        <a href="/clients/<%= facture.client_id %>" class="aa-btn">
+          <i class="fas fa-user"></i> Voir la fiche client
+        </a>
+      </div>
+    </div>
+
+    <!-- INFOS -->
+    <div class="act-card">
+      <div class="act-card-head"><i class="fas fa-info-circle me-2 text-primary"></i>Informations</div>
+      <div class="act-card-body">
+        <div class="info-panel">
+          <div class="info-panel-label">Statut</div>
+          <div class="info-panel-val">
+            <% if(facture.statut==='payee'){ %><span style="color:#16a34a;"><i class="fas fa-check-circle me-1"></i>Payée</span>
+            <% }else if(facture.statut==='en_retard'){ %><span style="color:#ef4444;"><i class="fas fa-exclamation-circle me-1"></i>En retard</span>
+            <% }else{ %><span style="color:#92400e;"><i class="fas fa-clock me-1"></i>Émise</span>
+            <% } %>
+          </div>
+        </div>
+        <div class="info-panel">
+          <div class="info-panel-label">Montant TTC</div>
+          <div class="info-panel-val" style="font-size:1.3rem;color:#667eea;"><%= parseFloat(facture.montant_ttc).toFixed(2) %>€</div>
+        </div>
+        <div class="info-panel">
+          <div class="info-panel-label">Client</div>
+          <div class="info-panel-val" style="font-size:.88rem;"><%= facture.client_prenom %> <%= facture.client_nom %></div>
+        </div>
+        <% if(facture.date_paiement) {
+             const dp = new Date(facture.date_paiement);
+             const dpStr = new Date(dp.getFullYear(),dp.getMonth(),dp.getDate()).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+        %>
+        <div class="info-panel">
+          <div class="info-panel-label">Payée le</div>
+          <div class="info-panel-val" style="font-size:.88rem;color:#16a34a;"><%= dpStr %></div>
+        </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function markPaid(id) {
+  Swal.fire({
+    title:'Marquer comme payée ?',
+    icon:'question', showCancelButton:true,
+    confirmButtonColor:'#22c55e', confirmButtonText:'Oui, payée', cancelButtonText:'Annuler'
+  }).then(r => {
+    if(!r.isConfirmed) return;
+    fetch(`/factures/${id}/paid`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode_paiement:'virement'})})
+      .then(r=>r.json()).then(d=>{
+        if(d.success) Swal.fire({title:'Enregistré !',icon:'success',timer:1500,showConfirmButton:false}).then(()=>location.reload());
+        else Swal.fire('Erreur','Impossible','error');
+      });
+  });
+}
+function sendEmail(id) {
+  Swal.fire({
+    title:'Envoyer par email ?',
+    text:'La facture sera envoyée à l\'adresse email du client.',
+    icon:'question', showCancelButton:true,
+    confirmButtonColor:'#667eea', confirmButtonText:'Envoyer', cancelButtonText:'Annuler'
+  }).then(r => {
+    if(!r.isConfirmed) return;
+    fetch(`/factures/${id}/email`,{method:'POST',headers:{'Content-Type':'application/json'}})
+      .then(r=>r.json()).then(d=>{
+        if(d.success) Swal.fire({title:'Envoyé !',icon:'success',timer:1800,showConfirmButton:false});
+        else Swal.fire('Erreur',d.message||'Impossible d\'envoyer','error');
+      });
+  });
+}
+</script>

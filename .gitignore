@@ -1,0 +1,7 @@
+﻿node_modules/
+.env
+logs/
+*.log
+public/uploads/factures/*.pdf
+public/uploads/profils/*
+public/uploads/documents/*

@@ -1,0 +1,300 @@
+<style>
+  .planning-header { margin-bottom: 1.5rem; }
+
+  /* ─── NAV SEMAINE ─── */
+  .week-nav {
+    background: #fff; border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    padding: 1rem 1.5rem; margin-bottom: 1.5rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  }
+  .week-nav-btn {
+    background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px;
+    padding: 0.5rem 1.1rem; cursor: pointer; color: #475569; font-size: 0.88rem;
+    font-weight: 500; display: flex; align-items: center; gap: 0.5rem;
+    transition: all 0.15s;
+  }
+  .week-nav-btn:hover { background: #667eea; border-color: #667eea; color: #fff; }
+  .week-nav-btn.today-btn { background: linear-gradient(135deg,#667eea,#764ba2); border-color: transparent; color: #fff; }
+  .week-range { font-weight: 700; font-size: 1rem; color: #1e293b; text-align: center; flex: 1; }
+  .week-range small { display: block; font-size: 0.72rem; color: #94a3b8; font-weight: 400; margin-top: 2px; }
+
+  /* ─── CARTES JOUR ─── */
+  .day-col { margin-bottom: 1.25rem; }
+  .day-card {
+    border-radius: 14px; border: 1.5px solid #e2e8f0; background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); height: 100%;
+    transition: box-shadow 0.15s;
+  }
+  .day-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  .day-card.is-today { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.12); }
+  .day-card.is-past { background: #fafafa; opacity: 0.75; }
+
+  .day-header {
+    padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9;
+    display: flex; align-items: center; justify-content: space-between;
+    border-radius: 13px 13px 0 0;
+  }
+  .day-header.is-today { background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.05)); }
+
+  .day-name { font-weight: 700; font-size: 0.85rem; color: #475569; text-transform: uppercase; letter-spacing: 0.04em; }
+  .day-name.is-today { color: #667eea; }
+  .day-date-num {
+    width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-weight: 700; font-size: 0.9rem; color: #1e293b;
+  }
+  .day-date-num.is-today { background: linear-gradient(135deg,#667eea,#764ba2); color: #fff; }
+  .day-date-num.is-past { color: #94a3b8; }
+
+  .day-body { padding: 0.75rem; min-height: 80px; }
+
+  /* ─── INTERVENTION ITEM ─── */
+  .intervention-item {
+    border-radius: 10px; padding: 0.65rem 0.75rem; margin-bottom: 0.5rem;
+    border-left: 3px solid #667eea; background: #f8fafc;
+    transition: all 0.15s; cursor: default;
+  }
+  .intervention-item:hover { transform: translateX(2px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .intervention-item:last-child { margin-bottom: 0; }
+
+  .int-time { font-size: 0.72rem; font-weight: 600; color: #667eea; margin-bottom: 0.2rem; }
+  .int-client { font-size: 0.88rem; font-weight: 700; color: #1e293b; }
+  .int-service { font-size: 0.72rem; color: #64748b; margin-top: 0.1rem; }
+  .int-ville { font-size: 0.7rem; color: #94a3b8; margin-top: 0.1rem; display: flex; align-items: center; gap: 0.25rem; }
+
+  .int-actions { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
+  .int-btn {
+    font-size: 0.7rem; padding: 0.2rem 0.55rem; border-radius: 6px;
+    border: 1.5px solid; cursor: pointer; font-weight: 500; transition: all 0.12s;
+    display: flex; align-items: center; gap: 0.25rem; background: none;
+  }
+  .int-btn-done { border-color: #22c55e; color: #22c55e; }
+  .int-btn-done:hover { background: #22c55e; color: #fff; }
+  .int-btn-del  { border-color: #ef4444; color: #ef4444; }
+  .int-btn-del:hover  { background: #ef4444; color: #fff; }
+
+  .badge-effectuee {
+    font-size: 0.68rem; padding: 0.2rem 0.55rem; border-radius: 20px;
+    background: #dcfce7; color: #16a34a; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 0.25rem;
+  }
+
+  .empty-day {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 1.25rem 0.5rem; color: #cbd5e1; gap: 0.4rem;
+  }
+  .empty-day i { font-size: 1.3rem; }
+  .empty-day span { font-size: 0.78rem; }
+  .empty-day a {
+    font-size: 0.75rem; color: #667eea; text-decoration: none;
+    background: rgba(102,126,234,0.07); border-radius: 20px; padding: 0.2rem 0.7rem;
+    transition: background 0.15s;
+  }
+  .empty-day a:hover { background: rgba(102,126,234,0.15); }
+
+  /* ─── STATS MINI ─── */
+  .week-stats {
+    display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;
+  }
+  .stat-chip {
+    background: #fff; border-radius: 12px; padding: 0.6rem 1.1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center;
+    gap: 0.6rem; font-size: 0.85rem;
+  }
+  .stat-chip .stat-num { font-weight: 800; font-size: 1.1rem; color: #1e293b; }
+  .stat-chip .stat-label { color: #64748b; font-size: 0.78rem; }
+  .stat-chip i { color: #667eea; font-size: 1rem; }
+</style>
+
+<!-- HEADER -->
+<div class="d-flex justify-content-between align-items-center planning-header">
+  <div>
+    <h1 class="h3 mb-0 fw-bold"><i class="fas fa-calendar-alt me-2 text-primary"></i>Planning</h1>
+    <small class="text-muted" id="currentWeekLabel"></small>
+  </div>
+  <a href="/interventions/create" class="btn btn-primary" style="border-radius:10px;padding:0.6rem 1.25rem;background:linear-gradient(135deg,#667eea,#764ba2);border:none;">
+    <i class="fas fa-plus me-2"></i>Nouvelle intervention
+  </a>
+</div>
+
+<!-- STATS -->
+<div class="week-stats">
+  <div class="stat-chip">
+    <i class="fas fa-calendar-check"></i>
+    <div><div class="stat-num" id="statTotal"><%= interventions.length %></div><div class="stat-label">Cette semaine</div></div>
+  </div>
+  <div class="stat-chip">
+    <i class="fas fa-check-circle" style="color:#22c55e;"></i>
+    <div><div class="stat-num" id="statDone"><%= interventions.filter(i => i.statut === 'effectuee').length %></div><div class="stat-label">Effectuées</div></div>
+  </div>
+  <div class="stat-chip">
+    <i class="fas fa-clock" style="color:#f59e0b;"></i>
+    <div><div class="stat-num" id="statPending"><%= interventions.filter(i => i.statut === 'planifiee').length %></div><div class="stat-label">À venir</div></div>
+  </div>
+</div>
+
+<!-- NAV SEMAINE -->
+<div class="week-nav">
+  <button class="week-nav-btn" onclick="changeWeek(-1)">
+    <i class="fas fa-chevron-left"></i> Précédente
+  </button>
+  <div class="week-range">
+    <span id="weekRangeText"></span>
+    <small id="weekRangeYear"></small>
+  </div>
+  <div style="display:flex;gap:0.5rem;">
+    <button class="week-nav-btn today-btn" id="todayBtn" onclick="goToToday()" style="display:none;">
+      <i class="fas fa-crosshairs me-1"></i> Aujourd'hui
+    </button>
+    <button class="week-nav-btn" onclick="changeWeek(1)">
+      Suivante <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+</div>
+
+<!-- GRILLE DES JOURS -->
+<div class="row" id="planning-grid">
+  <%
+  const jours     = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  const joursLong = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+
+  const startYear  = startOfWeek.getFullYear();
+  const startMonth = startOfWeek.getMonth();
+  const startDay   = startOfWeek.getDate();
+
+  for (let i = 0; i < 7; i++) {
+    const jourDate = new Date(startYear, startMonth, startDay + i);
+    const yyyy = jourDate.getFullYear();
+    const mm   = String(jourDate.getMonth() + 1).padStart(2, '0');
+    const dd   = String(jourDate.getDate()).padStart(2, '0');
+    const dateStr = `${yyyy}-${mm}-${dd}`;
+
+    const interventionsDuJour = interventions.filter(int => {
+      const d = new Date(int.date_intervention);
+      return d.getFullYear() === jourDate.getFullYear() &&
+             d.getMonth()    === jourDate.getMonth() &&
+             d.getDate()     === jourDate.getDate();
+    });
+  %>
+  <div class="col-lg-4 col-md-6 day-col" data-date="<%= dateStr %>">
+    <div class="day-card">
+      <div class="day-header">
+        <div>
+          <div class="day-name"><%= joursLong[i] %></div>
+          <div style="font-size:0.72rem;color:#94a3b8;"><%= jourDate.toLocaleDateString('fr-FR',{day:'numeric',month:'long'}) %></div>
+        </div>
+        <div class="day-date-num"><%= jourDate.getDate() %></div>
+      </div>
+      <div class="day-body">
+        <% if (interventionsDuJour.length > 0) { %>
+          <% interventionsDuJour.forEach(intervention => { %>
+            <div class="intervention-item" style="border-left-color:<%= intervention.couleur || '#667eea' %>">
+              <div class="int-time">
+                <i class="fas fa-clock me-1"></i><%= intervention.heure_debut.slice(0,5) %> → <%= intervention.heure_fin.slice(0,5) %>
+              </div>
+              <div class="int-client"><%= intervention.client_prenom %> <%= intervention.client_nom %></div>
+              <div class="int-service"><i class="fas <%= intervention.icone || 'fa-star' %> me-1" style="color:<%= intervention.couleur || '#667eea' %>"></i><%= intervention.type_service_nom %></div>
+              <div class="int-ville"><i class="fas fa-map-marker-alt"></i><%= intervention.ville %></div>
+              <div class="int-actions">
+                <% if (intervention.statut === 'planifiee') { %>
+                  <button class="int-btn int-btn-done" onclick="markAsDone(<%= intervention.id %>)">
+                    <i class="fas fa-check"></i> Effectuée
+                  </button>
+                <% } else { %>
+                  <span class="badge-effectuee"><i class="fas fa-check-circle"></i> Effectuée</span>
+                <% } %>
+                <button class="int-btn int-btn-del" onclick="deleteIntervention(<%= intervention.id %>)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="empty-day">
+            <i class="fas fa-calendar-times"></i>
+            <span>Aucune intervention</span>
+            <a href="/interventions/create?date=<%= dateStr %>">+ Planifier</a>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  <% } %>
+</div>
+
+<script>
+// ─── HIGHLIGHT TODAY & PAST côté navigateur ───
+(function() {
+  const n = new Date();
+  const y = n.getFullYear(), m = String(n.getMonth()+1).padStart(2,'0'), d = String(n.getDate()).padStart(2,'0');
+  const todayStr = `${y}-${m}-${d}`;
+
+  document.querySelectorAll('[data-date]').forEach(col => {
+    const date = col.dataset.date;
+    const card = col.querySelector('.day-card');
+    const header = col.querySelector('.day-header');
+    const dayName = col.querySelector('.day-name');
+    const dayNum  = col.querySelector('.day-date-num');
+
+    if (date === todayStr) {
+      card.classList.add('is-today');
+      header.classList.add('is-today');
+      dayName.classList.add('is-today');
+      dayNum.classList.add('is-today');
+    } else if (date < todayStr) {
+      card.classList.add('is-past');
+      dayNum.classList.add('is-past');
+    }
+  });
+
+  // Label semaine courante
+  const start = document.querySelector('[data-date]');
+  const cols = document.querySelectorAll('[data-date]');
+  if (cols.length) {
+    const firstDate = cols[0].dataset.date;
+    const lastDate  = cols[cols.length-1].dataset.date;
+    const isCurrentWeek = todayStr >= firstDate && todayStr <= lastDate;
+    document.getElementById('currentWeekLabel').textContent = isCurrentWeek ? 'Semaine en cours' : '';
+    document.getElementById('todayBtn').style.display = isCurrentWeek ? 'none' : '';
+  }
+
+  // Formater le range
+  const sd = new Date(document.querySelector('[data-date]').dataset.date + 'T12:00:00');
+  const ed = new Date(document.querySelectorAll('[data-date]')[6].dataset.date + 'T12:00:00');
+  const opts = { day:'numeric', month:'long' };
+  document.getElementById('weekRangeText').textContent =
+    `${sd.toLocaleDateString('fr-FR', opts)} – ${ed.toLocaleDateString('fr-FR', opts)}`;
+  document.getElementById('weekRangeYear').textContent = sd.getFullYear();
+})();
+
+// ─── NAVIGATION ───
+const currentStart = {
+  y: <%= startOfWeek.getFullYear() %>,
+  m: <%= startOfWeek.getMonth() %>,
+  d: <%= startOfWeek.getDate() %>
+};
+
+function changeWeek(dir) {
+  const s = new Date(currentStart.y, currentStart.m, currentStart.d + dir * 7);
+  const e = new Date(currentStart.y, currentStart.m, currentStart.d + dir * 7 + 6);
+  const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  location.href = `/interventions?start=${fmt(s)}&end=${fmt(e)}`;
+}
+
+function goToToday() {
+  location.href = '/interventions';
+}
+
+// ─── ACTIONS ───
+function markAsDone(id) {
+  if (!confirm('Marquer cette intervention comme effectuée ?')) return;
+  fetch(`/interventions/${id}/done`, { method:'POST', headers:{'Content-Type':'application/json'} })
+    .then(r => r.json()).then(d => { if (d.success) location.reload(); else alert('Erreur'); });
+}
+
+function deleteIntervention(id) {
+  if (!confirm('Supprimer cette intervention définitivement ?')) return;
+  fetch(`/interventions/${id}`, { method:'DELETE', headers:{'Content-Type':'application/json'} })
+    .then(r => r.json()).then(d => { if (d.success) location.reload(); else alert('Erreur'); });
+}
+</script>

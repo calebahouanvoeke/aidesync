@@ -1,0 +1,120 @@
+<div class="mb-4">
+  <a href="/client/<%= client.lien_acces_securise %>" class="text-decoration-none">
+    <i class="fas fa-arrow-left me-2"></i>Retour à l'accueil
+  </a>
+</div>
+
+<div class="text-center mb-5">
+  <h1 class="display-5">
+    <i class="fas fa-calendar-alt text-primary me-2"></i>
+    Mes interventions
+  </h1>
+  <p class="lead text-muted">Consultez votre planning</p>
+</div>
+
+<% if (interventions.length > 0) { %>
+  <!-- Interventions à venir -->
+  <%
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const upcoming = interventions.filter(i => new Date(i.date_intervention) >= today && i.statut === 'planifiee');
+  const past = interventions.filter(i => new Date(i.date_intervention) < today || i.statut === 'effectuee');
+  %>
+  
+  <% if (upcoming.length > 0) { %>
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">
+          <i class="fas fa-calendar-check me-2"></i>
+          Prochaines interventions (<%= upcoming.length %>)
+        </h4>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <% upcoming.forEach(intervention => { %>
+            <div class="col-md-6">
+              <div class="card border-primary">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                      <h5 class="card-title mb-1">
+                        <%= new Date(intervention.date_intervention).toLocaleDateString('fr-FR', { 
+                          weekday: 'long', 
+                          day: 'numeric', 
+                          month: 'long',
+                          year: 'numeric'
+                        }) %>
+                      </h5>
+                      <p class="text-muted mb-0">
+                        <i class="fas fa-clock me-1"></i>
+                        <%= intervention.heure_debut %> - <%= intervention.heure_fin %>
+                      </p>
+                    </div>
+                    <span class="badge bg-primary" style="font-size: 1rem;">
+                      <%= intervention.type_service_nom %>
+                    </span>
+                  </div>
+                  
+                  <% if (intervention.notes_prestataire) { %>
+                    <div class="alert alert-info mb-0">
+                      <i class="fas fa-info-circle me-1"></i>
+                      <%= intervention.notes_prestataire %>
+                    </div>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    </div>
+  <% } %>
+  
+  <!-- Interventions passées -->
+  <% if (past.length > 0) { %>
+    <div class="card">
+      <div class="card-header bg-light">
+        <h4 class="mb-0">
+          <i class="fas fa-history me-2"></i>
+          Historique (<%= past.length %>)
+        </h4>
+      </div>
+      <div class="card-body">
+        <div class="list-group list-group-flush">
+          <% past.forEach(intervention => { %>
+            <div class="list-group-item px-0">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 class="mb-1">
+                    <%= new Date(intervention.date_intervention).toLocaleDateString('fr-FR', { 
+                      weekday: 'long', 
+                      day: 'numeric', 
+                      month: 'long' 
+                    }) %>
+                  </h6>
+                  <p class="mb-1 text-muted">
+                    <i class="fas fa-clock me-1"></i>
+                    <%= intervention.heure_debut %> - <%= intervention.heure_fin %>
+                  </p>
+                  <span class="badge bg-secondary"><%= intervention.type_service_nom %></span>
+                </div>
+                <span class="badge bg-success" style="font-size: 1rem;">
+                  <i class="fas fa-check"></i> Effectuée
+                </span>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    </div>
+  <% } %>
+  
+<% } else { %>
+  <div class="card">
+    <div class="card-body text-center py-5">
+      <i class="fas fa-calendar-times fa-4x text-muted mb-4"></i>
+      <h4>Aucune intervention</h4>
+      <p class="text-muted">Votre planning est vide pour le moment</p>
+    </div>
+  </div>
+<% } %>

@@ -1,0 +1,111 @@
+<div class="mb-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/dashboard">Tableau de bord</a></li>
+      <li class="breadcrumb-item"><a href="/messages">Messages</a></li>
+      <li class="breadcrumb-item active"><%= client.prenom %> <%= client.nom %></li>
+    </ol>
+  </nav>
+</div>
+
+<div class="row">
+  <div class="col-lg-8 mx-auto">
+    <div class="card">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-user-circle fa-2x text-secondary me-3"></i>
+          <div>
+            <h5 class="mb-0"><%= client.prenom %> <%= client.nom %></h5>
+            <small class="text-muted"><%= client.email || client.telephone %></small>
+          </div>
+        </div>
+        <a href="/clients/<%= client.id %>" class="btn btn-sm btn-outline-primary">
+          <i class="fas fa-user me-1"></i> Voir la fiche
+        </a>
+      </div>
+      
+      <div class="card-body" id="messagesContainer" style="max-height: 500px; overflow-y: auto;">
+        <% if (messages.length > 0) { %>
+          <% messages.reverse().forEach(message => { %>
+            <div class="mb-3 <%= message.expediteur === 'prestataire' ? 'text-end' : '' %>">
+              <div class="d-inline-block" style="max-width: 70%;">
+                <div class="p-3 rounded <%= message.expediteur === 'prestataire' ? 'bg-primary text-white' : 'bg-light' %>">
+                  <%= message.contenu %>
+                </div>
+                <small class="text-muted d-block mt-1">
+                  <%= new Date(message.date_envoi).toLocaleDateString('fr-FR', { 
+                    day: 'numeric', 
+                    month: 'short', 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                  }) %>
+                  <% if (message.expediteur === 'prestataire' && message.lu) { %>
+                    <i class="fas fa-check-double ms-1"></i>
+                  <% } %>
+                </small>
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="text-center text-muted py-5">
+            <i class="fas fa-comments fa-3x mb-3"></i>
+            <p>Aucun message pour le moment</p>
+          </div>
+        <% } %>
+      </div>
+      
+      <div class="card-footer bg-white">
+        <form id="messageForm">
+          <div class="input-group">
+            <textarea 
+              class="form-control" 
+              id="messageInput" 
+              placeholder="Écrivez votre message..."
+              rows="2"
+              required></textarea>
+            <button class="btn btn-primary" type="submit">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Auto-scroll vers le bas
+const container = document.getElementById('messagesContainer');
+if (container) {
+  container.scrollTop = container.scrollHeight;
+}
+
+// Envoi de message
+document.getElementById('messageForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const input = document.getElementById('messageInput');
+  const contenu = input.value.trim();
+  
+  if (!contenu) return;
+  
+  try {
+    const response = await fetch('/messages/<%= client.id %>', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contenu })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      location.reload();
+    } else {
+      alert('Erreur lors de l\'envoi du message');
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+    alert('Erreur lors de l\'envoi du message');
+  }
+});
+</script>
