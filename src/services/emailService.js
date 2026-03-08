@@ -2,12 +2,12 @@
 // SERVICE ENVOI D'EMAILS — Brevo API (HTTP, pas SMTP)
 // ============================================================
 
-const SibApiV3Sdk = require('@getbrevo/brevo');
+const brevo = require('@getbrevo/brevo');
 
 class EmailService {
 
   static getApiInstance() {
-    const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+    const apiInstance = new brevo.TransactionalEmailsApi();
     apiInstance.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
     return apiInstance;
   }
@@ -21,7 +21,7 @@ class EmailService {
 
   static async sendMail({ to, subject, html, attachments = [] }) {
     const apiInstance = this.getApiInstance();
-    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+    const sendSmtpEmail = new brevo.SendSmtpEmail();
 
     sendSmtpEmail.to = [{ email: to }];
     sendSmtpEmail.subject = subject;
