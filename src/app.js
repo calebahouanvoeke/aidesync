@@ -60,6 +60,8 @@ app.use(express.static(path.join(__dirname, '../public')));
 // CONFIGURATION DES SESSIONS
 // ============================================================
 
+app.set('trust proxy', 1);
+
 app.use(session({
   store: new pgSession({
     pool: pool,
@@ -72,7 +74,8 @@ app.use(session({
   cookie: {
     maxAge: 30 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production'
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   }
 }));
 
