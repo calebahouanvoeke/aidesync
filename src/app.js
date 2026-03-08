@@ -171,7 +171,21 @@ cron.schedule('0 8 * * *', () => {
 
 console.log('✅ Tâches planifiées configurées (tous les jours à 8h00)');
 
-
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-eval'", "'unsafe-inline'", 
+                  "https://cdn.jsdelivr.net", 
+                  "https://cdnjs.cloudflare.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", 
+                 "https://cdn.jsdelivr.net", 
+                 "https://cdnjs.cloudflare.com"],
+      fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "data:"],
+      imgSrc: ["'self'", "data:"],
+    }
+  }
+}));
 
 app.listen(PORT, () => {
   console.log('');
