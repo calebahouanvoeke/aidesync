@@ -76,7 +76,6 @@ exports.generateMonthly = async (req, res) => {
     const prestataireId = req.user.id;
     const { annee, mois } = req.body;
 
-    // 1. Générer toutes les factures du mois
     const factures = await Facture.generateMonthlyBatch(
       prestataireId,
       parseInt(annee),
@@ -88,17 +87,14 @@ exports.generateMonthly = async (req, res) => {
       return res.redirect('/factures');
     }
 
-    // 2. Regrouper les factures par client_id
     const parClient = {};
     for (const f of factures) {
       if (!parClient[f.client_id]) parClient[f.client_id] = [];
       parClient[f.client_id].push(f);
     }
 
-    // 3. Récupérer le prestataire (pour le nom dans l'email)
     const prestataire = await Prestataire.findById(prestataireId);
 
-    // 4. Envoyer un email récapitulatif à chaque client
     let emailsEnvoyes = 0;
     for (const [clientId, facturesClient] of Object.entries(parClient)) {
       const client = await Client.findById(clientId);
@@ -136,15 +132,12 @@ exports.markAsPaid = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Facture introuvable' });
     }
 
-    // 1. Mettre à jour le statut en BDD
     await Facture.markAsPaid(factureId, req.body.mode_paiement);
 
-    // 2. Récupérer les infos pour l'email
     const facture     = await Facture.findById(factureId);
     const client      = await Client.findById(facture.client_id);
     const prestataire = await Prestataire.findById(prestataireId);
 
-    // 3. Envoyer la confirmation au client
     if (client && client.email) {
       await EmailService.sendPaiementConfirmeEmail(client, facture, prestataire);
     }
@@ -158,7 +151,7 @@ exports.markAsPaid = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────────────────────
-// Télécharger le PDF
+// Télécharger le PDF (génère sur disque pour le download)
 // ─────────────────────────────────────────────────────────────
 exports.downloadPDF = async (req, res) => {
   try {
@@ -176,11 +169,12 @@ exports.downloadPDF = async (req, res) => {
     const prestataire = await Prestataire.findById(prestataireId);
     const client      = await Client.findById(facture.client_id);
 
-    const pdfPath = await PDFService.generateFacturePDF(facture, lignes, prestataire, client);
-    await Facture.updatePdfPath(factureId, pdfPath);
+    // Génère en mémoire et envoie directement au navigateur
+    const pdfBuffer = await PDFService.generateFacturePDFBuffer(facture, lignes, prestataire, client);
 
-    const filepath = path.join(__dirname, '../../public', pdfPath);
-    res.download(filepath, `facture-${facture.numero_facture}.pdf`);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="facture-${facture.numero_facture}.pdf"`);
+    res.send(pdfBuffer);
 
   } catch (error) {
     console.error('Erreur téléchargement PDF:', error);
@@ -191,6 +185,7 @@ exports.downloadPDF = async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────
 // Envoyer la facture PDF par email (bouton manuel)
+// → Génère le PDF en mémoire, l'attache et l'envoie via Brevo
 // ─────────────────────────────────────────────────────────────
 exports.sendEmail = async (req, res) => {
   try {
@@ -202,29 +197,25 @@ exports.sendEmail = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Facture introuvable' });
     }
 
-    const facture = await Facture.findById(factureId);
-    const client  = await Client.findById(facture.client_id);
+    const facture     = await Facture.findById(factureId);
+    const client      = await Client.findById(facture.client_id);
 
     if (!client.email) {
-      return res.status(400).json({ success: false, message: 'Ce client n\'a pas d\'adresse email' });
+      return res.status(400).json({ success: false, message: "Ce client n'a pas d'adresse email" });
     }
 
-    // Générer le PDF si besoin
-    let pdfPath = facture.chemin_pdf;
-    if (!pdfPath) {
-      const lignes      = await Facture.getLines(factureId);
-      const prestataire = await Prestataire.findById(prestataireId);
-      pdfPath = await PDFService.generateFacturePDF(facture, lignes, prestataire, client);
-      await Facture.updatePdfPath(factureId, pdfPath);
-    }
+    const lignes      = await Facture.getLines(factureId);
+    const prestataire = await Prestataire.findById(prestataireId);
 
-    const fullPath = path.join(__dirname, '../../public', pdfPath);
-    await EmailService.sendFactureEmail(client, facture, fullPath);
+    // Génération en mémoire — pas besoin du disque
+    const pdfBuffer = await PDFService.generateFacturePDFBuffer(facture, lignes, prestataire, client);
+
+    await EmailService.sendFactureEmail(client, facture, pdfBuffer);
 
     res.json({ success: true, message: 'Facture envoyée par email' });
 
   } catch (error) {
     console.error('Erreur envoi email facture:', error);
-    res.status(500).json({ success: false, message: 'Erreur lors de l\'envoi de l\'email' });
+    res.status(500).json({ success: false, message: "Erreur lors de l'envoi de l'email" });
   }
 };

@@ -1,39 +1,42 @@
 // ============================================================
-// SERVICE ENVOI D'EMAILS — Brevo API (HTTP, pas SMTP)
+// SERVICE ENVOI D'EMAILS — Brevo REST API (fetch natif Node 18+)
 // ============================================================
-
-const brevo = require('@getbrevo/brevo');
 
 class EmailService {
 
-  static getApiInstance() {
-    const apiInstance = new brevo.TransactionalEmailsApi();
-    apiInstance.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
-    return apiInstance;
-  }
-
-  static getSender() {
-    return {
-      name: process.env.EMAIL_FROM_NAME || 'AideSync',
-      email: process.env.EMAIL_FROM_ADDRESS
-    };
-  }
-
   static async sendMail({ to, subject, html, attachments = [] }) {
-    const apiInstance = this.getApiInstance();
-    const sendSmtpEmail = new brevo.SendSmtpEmail();
-
-    sendSmtpEmail.to = [{ email: to }];
-    sendSmtpEmail.subject = subject;
-    sendSmtpEmail.htmlContent = html;
-    sendSmtpEmail.sender = this.getSender();
+    const body = {
+      sender: {
+        name:  process.env.EMAIL_FROM_NAME  || 'AideSync',
+        email: process.env.EMAIL_FROM_ADDRESS
+      },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html
+    };
 
     if (attachments.length > 0) {
-      sendSmtpEmail.attachment = attachments;
+      body.attachment = attachments; // [{ name, content (base64) }]
     }
 
-    return apiInstance.sendTransacEmail(sendSmtpEmail);
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept':       'application/json',
+        'api-key':      process.env.BREVO_API_KEY,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(`Brevo API error ${response.status}: ${err}`);
+    }
+
+    return response.json();
   }
+
 
   // ─────────────────────────────────────────────────────────────
   // Intervention planifiée
@@ -134,7 +137,8 @@ class EmailService {
   // ─────────────────────────────────────────────────────────────
   // Envoi facture PDF en pièce jointe (bouton manuel)
   // ─────────────────────────────────────────────────────────────
-  static async sendFactureEmail(client, facture, pdfPath) {
+  // pdfBuffer : Buffer Node.js (généré en mémoire, pas besoin du disque)
+  static async sendFactureEmail(client, facture, pdfBuffer) {
     try {
       const html = `<!DOCTYPE html><html><head><style>
         body{font-family:Arial,sans-serif;line-height:1.6;color:#333}
@@ -163,12 +167,12 @@ class EmailService {
       </body></html>`;
 
       let attachments = [];
-      if (pdfPath) {
-        const fs = require('fs');
-        const content = fs.readFileSync(pdfPath).toString('base64');
+      if (pdfBuffer) {
         attachments = [{
           name: `facture-${facture.numero_facture}.pdf`,
-          content
+          content: Buffer.isBuffer(pdfBuffer)
+            ? pdfBuffer.toString('base64')
+            : pdfBuffer  // déjà base64
         }];
       }
 
