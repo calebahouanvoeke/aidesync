@@ -1,0 +1,270 @@
+<%- contentFor('body') %>
+
+<style>
+  :root {
+    --grad: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --shadow-md: 0 4px 24px rgba(0,0,0,0.09);
+    --radius: 16px;
+  }
+  .settings-header { margin-bottom: 1.75rem; }
+  .settings-header h1 { font-size: 1.6rem; font-weight: 900; color: #1e293b; margin: 0 0 0.2rem; }
+  .settings-header p { color: #94a3b8; font-size: 0.88rem; margin: 0; }
+  .settings-card {
+    border-radius: var(--radius); border: none;
+    box-shadow: var(--shadow-md); background: #fff;
+    margin-bottom: 1.5rem; overflow: hidden;
+  }
+  .settings-card-header {
+    padding: 1.1rem 1.5rem; border-bottom: 1px solid #f1f5f9;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .settings-card-header .icon-wrap {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;
+  }
+  .settings-card-header h6 { font-weight: 800; font-size: 0.95rem; color: #1e293b; margin: 0; }
+  .settings-card-header p { font-size: 0.75rem; color: #94a3b8; margin: 0; }
+  .settings-card-body { padding: 1.5rem; }
+  .form-label {
+    font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: #94a3b8; margin-bottom: 0.4rem;
+  }
+  .form-control {
+    border-radius: 10px; border: 1.5px solid #e2e8f0;
+    padding: 0.65rem 1rem; font-size: 0.92rem;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .form-control:focus {
+    border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); outline: none;
+  }
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.9rem 0; border-bottom: 1px solid #f8fafc;
+  }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-label { font-size: 0.88rem; font-weight: 600; color: #1e293b; }
+  .toggle-sub { font-size: 0.75rem; color: #94a3b8; margin-top: 0.1rem; }
+  .form-switch .form-check-input {
+    width: 2.5em; height: 1.3em; cursor: pointer; border-radius: 1em;
+  }
+  .form-switch .form-check-input:checked { background-color: #667eea; border-color: #667eea; }
+  .btn-save {
+    background: var(--grad); border: none; color: white; border-radius: 10px;
+    padding: 0.65rem 1.75rem; font-weight: 700; font-size: 0.9rem;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .btn-save:hover { opacity: 0.92; transform: translateY(-1px); color: white; }
+  .btn-danger-soft {
+    background: #fef2f2; border: 1.5px solid #fecaca; color: #dc2626;
+    border-radius: 10px; padding: 0.65rem 1.75rem; font-weight: 700; font-size: 0.9rem; transition: all 0.15s;
+  }
+  .btn-danger-soft:hover { background: #dc2626; color: white; border-color: #dc2626; }
+  .password-strength { height: 4px; border-radius: 2px; background: #e2e8f0; margin-top: 0.5rem; overflow: hidden; }
+  .password-strength-bar { height: 100%; border-radius: 2px; width: 0%; transition: width 0.3s, background 0.3s; }
+</style>
+
+<div class="settings-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+  <div>
+    <h1>⚙️ Paramètres</h1>
+    <p>Gérez la sécurité et les préférences de votre compte</p>
+  </div>
+  <a href="/profil" style="font-size:0.85rem;color:#667eea;text-decoration:none;">
+    <i class="fas fa-arrow-left me-1"></i>Retour au profil
+  </a>
+</div>
+
+<% if (success && success.length > 0) { %>
+  <div class="alert d-flex align-items-center gap-2 mb-3" style="border-radius:12px;border:none;background:#dcfce7;color:#16a34a;font-size:0.88rem;">
+    <i class="fas fa-check-circle"></i> <%= success[0] %>
+  </div>
+<% } %>
+<% if (error && error.length > 0) { %>
+  <div class="alert d-flex align-items-center gap-2 mb-3" style="border-radius:12px;border:none;background:#fef2f2;color:#dc2626;font-size:0.88rem;">
+    <i class="fas fa-exclamation-circle"></i> <%= error[0] %>
+  </div>
+<% } %>
+
+<!-- ── SÉCURITÉ ── -->
+<div class="settings-card">
+  <div class="settings-card-header">
+    <div class="icon-wrap" style="background:#fef2f2;color:#ef4444;"><i class="fas fa-lock"></i></div>
+    <div><h6>Sécurité</h6><p>Modifier votre mot de passe de connexion</p></div>
+  </div>
+  <div class="settings-card-body">
+    <form method="POST" action="/parametres/password">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Mot de passe actuel</label>
+          <div style="position:relative;">
+            <input type="password" name="ancien_mot_de_passe" id="ancienMdp" class="form-control" required style="padding-right:3rem;">
+            <button type="button" onclick="togglePwd('ancienMdp','eyeAncien')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;">
+              <i class="fas fa-eye" id="eyeAncien"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Nouveau mot de passe</label>
+          <div style="position:relative;">
+            <input type="password" name="nouveau_mot_de_passe" id="nouveauMdp" class="form-control" required minlength="8" oninput="checkStrength(this.value)" style="padding-right:3rem;">
+            <button type="button" onclick="togglePwd('nouveauMdp','eyeNouveau')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;">
+              <i class="fas fa-eye" id="eyeNouveau"></i>
+            </button>
+          </div>
+          <div class="password-strength"><div class="password-strength-bar" id="strengthBar"></div></div>
+          <small id="strengthText" style="font-size:0.72rem;color:#94a3b8;"></small>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Confirmer le nouveau mot de passe</label>
+          <div style="position:relative;">
+            <input type="password" name="confirmation_mot_de_passe" id="confirmMdp" class="form-control" required minlength="8" style="padding-right:3rem;">
+            <button type="button" onclick="togglePwd('confirmMdp','eyeConfirm')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;">
+              <i class="fas fa-eye" id="eyeConfirm"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-end">
+        <button type="submit" class="btn btn-save"><i class="fas fa-key me-2"></i>Changer le mot de passe</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── NOTIFICATIONS ── -->
+<div class="settings-card">
+  <div class="settings-card-header">
+    <div class="icon-wrap" style="background:#eff6ff;color:#3b82f6;"><i class="fas fa-bell"></i></div>
+    <div><h6>Notifications par email</h6><p>Choisissez quand recevoir des emails automatiques</p></div>
+  </div>
+  <div class="settings-card-body">
+    <form method="POST" action="/parametres/notifications">
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Nouvelle intervention planifiée</div>
+          <div class="toggle-sub">Envoyer un email au client lors de la création d'une intervention</div>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" name="notif_intervention" value="1"
+            <%= prestataire.notif_intervention !== false ? 'checked' : '' %>>
+        </div>
+      </div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Rappel 24h avant intervention</div>
+          <div class="toggle-sub">Email automatique la veille de chaque intervention</div>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" name="notif_rappel" value="1"
+            <%= prestataire.notif_rappel !== false ? 'checked' : '' %>>
+        </div>
+      </div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Paiement déclaré par un client</div>
+          <div class="toggle-sub">Me notifier quand un client déclare avoir payé une facture</div>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" name="notif_paiement" value="1"
+            <%= prestataire.notif_paiement !== false ? 'checked' : '' %>>
+        </div>
+      </div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Factures en retard</div>
+          <div class="toggle-sub">Récapitulatif hebdomadaire des factures impayées</div>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" name="notif_retard" value="1"
+            <%= prestataire.notif_retard ? 'checked' : '' %>>
+        </div>
+      </div>
+      <div class="d-flex justify-content-end mt-3">
+        <button type="submit" class="btn btn-save"><i class="fas fa-save me-2"></i>Enregistrer les préférences</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── COMPTE ── -->
+<div class="settings-card">
+  <div class="settings-card-header">
+    <div class="icon-wrap" style="background:#fff7ed;color:#f97316;"><i class="fas fa-user-cog"></i></div>
+    <div><h6>Informations du compte</h6><p>Détails techniques de votre compte AideSync</p></div>
+  </div>
+  <div class="settings-card-body">
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <small class="form-label">Email de connexion</small>
+        <p style="font-weight:700;color:#1e293b;margin:0;font-size:0.9rem;"><%= prestataire.email %></p>
+      </div>
+      <div class="col-md-4 mb-3">
+        <small class="form-label">Membre depuis</small>
+        <p style="font-weight:700;color:#1e293b;margin:0;font-size:0.9rem;">
+          <%= new Date(prestataire.date_creation).toLocaleDateString('fr-FR', {day:'numeric',month:'long',year:'numeric'}) %>
+        </p>
+      </div>
+      <div class="col-md-4 mb-3">
+        <small class="form-label">Statut du compte</small>
+        <p style="margin:0;">
+          <% if (prestataire.statut_actif) { %>
+            <span style="background:#dcfce7;color:#16a34a;padding:0.2rem 0.65rem;border-radius:20px;font-size:0.78rem;font-weight:700;">
+              <i class="fas fa-circle me-1" style="font-size:0.55rem;"></i>Actif
+            </span>
+          <% } else { %>
+            <span style="background:#fef2f2;color:#dc2626;padding:0.2rem 0.65rem;border-radius:20px;font-size:0.78rem;font-weight:700;">Inactif</span>
+          <% } %>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ZONE DANGER ── -->
+<div class="settings-card" style="border:1.5px solid #fecaca;">
+  <div class="settings-card-header" style="background:#fef2f2;">
+    <div class="icon-wrap" style="background:#fee2e2;color:#dc2626;"><i class="fas fa-exclamation-triangle"></i></div>
+    <div><h6 style="color:#dc2626;">Zone de danger</h6><p>Actions irréversibles sur votre compte</p></div>
+  </div>
+  <div class="settings-card-body">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div>
+        <p style="font-weight:600;color:#1e293b;margin:0 0 0.2rem;font-size:0.9rem;">Se déconnecter</p>
+        <p style="color:#94a3b8;font-size:0.78rem;margin:0;">Fermer la session en cours sur cet appareil</p>
+      </div>
+      <form method="POST" action="/auth/logout">
+        <button type="submit" class="btn-danger-soft"><i class="fas fa-sign-out-alt me-2"></i>Se déconnecter</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePwd(inputId, iconId) {
+  const input = document.getElementById(inputId);
+  const icon  = document.getElementById(iconId);
+  input.type  = input.type === 'password' ? 'text' : 'password';
+  icon.className = input.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+}
+function checkStrength(val) {
+  const bar  = document.getElementById('strengthBar');
+  const text = document.getElementById('strengthText');
+  let score  = 0;
+  if (val.length >= 8) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+  const levels = [
+    { w:'25%', c:'#ef4444', t:'Très faible' },
+    { w:'50%', c:'#f97316', t:'Faible' },
+    { w:'75%', c:'#eab308', t:'Moyen' },
+    { w:'100%', c:'#22c55e', t:'Fort' },
+  ];
+  const lvl = levels[Math.max(score - 1, 0)];
+  bar.style.width = val ? lvl.w : '0%';
+  bar.style.background = lvl.c;
+  text.textContent = val ? lvl.t : '';
+  text.style.color = lvl.c;
+}
+</script>

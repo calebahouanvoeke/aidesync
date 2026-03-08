@@ -1,7 +1,7 @@
+<%- contentFor('body') %>
+
 <style>
   .planning-header { margin-bottom: 1.5rem; }
-
-  /* ─── NAV SEMAINE ─── */
   .week-nav {
     background: #fff; border-radius: 16px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.06);
@@ -18,8 +18,6 @@
   .week-nav-btn.today-btn { background: linear-gradient(135deg,#667eea,#764ba2); border-color: transparent; color: #fff; }
   .week-range { font-weight: 700; font-size: 1rem; color: #1e293b; text-align: center; flex: 1; }
   .week-range small { display: block; font-size: 0.72rem; color: #94a3b8; font-weight: 400; margin-top: 2px; }
-
-  /* ─── CARTES JOUR ─── */
   .day-col { margin-bottom: 1.25rem; }
   .day-card {
     border-radius: 14px; border: 1.5px solid #e2e8f0; background: #fff;
@@ -28,15 +26,13 @@
   }
   .day-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
   .day-card.is-today { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.12); }
-  .day-card.is-past { background: #fafafa; opacity: 0.75; }
-
+  .day-card.is-past { background: #fafafa; opacity: 0.72; }
   .day-header {
     padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9;
     display: flex; align-items: center; justify-content: space-between;
     border-radius: 13px 13px 0 0;
   }
   .day-header.is-today { background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.05)); }
-
   .day-name { font-weight: 700; font-size: 0.85rem; color: #475569; text-transform: uppercase; letter-spacing: 0.04em; }
   .day-name.is-today { color: #667eea; }
   .day-date-num {
@@ -45,10 +41,7 @@
   }
   .day-date-num.is-today { background: linear-gradient(135deg,#667eea,#764ba2); color: #fff; }
   .day-date-num.is-past { color: #94a3b8; }
-
   .day-body { padding: 0.75rem; min-height: 80px; }
-
-  /* ─── INTERVENTION ITEM ─── */
   .intervention-item {
     border-radius: 10px; padding: 0.65rem 0.75rem; margin-bottom: 0.5rem;
     border-left: 3px solid #667eea; background: #f8fafc;
@@ -56,12 +49,10 @@
   }
   .intervention-item:hover { transform: translateX(2px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
   .intervention-item:last-child { margin-bottom: 0; }
-
   .int-time { font-size: 0.72rem; font-weight: 600; color: #667eea; margin-bottom: 0.2rem; }
   .int-client { font-size: 0.88rem; font-weight: 700; color: #1e293b; }
   .int-service { font-size: 0.72rem; color: #64748b; margin-top: 0.1rem; }
   .int-ville { font-size: 0.7rem; color: #94a3b8; margin-top: 0.1rem; display: flex; align-items: center; gap: 0.25rem; }
-
   .int-actions { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
   .int-btn {
     font-size: 0.7rem; padding: 0.2rem 0.55rem; border-radius: 6px;
@@ -72,13 +63,11 @@
   .int-btn-done:hover { background: #22c55e; color: #fff; }
   .int-btn-del  { border-color: #ef4444; color: #ef4444; }
   .int-btn-del:hover  { background: #ef4444; color: #fff; }
-
   .badge-effectuee {
     font-size: 0.68rem; padding: 0.2rem 0.55rem; border-radius: 20px;
     background: #dcfce7; color: #16a34a; font-weight: 600;
     display: inline-flex; align-items: center; gap: 0.25rem;
   }
-
   .empty-day {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     padding: 1.25rem 0.5rem; color: #cbd5e1; gap: 0.4rem;
@@ -91,8 +80,11 @@
     transition: background 0.15s;
   }
   .empty-day a:hover { background: rgba(102,126,234,0.15); }
-
-  /* ─── STATS MINI ─── */
+  .btn-plan-past {
+    font-size: 0.75rem; color: #94a3b8; background: #f1f5f9;
+    border-radius: 20px; padding: 0.2rem 0.7rem;
+    cursor: not-allowed; border: none; display: inline-block;
+  }
   .week-stats {
     display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;
   }
@@ -112,7 +104,8 @@
     <h1 class="h3 mb-0 fw-bold"><i class="fas fa-calendar-alt me-2 text-primary"></i>Planning</h1>
     <small class="text-muted" id="currentWeekLabel"></small>
   </div>
-  <a href="/interventions/create" class="btn btn-primary" style="border-radius:10px;padding:0.6rem 1.25rem;background:linear-gradient(135deg,#667eea,#764ba2);border:none;">
+  <a href="/interventions/create" class="btn btn-primary"
+     style="border-radius:10px;padding:0.6rem 1.25rem;background:linear-gradient(135deg,#667eea,#764ba2);border:none;">
     <i class="fas fa-plus me-2"></i>Nouvelle intervention
   </a>
 </div>
@@ -121,15 +114,15 @@
 <div class="week-stats">
   <div class="stat-chip">
     <i class="fas fa-calendar-check"></i>
-    <div><div class="stat-num" id="statTotal"><%= interventions.length %></div><div class="stat-label">Cette semaine</div></div>
+    <div><div class="stat-num"><%= interventions.length %></div><div class="stat-label">Cette semaine</div></div>
   </div>
   <div class="stat-chip">
     <i class="fas fa-check-circle" style="color:#22c55e;"></i>
-    <div><div class="stat-num" id="statDone"><%= interventions.filter(i => i.statut === 'effectuee').length %></div><div class="stat-label">Effectuées</div></div>
+    <div><div class="stat-num"><%= interventions.filter(i => i.statut === 'effectuee').length %></div><div class="stat-label">Effectuées</div></div>
   </div>
   <div class="stat-chip">
     <i class="fas fa-clock" style="color:#f59e0b;"></i>
-    <div><div class="stat-num" id="statPending"><%= interventions.filter(i => i.statut === 'planifiee').length %></div><div class="stat-label">À venir</div></div>
+    <div><div class="stat-num"><%= interventions.filter(i => i.statut === 'planifiee').length %></div><div class="stat-label">À venir</div></div>
   </div>
 </div>
 
@@ -155,57 +148,74 @@
 <!-- GRILLE DES JOURS -->
 <div class="row" id="planning-grid">
   <%
-  const jours     = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-  const joursLong = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+    const joursLong = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+    const startYear  = startOfWeek.getFullYear();
+    const startMonth = startOfWeek.getMonth();
+    const startDay   = startOfWeek.getDate();
 
-  const startYear  = startOfWeek.getFullYear();
-  const startMonth = startOfWeek.getMonth();
-  const startDay   = startOfWeek.getDate();
+    for (let i = 0; i < 7; i++) {
+      const jourDate = new Date(startYear, startMonth, startDay + i);
+      const yyyy = jourDate.getFullYear();
+      const mm   = String(jourDate.getMonth() + 1).padStart(2, '0');
+      const dd   = String(jourDate.getDate()).padStart(2, '0');
+      const dateStr = `${yyyy}-${mm}-${dd}`;
 
-  for (let i = 0; i < 7; i++) {
-    const jourDate = new Date(startYear, startMonth, startDay + i);
-    const yyyy = jourDate.getFullYear();
-    const mm   = String(jourDate.getMonth() + 1).padStart(2, '0');
-    const dd   = String(jourDate.getDate()).padStart(2, '0');
-    const dateStr = `${yyyy}-${mm}-${dd}`;
-
-    const interventionsDuJour = interventions.filter(int => {
-      const d = new Date(int.date_intervention);
-      return d.getFullYear() === jourDate.getFullYear() &&
-             d.getMonth()    === jourDate.getMonth() &&
-             d.getDate()     === jourDate.getDate();
-    });
+      const interventionsDuJour = interventions.filter(int => {
+        const d = new Date(int.date_intervention);
+        return d.getFullYear() === jourDate.getFullYear()
+            && d.getMonth()    === jourDate.getMonth()
+            && d.getDate()     === jourDate.getDate();
+      });
   %>
   <div class="col-lg-4 col-md-6 day-col" data-date="<%= dateStr %>">
     <div class="day-card">
       <div class="day-header">
         <div>
           <div class="day-name"><%= joursLong[i] %></div>
-          <div style="font-size:0.72rem;color:#94a3b8;"><%= jourDate.toLocaleDateString('fr-FR',{day:'numeric',month:'long'}) %></div>
+          <div style="font-size:0.72rem;color:#94a3b8;">
+            <%= jourDate.toLocaleDateString('fr-FR',{day:'numeric',month:'long'}) %>
+          </div>
         </div>
         <div class="day-date-num"><%= jourDate.getDate() %></div>
       </div>
+
       <div class="day-body">
         <% if (interventionsDuJour.length > 0) { %>
           <% interventionsDuJour.forEach(intervention => { %>
-            <div class="intervention-item" style="border-left-color:<%= intervention.couleur || '#667eea' %>">
+            <div class="intervention-item"
+                 style="border-left-color:<%= intervention.couleur || '#667eea' %>">
               <div class="int-time">
-                <i class="fas fa-clock me-1"></i><%= intervention.heure_debut.slice(0,5) %> → <%= intervention.heure_fin.slice(0,5) %>
+                <i class="fas fa-clock me-1"></i>
+                <%= intervention.heure_debut.slice(0,5) %> → <%= intervention.heure_fin.slice(0,5) %>
               </div>
-              <div class="int-client"><%= intervention.client_prenom %> <%= intervention.client_nom %></div>
-              <div class="int-service"><i class="fas <%= intervention.icone || 'fa-star' %> me-1" style="color:<%= intervention.couleur || '#667eea' %>"></i><%= intervention.type_service_nom %></div>
-              <div class="int-ville"><i class="fas fa-map-marker-alt"></i><%= intervention.ville %></div>
+              <div class="int-client">
+                <%= intervention.client_prenom %> <%= intervention.client_nom %>
+              </div>
+              <div class="int-service">
+                <i class="fas <%= intervention.icone || 'fa-star' %> me-1"
+                   style="color:<%= intervention.couleur || '#667eea' %>"></i>
+                <%= intervention.type_service_nom %>
+              </div>
+              <% if (intervention.ville) { %>
+                <div class="int-ville">
+                  <i class="fas fa-map-marker-alt"></i><%= intervention.ville %>
+                </div>
+              <% } %>
               <div class="int-actions">
                 <% if (intervention.statut === 'planifiee') { %>
-                  <button class="int-btn int-btn-done" onclick="markAsDone(<%= intervention.id %>)">
+                  <button class="int-btn int-btn-done"
+                          onclick="markAsDone(<%= intervention.id %>)">
                     <i class="fas fa-check"></i> Effectuée
                   </button>
+                  <button class="int-btn int-btn-del"
+                          onclick="deleteIntervention(<%= intervention.id %>)">
+                    <i class="fas fa-trash"></i>
+                  </button>
                 <% } else { %>
-                  <span class="badge-effectuee"><i class="fas fa-check-circle"></i> Effectuée</span>
+                  <span class="badge-effectuee">
+                    <i class="fas fa-check-circle"></i> Effectuée
+                  </span>
                 <% } %>
-                <button class="int-btn int-btn-del" onclick="deleteIntervention(<%= intervention.id %>)">
-                  <i class="fas fa-trash"></i>
-                </button>
               </div>
             </div>
           <% }) %>
@@ -213,7 +223,11 @@
           <div class="empty-day">
             <i class="fas fa-calendar-times"></i>
             <span>Aucune intervention</span>
-            <a href="/interventions/create?date=<%= dateStr %>">+ Planifier</a>
+            <span class="plan-link-wrapper" data-date="<%= dateStr %>">
+              <a href="/interventions/create?date=<%= dateStr %>" class="plan-link">
+                + Planifier
+              </a>
+            </span>
           </div>
         <% } %>
       </div>
@@ -223,33 +237,55 @@
 </div>
 
 <script>
-// ─── HIGHLIGHT TODAY & PAST côté navigateur ───
+// ─── DONNÉES DE SEMAINE INJECTÉES PAR LE SERVEUR ─────────────────────────────
+const currentStart = {
+  y: <%= startOfWeek.getFullYear() %>,
+  m: <%= startOfWeek.getMonth() %>,
+  d: <%= startOfWeek.getDate() %>
+};
+const currentEnd = {
+  y: <%= endOfWeek.getFullYear() %>,
+  m: <%= endOfWeek.getMonth() %>,
+  d: <%= endOfWeek.getDate() %>
+};
+
+// ─── HIGHLIGHT TODAY / PAST + grisage bouton Planifier ───────────────────────
 (function() {
   const n = new Date();
-  const y = n.getFullYear(), m = String(n.getMonth()+1).padStart(2,'0'), d = String(n.getDate()).padStart(2,'0');
+  const y = n.getFullYear(),
+        m = String(n.getMonth()+1).padStart(2,'0'),
+        d = String(n.getDate()).padStart(2,'0');
   const todayStr = `${y}-${m}-${d}`;
 
   document.querySelectorAll('[data-date]').forEach(col => {
-    const date = col.dataset.date;
-    const card = col.querySelector('.day-card');
+    // Ignorer les wrappers plan-link-wrapper (ils ont aussi data-date)
+    if (!col.classList.contains('day-col')) return;
+
+    const date   = col.dataset.date;
+    const card   = col.querySelector('.day-card');
     const header = col.querySelector('.day-header');
-    const dayName = col.querySelector('.day-name');
-    const dayNum  = col.querySelector('.day-date-num');
+    const name   = col.querySelector('.day-name');
+    const num    = col.querySelector('.day-date-num');
 
     if (date === todayStr) {
-      card.classList.add('is-today');
-      header.classList.add('is-today');
-      dayName.classList.add('is-today');
-      dayNum.classList.add('is-today');
+      card  && card.classList.add('is-today');
+      header && header.classList.add('is-today');
+      name  && name.classList.add('is-today');
+      num   && num.classList.add('is-today');
     } else if (date < todayStr) {
-      card.classList.add('is-past');
-      dayNum.classList.add('is-past');
+      card && card.classList.add('is-past');
+      num  && num.classList.add('is-past');
+
+      // Griser le bouton "+ Planifier" pour les dates passées
+      const wrapper = col.querySelector('.plan-link-wrapper');
+      if (wrapper) {
+        wrapper.innerHTML = `<span class="btn-plan-past" title="Impossible de planifier dans le passé">+ Planifier</span>`;
+      }
     }
   });
 
-  // Label semaine courante
-  const start = document.querySelector('[data-date]');
-  const cols = document.querySelectorAll('[data-date]');
+  // Label "Semaine en cours"
+  const cols = document.querySelectorAll('.day-col[data-date]');
   if (cols.length) {
     const firstDate = cols[0].dataset.date;
     const lastDate  = cols[cols.length-1].dataset.date;
@@ -258,26 +294,31 @@
     document.getElementById('todayBtn').style.display = isCurrentWeek ? 'none' : '';
   }
 
-  // Formater le range
-  const sd = new Date(document.querySelector('[data-date]').dataset.date + 'T12:00:00');
-  const ed = new Date(document.querySelectorAll('[data-date]')[6].dataset.date + 'T12:00:00');
-  const opts = { day:'numeric', month:'long' };
-  document.getElementById('weekRangeText').textContent =
-    `${sd.toLocaleDateString('fr-FR', opts)} – ${ed.toLocaleDateString('fr-FR', opts)}`;
-  document.getElementById('weekRangeYear').textContent = sd.getFullYear();
+  // Range de la semaine affiché dans la nav
+  const allCols = document.querySelectorAll('.day-col[data-date]');
+  if (allCols.length) {
+    const sd = new Date(allCols[0].dataset.date + 'T12:00:00');
+    const ed = new Date(allCols[allCols.length-1].dataset.date + 'T12:00:00');
+    const opts = { day:'numeric', month:'long' };
+    document.getElementById('weekRangeText').textContent =
+      `${sd.toLocaleDateString('fr-FR', opts)} – ${ed.toLocaleDateString('fr-FR', opts)}`;
+    document.getElementById('weekRangeYear').textContent = sd.getFullYear();
+  }
 })();
 
-// ─── NAVIGATION ───
-const currentStart = {
-  y: <%= startOfWeek.getFullYear() %>,
-  m: <%= startOfWeek.getMonth() %>,
-  d: <%= startOfWeek.getDate() %>
-};
+// ─── NAVIGATION SEMAINE ───────────────────────────────────────────────────────
+function fmt(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
 
 function changeWeek(dir) {
+  // On part des dates exactes fournies par le serveur (startOfWeek / endOfWeek)
+  // et on ajoute ou retire 7 jours — évite tout bug de calcul de mois
   const s = new Date(currentStart.y, currentStart.m, currentStart.d + dir * 7);
-  const e = new Date(currentStart.y, currentStart.m, currentStart.d + dir * 7 + 6);
-  const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const e = new Date(currentEnd.y,   currentEnd.m,   currentEnd.d   + dir * 7);
   location.href = `/interventions?start=${fmt(s)}&end=${fmt(e)}`;
 }
 
@@ -285,16 +326,58 @@ function goToToday() {
   location.href = '/interventions';
 }
 
-// ─── ACTIONS ───
+// ─── MARQUER COMME EFFECTUÉE ──────────────────────────────────────────────────
 function markAsDone(id) {
-  if (!confirm('Marquer cette intervention comme effectuée ?')) return;
-  fetch(`/interventions/${id}/done`, { method:'POST', headers:{'Content-Type':'application/json'} })
-    .then(r => r.json()).then(d => { if (d.success) location.reload(); else alert('Erreur'); });
+  Swal.fire({
+    title: 'Marquer comme effectuée ?',
+    icon: 'question', showCancelButton: true,
+    confirmButtonColor: '#22c55e', cancelButtonColor: '#94a3b8',
+    confirmButtonText: '<i class="fas fa-check me-1"></i> Oui, terminer',
+    cancelButtonText: 'Annuler'
+  }).then(r => {
+    if (!r.isConfirmed) return;
+    fetch(`/interventions/${id}/done`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then(res => res.json())
+    .then(d => {
+      if (d.success) {
+        Swal.fire({ title: 'Terminée !', icon: 'success', timer: 1500, showConfirmButton: false })
+          .then(() => location.reload());
+      } else {
+        Swal.fire({ title: 'Erreur', text: d.message || 'Impossible de mettre à jour.', icon: 'error', confirmButtonColor: '#667eea' });
+      }
+    })
+    .catch(() => Swal.fire('Erreur', 'Problème de connexion au serveur.', 'error'));
+  });
 }
 
+// ─── SUPPRIMER ────────────────────────────────────────────────────────────────
 function deleteIntervention(id) {
-  if (!confirm('Supprimer cette intervention définitivement ?')) return;
-  fetch(`/interventions/${id}`, { method:'DELETE', headers:{'Content-Type':'application/json'} })
-    .then(r => r.json()).then(d => { if (d.success) location.reload(); else alert('Erreur'); });
+  Swal.fire({
+    title: 'Supprimer cette intervention ?',
+    text: 'Cette action est irréversible.',
+    icon: 'warning', showCancelButton: true,
+    confirmButtonColor: '#ef4444', cancelButtonColor: '#94a3b8',
+    confirmButtonText: '<i class="fas fa-trash me-1"></i> Supprimer',
+    cancelButtonText: 'Annuler'
+  }).then(r => {
+    if (!r.isConfirmed) return;
+    fetch(`/interventions/${id}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then(res => res.json())
+    .then(d => {
+      if (d.success) {
+        Swal.fire({ title: 'Supprimée !', icon: 'success', timer: 1500, showConfirmButton: false })
+          .then(() => location.reload());
+      } else {
+        Swal.fire({ title: 'Impossible de supprimer', text: d.message || 'Une erreur est survenue.', icon: 'error', confirmButtonColor: '#667eea' });
+      }
+    })
+    .catch(() => Swal.fire('Erreur', 'Problème de connexion au serveur.', 'error'));
+  });
 }
 </script>

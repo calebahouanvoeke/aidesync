@@ -1,55 +1,61 @@
 // ============================================================
-// MIDDLEWARE D'AUTHENTIFICATION
+// MIDDLEWARE AUTH RENFORCÉ — src/middlewares/auth.js
+// Remplace le fichier existant
 // ============================================================
 
-/**
- * Vérifier que l'utilisateur est connecté
- */
-function isAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  req.flash('error', 'Vous devez être connecté pour accéder à cette page');
-  res.redirect('/auth/login');
-}
-
-/**
- * Vérifier que l'utilisateur n'est PAS connecté (pour login/register)
- */
-function isGuest(req, res, next) {
-  if (!req.isAuthenticated()) {
-    return next();
-  }
-  res.redirect('/dashboard');
-}
-
-/**
- * Vérifier qu'une ressource appartient bien au prestataire connecté
- */
-function checkOwnership(Model, paramName = 'id') {
-  return async (req, res, next) => {
-    try {
-      const resourceId = req.params[paramName];
-      const prestataireId = req.user.id;
-
-      const belongs = await Model.belongsToPrestataire(resourceId, prestataireId);
-      
-      if (!belongs) {
-        req.flash('error', 'Accès non autorisé');
-        return res.redirect('/dashboard');
-      }
-
-      next();
-    } catch (error) {
-      console.error('Erreur checkOwnership:', error);
-      req.flash('error', 'Une erreur est survenue');
-      res.redirect('/dashboard');
+// ─────────────────────────────────────────────────────────────
+// Vérifie que l'utilisateur est connecté
+// ─────────────────────────────────────────────────────────────
+exports.isAuthenticated = (req, res, next) => {
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    // Régénérer l'ID de session périodiquement (anti-fixation)
+    if (!req.session.lastRegen || Date.now() - req.session.lastRegen > 30 * 60 * 1000) {
+      const userData = req.user;
+      req.session.regenerate((err) => {
+        if (err) {
+          console.error('Erreur régénération session:', err);
+          return next();
+        }
+        req.session.lastRegen = Date.now();
+        req.session.passport  = { user: userData.id };
+        next();
+      });
+      return;
     }
-  };
-}
+    return next();
+  }
 
-module.exports = {
-  isAuthenticated,
-  isGuest,
-  checkOwnership
+  // Mémoriser l'URL demandée pour redirection post-login
+  if (req.method === 'GET') {
+    req.session.returnTo = req.originalUrl;
+  }
+
+  if (req.xhr || req.headers.accept?.includes('application/json')) {
+    return res.status(401).json({ success: false, message: 'Non authentifié' });
+  }
+
+  req.flash('error', 'Veuillez vous connecter pour accéder à cette page');
+  res.redirect('/auth/login');
+};
+
+// ─────────────────────────────────────────────────────────────
+// Vérifie que l'utilisateur N'est PAS connecté (pages login/register)
+// ─────────────────────────────────────────────────────────────
+exports.isGuest = (req, res, next) => {
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    return res.redirect('/dashboard');
+  }
+  next();
+};
+
+// ─────────────────────────────────────────────────────────────
+// Vérifie que le compte est actif
+// ─────────────────────────────────────────────────────────────
+exports.isActive = (req, res, next) => {
+  if (!req.user || req.user.statut_actif === false) {
+    req.logout?.(() => {});
+    req.flash('error', 'Votre compte a été désactivé. Contactez le support.');
+    return res.redirect('/auth/login');
+  }
+  next();
 };

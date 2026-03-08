@@ -139,6 +139,43 @@ class Intervention {
     }
   }
 
+
+  /**
+   * Vérifier si une intervention chevauche une existante
+   * Retourne l'intervention en conflit ou null
+   */
+  static async checkOverlap({ prestataire_id, date_intervention, heure_debut, heure_fin, exclude_id = null }) {
+    try {
+      const { query } = require('../config/database');
+
+      const sql = `
+        SELECT i.*,
+          c.prenom AS client_prenom,
+          c.nom    AS client_nom
+        FROM interventions i
+        JOIN clients c ON i.client_id = c.id
+        WHERE i.prestataire_id = $1
+          AND i.date_intervention::date = $2::date
+          AND i.statut != 'annulee'
+          AND (
+            (i.heure_debut < $4::time AND i.heure_fin > $3::time)
+          )
+          ${exclude_id ? 'AND i.id != $5' : ''}
+        LIMIT 1
+      `;
+
+      const params = exclude_id
+        ? [prestataire_id, date_intervention, heure_debut, heure_fin, exclude_id]
+        : [prestataire_id, date_intervention, heure_debut, heure_fin];
+
+      const result = await query(sql, params);
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Erreur checkOverlap:', error);
+      return null; // En cas d'erreur, on ne bloque pas
+    }
+  }
+
   static async markAsDone(id, notes = null) {
     try {
       const result = await query(

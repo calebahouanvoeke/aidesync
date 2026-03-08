@@ -292,6 +292,29 @@ class Prestataire {
   }
 
   /**
+   * Mettre à jour les préférences de notifications
+   */
+  static async updateNotifications(id, prefs) {
+    try {
+      const { query } = require('../config/database');
+      const result = await query(
+        `UPDATE prestataires
+         SET notif_intervention = $1,
+             notif_rappel       = $2,
+             notif_paiement     = $3,
+             notif_retard       = $4
+         WHERE id = $5
+         RETURNING id, notif_intervention, notif_rappel, notif_paiement, notif_retard`,
+        [prefs.notif_intervention, prefs.notif_rappel, prefs.notif_paiement, prefs.notif_retard, id]
+      );
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Erreur updateNotifications:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Obtenir l'évolution mensuelle (12 derniers mois)
    */
   static async getMonthlyEvolution(prestataire_id) {
@@ -316,5 +339,8 @@ class Prestataire {
     }
   }
 }
+
+
+
 
 module.exports = Prestataire;

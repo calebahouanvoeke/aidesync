@@ -1,0 +1,198 @@
+<%- contentFor('body') %>
+
+<style>
+  :root {
+    --grad: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --shadow-md: 0 4px 24px rgba(0,0,0,0.09);
+    --radius: 16px;
+  }
+  .profil-hero {
+    background: var(--grad);
+    border-radius: var(--radius);
+    padding: 2.5rem 2rem 4rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: -2.5rem;
+  }
+  .profil-hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 50%;
+  }
+  .profil-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: -30px;
+    width: 250px; height: 250px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+  }
+  .avatar-circle {
+    width: 80px; height: 80px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; font-weight: 900; color: white;
+    border: 3px solid rgba(255,255,255,0.4);
+    margin-bottom: 1rem;
+    backdrop-filter: blur(10px);
+  }
+  .profil-card {
+    border-radius: var(--radius); border: none;
+    box-shadow: var(--shadow-md); background: #fff;
+    padding: 2rem;
+    position: relative; z-index: 1;
+  }
+  .form-label {
+    font-size: 0.78rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: #94a3b8; margin-bottom: 0.4rem;
+  }
+  .form-control {
+    border-radius: 10px; border: 1.5px solid #e2e8f0;
+    padding: 0.65rem 1rem; font-size: 0.92rem;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+    outline: none;
+  }
+  .section-title {
+    font-size: 0.72rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: #667eea; margin-bottom: 1.2rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #f0f4ff;
+  }
+  .btn-save {
+    background: var(--grad); border: none; color: white;
+    border-radius: 10px; padding: 0.65rem 1.75rem;
+    font-weight: 700; font-size: 0.9rem;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .btn-save:hover { opacity: 0.92; transform: translateY(-1px); color: white; }
+  .info-badge {
+    background: #f0f4ff; color: #667eea;
+    border-radius: 8px; padding: 0.25rem 0.65rem;
+    font-size: 0.75rem; font-weight: 600;
+  }
+</style>
+
+<!-- Hero -->
+<div class="profil-hero">
+  <div class="avatar-circle">
+    <%= prestataire.prenom ? prestataire.prenom[0].toUpperCase() : '' %><%= prestataire.nom ? prestataire.nom[0].toUpperCase() : '' %>
+  </div>
+  <h2 style="font-weight:900;margin:0 0 0.25rem;"><%= prestataire.prenom %> <%= prestataire.nom %></h2>
+  <p style="opacity:0.8;margin:0;font-size:0.9rem;"><%= prestataire.email %></p>
+  <% if (prestataire.ville) { %>
+    <p style="opacity:0.65;margin:0.25rem 0 0;font-size:0.82rem;"><i class="fas fa-map-marker-alt me-1"></i><%= prestataire.ville %></p>
+  <% } %>
+</div>
+
+<!-- Alerts -->
+<div style="padding: 0 0 1.5rem;">
+  <% if (success && success.length > 0) { %>
+    <div class="alert alert-success d-flex align-items-center gap-2" style="border-radius:12px;border:none;background:#dcfce7;color:#16a34a;font-size:0.88rem;margin-top:3.5rem;">
+      <i class="fas fa-check-circle"></i> <%= success[0] %>
+    </div>
+  <% } %>
+  <% if (error && error.length > 0) { %>
+    <div class="alert alert-danger d-flex align-items-center gap-2" style="border-radius:12px;border:none;background:#fef2f2;color:#dc2626;font-size:0.88rem;<%= (!success || success.length === 0) ? 'margin-top:3.5rem;' : '' %>">
+      <i class="fas fa-exclamation-circle"></i> <%= error[0] %>
+    </div>
+  <% } %>
+</div>
+
+<!-- Form Card -->
+<div class="profil-card">
+  <form method="POST" action="/profil">
+
+    <!-- Identité -->
+    <div class="section-title"><i class="fas fa-user me-2"></i>Identité</div>
+    <div class="row mb-3">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Prénom</label>
+        <input type="text" name="prenom" class="form-control" value="<%= prestataire.prenom || '' %>" required>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Nom</label>
+        <input type="text" name="nom" class="form-control" value="<%= prestataire.nom || '' %>" required>
+      </div>
+    </div>
+
+    <div class="row mb-4">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Email</label>
+        <div style="position:relative;">
+          <input type="email" class="form-control" value="<%= prestataire.email %>" disabled style="background:#f8fafc;padding-right:4rem;">
+          <span class="info-badge" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);">Fixe</span>
+        </div>
+        <small style="color:#94a3b8;font-size:0.72rem;">L'email ne peut pas être modifié</small>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Téléphone</label>
+        <input type="tel" name="telephone" class="form-control" value="<%= prestataire.telephone || '' %>">
+      </div>
+    </div>
+
+    <!-- Entreprise -->
+    <div class="section-title"><i class="fas fa-briefcase me-2"></i>Entreprise</div>
+    <div class="row mb-4">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">SIRET</label>
+        <input type="text" name="siret" class="form-control" value="<%= prestataire.siret || '' %>" placeholder="Ex: 12345678901234" maxlength="14">
+      </div>
+    </div>
+
+    <!-- Adresse -->
+    <div class="section-title"><i class="fas fa-map-marker-alt me-2"></i>Adresse</div>
+    <div class="row mb-4">
+      <div class="col-12 mb-3">
+        <label class="form-label">Adresse</label>
+        <input type="text" name="adresse" class="form-control" value="<%= prestataire.adresse || '' %>" placeholder="Numéro et rue">
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Code postal</label>
+        <input type="text" name="code_postal" class="form-control" value="<%= prestataire.code_postal || '' %>" maxlength="5">
+      </div>
+      <div class="col-md-8 mb-3">
+        <label class="form-label">Ville</label>
+        <input type="text" name="ville" class="form-control" value="<%= prestataire.ville || '' %>">
+      </div>
+    </div>
+
+    <!-- Infos compte -->
+    <div class="section-title"><i class="fas fa-info-circle me-2"></i>Informations du compte</div>
+    <div class="row mb-4">
+      <div class="col-md-6 mb-2">
+        <small style="color:#94a3b8;font-size:0.78rem;">Membre depuis</small>
+        <p style="font-weight:700;color:#1e293b;margin:0;">
+          <%= new Date(prestataire.date_creation).toLocaleDateString('fr-FR', {day:'numeric',month:'long',year:'numeric'}) %>
+        </p>
+      </div>
+      <div class="col-md-6 mb-2">
+        <small style="color:#94a3b8;font-size:0.78rem;">Dernière connexion</small>
+        <p style="font-weight:700;color:#1e293b;margin:0;">
+          <% if (prestataire.derniere_connexion) { %>
+            <%= new Date(prestataire.derniere_connexion).toLocaleDateString('fr-FR', {day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}) %>
+          <% } else { %>
+            —
+          <% } %>
+        </p>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end">
+      <button type="submit" class="btn btn-save">
+        <i class="fas fa-save me-2"></i>Enregistrer les modifications
+      </button>
+    </div>
+
+  </form>
+</div>

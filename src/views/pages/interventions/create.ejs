@@ -1,3 +1,5 @@
+<%- contentFor('body') %>
+
 <div class="mb-4">
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -8,13 +10,39 @@
   </nav>
 </div>
 
+<%
+  const flashErrors   = errors   || [];
+  const flashWarnings = warnings || [];
+  const chevauchement = formData && formData.chevauchement_detecte === '1';
+%>
+
+<% if (flashErrors.length > 0) { %>
+  <div class="alert d-flex align-items-start gap-2 mb-3"
+       style="border-radius:14px;border:none;background:#fef2f2;color:#dc2626;font-size:0.9rem;padding:1rem 1.25rem;">
+    <i class="fas fa-exclamation-circle mt-1"></i>
+    <div>
+      <strong>Impossible de créer l'intervention</strong><br>
+      <span><%= flashErrors[0] %></span>
+    </div>
+  </div>
+<% } %>
+
+<% if (flashWarnings.length > 0) { %>
+  <div class="alert d-flex align-items-start gap-2 mb-3"
+       style="border-radius:14px;border:none;background:#fffbeb;color:#92400e;font-size:0.9rem;padding:1rem 1.25rem;border-left:4px solid #f59e0b;">
+    <i class="fas fa-exclamation-triangle mt-1" style="color:#f59e0b;"></i>
+    <div>
+      <strong>Chevauchement détecté</strong><br>
+      <span><%= flashWarnings[0] %></span><br>
+      <small style="opacity:0.75;">Vous pouvez forcer la création en cochant la case ci-dessous.</small>
+    </div>
+  </div>
+<% } %>
+
 <style>
-  /* ─── BASE ─── */
   .form-card { border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.07); border: none; }
   .form-card .card-header { padding: 1.5rem 2rem; border-bottom: 1px solid #f1f5f9; }
   .form-card .card-body { padding: 2rem; }
-
-  /* ─── CUSTOM SELECT ─── */
   .custom-select-wrapper { position: relative; }
   .custom-select-display {
     background: #fff; border: 2px solid #e2e8f0; border-radius: 12px;
@@ -28,7 +56,6 @@
   .custom-select-display .cs-label { font-size: 0.68rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
   .custom-select-display .cs-value { font-size: 0.95rem; font-weight: 600; color: #1e293b; }
   .custom-select-display .cs-value.placeholder { color: #94a3b8; font-weight: 400; }
-
   .custom-select-dropdown {
     position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 1000;
     background: #fff; border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,0.12);
@@ -37,31 +64,15 @@
     transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .custom-select-dropdown.open { opacity: 1; transform: translateY(0); pointer-events: all; }
-
-  .cs-search {
-    padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9;
-    display: flex; align-items: center; gap: 0.5rem;
-  }
-  .cs-search input {
-    border: none; outline: none; flex: 1; font-size: 0.88rem; color: #1e293b;
-    background: transparent;
-  }
+  .cs-search { padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 0.5rem; }
+  .cs-search input { border: none; outline: none; flex: 1; font-size: 0.88rem; color: #1e293b; background: transparent; }
   .cs-search i { color: #94a3b8; font-size: 0.85rem; }
-
   .cs-options { overflow-y: auto; max-height: 220px; }
-  .cs-option {
-    padding: 0.7rem 1rem; cursor: pointer; font-size: 0.9rem; color: #475569;
-    transition: background 0.12s; display: flex; align-items: center; gap: 0.6rem;
-  }
+  .cs-option { padding: 0.7rem 1rem; cursor: pointer; font-size: 0.9rem; color: #475569; transition: background 0.12s; display: flex; align-items: center; gap: 0.6rem; }
   .cs-option:hover { background: #f8fafc; color: #1e293b; }
   .cs-option.selected { background: #ede9fe; color: #667eea; font-weight: 600; }
-  .cs-option .cs-opt-badge {
-    font-size: 0.68rem; padding: 0.15rem 0.5rem; border-radius: 20px;
-    background: #e2e8f0; color: #64748b; margin-left: auto;
-  }
+  .cs-option .cs-opt-badge { font-size: 0.68rem; padding: 0.15rem 0.5rem; border-radius: 20px; background: #e2e8f0; color: #64748b; margin-left: auto; }
   .cs-empty { padding: 1.5rem; text-align: center; color: #94a3b8; font-size: 0.88rem; }
-
-  /* ─── DATE PICKER ─── */
   .picker-wrapper { position: relative; }
   .date-picker-display {
     background: #fff; border: 2px solid #e2e8f0; border-radius: 12px;
@@ -75,7 +86,6 @@
   .date-picker-display .dp-label { font-size: 0.68rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
   .date-picker-display .dp-value { font-size: 0.95rem; font-weight: 600; color: #1e293b; }
   .date-picker-display .dp-value.placeholder { color: #94a3b8; font-weight: 400; }
-
   .calendar-dropdown {
     position: absolute; top: calc(100% + 6px); left: 0; z-index: 1000;
     background: #fff; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.12);
@@ -84,33 +94,20 @@
     transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .calendar-dropdown.open { opacity: 1; transform: translateY(0); pointer-events: all; }
-
   .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-  .cal-nav {
-    background: none; border: none; width: 30px; height: 30px; border-radius: 8px;
-    cursor: pointer; color: #475569; display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s;
-  }
+  .cal-nav { background: none; border: none; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; color: #475569; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
   .cal-nav:hover:not(:disabled) { background: #f1f5f9; }
   .cal-nav:disabled { opacity: 0.3; cursor: not-allowed; }
   .cal-month-year { font-weight: 700; font-size: 0.93rem; color: #1e293b; }
-
   .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 0.4rem; }
   .cal-weekday { text-align: center; font-size: 0.67rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; padding: 0.2rem 0; }
-
   .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-  .cal-day {
-    aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-    border-radius: 8px; font-size: 0.83rem; cursor: pointer; color: #475569;
-    transition: all 0.12s; border: none; background: none;
-  }
+  .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 0.83rem; cursor: pointer; color: #475569; transition: all 0.12s; border: none; background: none; position: relative; }
   .cal-day:hover:not(.empty):not(.selected):not(.past) { background: #f1f5f9; }
   .cal-day.today { color: #667eea; font-weight: 700; border: 1.5px solid #667eea; }
   .cal-day.selected { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff !important; font-weight: 700; border: none; }
   .cal-day.past { color: #cbd5e1; cursor: not-allowed; }
   .cal-day.empty { cursor: default; }
-
-  /* ─── TIME PICKER ─── */
   .time-picker-display {
     background: #fff; border: 2px solid #e2e8f0; border-radius: 12px;
     padding: 0.75rem 1rem; cursor: pointer; transition: all 0.2s;
@@ -123,8 +120,6 @@
   .time-picker-display .tp-label { font-size: 0.68rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
   .time-picker-display .tp-value { font-size: 0.95rem; font-weight: 600; color: #1e293b; }
   .time-picker-display .tp-value.placeholder { color: #94a3b8; font-weight: 400; }
-  .time-picker-display.error-state { border-color: #ef4444; }
-
   .time-dropdown {
     position: absolute; top: calc(100% + 6px); left: 0; z-index: 1000;
     background: #fff; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.12);
@@ -133,82 +128,48 @@
     transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .time-dropdown.open { opacity: 1; transform: translateY(0); pointer-events: all; }
-
   .time-display-big {
     text-align: center; font-size: 2.8rem; font-weight: 800; color: #1e293b;
     letter-spacing: 0.04em; margin-bottom: 1rem;
-    background: #f8fafc; border-radius: 12px; padding: 0.5rem;
-    line-height: 1;
+    background: #f8fafc; border-radius: 12px; padding: 0.5rem; line-height: 1;
   }
   .time-display-big span.time-part { color: #667eea; }
-  .time-display-big .time-warn {
-    font-size: 0.65rem; font-weight: 500; color: #ef4444;
-    display: block; margin-top: 0.25rem; letter-spacing: 0;
+  .time-display-big .time-warn { font-size: 0.65rem; font-weight: 500; color: #ef4444; display: block; margin-top: 0.25rem; letter-spacing: 0; }
+  .overlap-badge {
+    display: none; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+    padding: 0.4rem 0.65rem; font-size: 0.72rem; color: #92400e;
+    margin-top: 0.5rem; text-align: center;
   }
-
+  .overlap-badge.show { display: block; }
   .time-sliders { display: flex; flex-direction: column; gap: 0.6rem; }
   .time-slider-row { display: flex; align-items: center; gap: 0.75rem; }
   .time-slider-label { font-size: 0.68rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; width: 18px; }
-
-  .time-slider {
-    -webkit-appearance: none; flex: 1; height: 5px; border-radius: 3px;
-    background: #e2e8f0; outline: none; cursor: pointer;
-  }
-  .time-slider::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 17px; height: 17px; border-radius: 50%;
-    background: linear-gradient(135deg, #667eea, #764ba2); cursor: pointer;
-    box-shadow: 0 2px 6px rgba(102,126,234,0.4); transition: transform 0.15s;
-  }
+  .time-slider { -webkit-appearance: none; flex: 1; height: 5px; border-radius: 3px; background: #e2e8f0; outline: none; cursor: pointer; }
+  .time-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 17px; height: 17px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); cursor: pointer; box-shadow: 0 2px 6px rgba(102,126,234,0.4); transition: transform 0.15s; }
   .time-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
   .time-slider:disabled { opacity: 0.4; cursor: not-allowed; }
-  .time-slider:disabled::-webkit-slider-thumb { cursor: not-allowed; }
-
   .time-quick-btns { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 0.75rem; }
-  .time-quick-btn {
-    font-size: 0.73rem; padding: 0.22rem 0.55rem; border-radius: 20px;
-    border: 1.5px solid #e2e8f0; background: none; color: #475569;
-    cursor: pointer; transition: all 0.15s;
-  }
+  .time-quick-btn { font-size: 0.73rem; padding: 0.22rem 0.55rem; border-radius: 20px; border: 1.5px solid #e2e8f0; background: none; color: #475569; cursor: pointer; transition: all 0.15s; }
   .time-quick-btn:hover:not(:disabled) { border-color: #667eea; color: #667eea; background: rgba(102,126,234,0.05); }
   .time-quick-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-  .time-confirm-btn {
-    width: 100%; margin-top: 0.75rem; padding: 0.6rem; border-radius: 10px;
-    border: none; background: linear-gradient(135deg, #667eea, #764ba2);
-    color: #fff; font-weight: 600; cursor: pointer; transition: opacity 0.15s; font-size: 0.88rem;
-  }
+  .time-confirm-btn { width: 100%; margin-top: 0.75rem; padding: 0.6rem; border-radius: 10px; border: none; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; font-weight: 600; cursor: pointer; transition: opacity 0.15s; font-size: 0.88rem; }
   .time-confirm-btn:hover { opacity: 0.88; }
   .time-confirm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  /* ─── NOTES ─── */
-  .notes-field {
-    border: 2px solid #e2e8f0; border-radius: 12px; padding: 0.75rem 1rem;
-    resize: vertical; transition: border-color 0.2s; outline: none; width: 100%;
-    font-size: 0.9rem; color: #1e293b; font-family: inherit; min-height: 90px;
-  }
+  .notes-field { border: 2px solid #e2e8f0; border-radius: 12px; padding: 0.75rem 1rem; resize: vertical; transition: border-color 0.2s; outline: none; width: 100%; font-size: 0.9rem; color: #1e293b; font-family: inherit; min-height: 90px; }
   .notes-field:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); }
   .notes-char-count { font-size: 0.7rem; color: #94a3b8; text-align: right; margin-top: 0.25rem; }
-
-  /* ─── SECTION DIVIDER ─── */
-  .section-label {
-    font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.08em; color: #94a3b8; margin-bottom: 0.75rem;
-    display: flex; align-items: center; gap: 0.5rem;
-  }
+  .section-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
   .section-label::after { content: ''; flex: 1; height: 1px; background: #f1f5f9; }
-
-  /* ─── ERROR HINT ─── */
   .field-error { font-size: 0.75rem; color: #ef4444; margin-top: 0.3rem; display: none; }
   .field-error.show { display: block; }
-
-  /* ─── SUBMIT BTN ─── */
-  .btn-submit-main {
-    background: linear-gradient(135deg, #667eea, #764ba2); border: none;
-    border-radius: 10px; padding: 0.75rem 2rem; font-weight: 600; color: #fff;
-    font-size: 0.95rem; cursor: pointer; transition: all 0.2s;
-    display: flex; align-items: center; gap: 0.5rem;
-  }
+  .btn-submit-main { background: linear-gradient(135deg, #667eea, #764ba2); border: none; border-radius: 10px; padding: 0.75rem 2rem; font-weight: 600; color: #fff; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
   .btn-submit-main:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(102,126,234,0.35); }
+  .overlap-inline {
+    display: none; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 12px;
+    padding: 0.85rem 1.1rem; margin-top: 0.75rem; font-size: 0.85rem; color: #92400e;
+    align-items: center; gap: 0.75rem;
+  }
+  .overlap-inline.show { display: flex; }
 </style>
 
 <div class="row">
@@ -226,7 +187,7 @@
       <div class="card-body">
         <form action="/interventions" method="POST" id="intervention-form" novalidate>
 
-          <!-- ── BÉNÉFICIAIRE ── -->
+          <!-- BÉNÉFICIAIRE -->
           <div class="section-label"><i class="fas fa-user"></i> Bénéficiaire</div>
           <div class="mb-4">
             <label class="form-label fw-semibold" style="font-size:0.88rem;">Client <span class="text-danger">*</span></label>
@@ -240,29 +201,26 @@
                 <i class="fas fa-chevron-down text-muted" style="font-size:0.8rem;"></i>
               </div>
               <div class="custom-select-dropdown" id="clientDropdown">
-                <div class="cs-search">
-                  <i class="fas fa-search"></i>
-                  <input type="text" placeholder="Rechercher..." id="clientSearch" oninput="filterOptions('client')">
-                </div>
+                <div class="cs-search"><i class="fas fa-search"></i><input type="text" placeholder="Rechercher..." id="clientSearch" oninput="filterOptions('client')"></div>
                 <div class="cs-options" id="clientOptions">
                   <% clients.forEach(client => { %>
-                    <div class="cs-option <%= formData.client_id == client.id ? 'selected' : '' %>"
+                    <div class="cs-option <%= formData && formData.client_id == client.id ? 'selected' : '' %>"
                          data-value="<%= client.id %>"
                          data-label="<%= client.prenom %> <%= client.nom %>"
                          onclick="selectOption('client', '<%= client.id %>', '<%= client.prenom %> <%= client.nom %>')">
                       <i class="fas fa-user-circle text-muted" style="font-size:0.9rem;"></i>
                       <span><%= client.prenom %> <%= client.nom %></span>
-                      <span class="cs-opt-badge"><%= client.ville %></span>
+                      <% if (client.ville) { %><span class="cs-opt-badge"><%= client.ville %></span><% } %>
                     </div>
                   <% }) %>
                 </div>
               </div>
             </div>
-            <input type="hidden" id="client_id" name="client_id" value="<%= formData.client_id || '' %>" required>
+            <input type="hidden" id="client_id" name="client_id" value="<%= (formData && formData.client_id) ? formData.client_id : '' %>" required>
             <div class="field-error" id="clientError">Veuillez sélectionner un client.</div>
           </div>
 
-          <!-- ── SERVICE ── -->
+          <!-- SERVICE -->
           <div class="section-label"><i class="fas fa-briefcase-medical"></i> Service</div>
           <div class="mb-4">
             <label class="form-label fw-semibold" style="font-size:0.88rem;">Type de service <span class="text-danger">*</span></label>
@@ -276,31 +234,25 @@
                 <i class="fas fa-chevron-down text-muted" style="font-size:0.8rem;"></i>
               </div>
               <div class="custom-select-dropdown" id="serviceDropdown">
-                <div class="cs-search">
-                  <i class="fas fa-search"></i>
-                  <input type="text" placeholder="Rechercher..." id="serviceSearch" oninput="filterOptions('service')">
-                </div>
+                <div class="cs-search"><i class="fas fa-search"></i><input type="text" placeholder="Rechercher..." id="serviceSearch" oninput="filterOptions('service')"></div>
                 <div class="cs-options" id="serviceOptions">
                   <% typesService.forEach(type => { %>
-                    <div class="cs-option <%= formData.type_service_id == type.id ? 'selected' : '' %>"
-                         data-value="<%= type.id %>"
-                         data-label="<%= type.nom %>"
-                         onclick="selectOption('service', '<%= type.id %>', '<%= type.nom.replace(/'/g, "\\'") %>')">
-                      <i class="fas <%= type.icone || 'fa-star' %>" style="color:<%= type.couleur || '#667eea' %>;font-size:0.9rem;"></i>
+                   <div class="cs-option ..."
+     data-value="<%= type.id %>"
+     data-label="<%= type.nom %>"
+     onclick="selectOption('service', this.dataset.value, this.dataset.label)">                                             <i class="fas <%= type.icone || 'fa-star' %>" style="color:<%= type.couleur || '#667eea' %>;font-size:0.9rem;"></i>
                       <span><%= type.nom %></span>
                     </div>
                   <% }) %>
                 </div>
               </div>
             </div>
-            <input type="hidden" id="type_service_id" name="type_service_id" value="<%= formData.type_service_id || '' %>" required>
+            <input type="hidden" id="type_service_id" name="type_service_id" value="<%= (formData && formData.type_service_id) ? formData.type_service_id : '' %>" required>
             <div class="field-error" id="serviceError">Veuillez sélectionner un type de service.</div>
           </div>
 
-          <!-- ── DATE & HEURES ── -->
+          <!-- DATE & HEURES -->
           <div class="section-label"><i class="fas fa-calendar-alt"></i> Date & Horaires</div>
-
-          <!-- DATE -->
           <div class="mb-3">
             <label class="form-label fw-semibold" style="font-size:0.88rem;">Date d'intervention <span class="text-danger">*</span></label>
             <div class="picker-wrapper">
@@ -327,7 +279,7 @@
                 <div class="cal-days" id="calDays"></div>
               </div>
             </div>
-            <input type="hidden" id="date_intervention" name="date_intervention" value="<%= formData.date_intervention || '' %>" required>
+            <input type="hidden" id="date_intervention" name="date_intervention" value="<%= (formData && formData.date_intervention) ? formData.date_intervention : '' %>" required>
             <div class="field-error" id="dateError">Veuillez choisir une date.</div>
           </div>
 
@@ -350,14 +302,8 @@
                     <span class="time-warn" id="debutWarn"></span>
                   </div>
                   <div class="time-sliders">
-                    <div class="time-slider-row">
-                      <span class="time-slider-label">H</span>
-                      <input type="range" class="time-slider" id="debutHSlider" min="0" max="23" value="8" oninput="updateTime('debut')">
-                    </div>
-                    <div class="time-slider-row">
-                      <span class="time-slider-label">M</span>
-                      <input type="range" class="time-slider" id="debutMSlider" min="0" max="55" step="5" value="0" oninput="updateTime('debut')">
-                    </div>
+                    <div class="time-slider-row"><span class="time-slider-label">H</span><input type="range" class="time-slider" id="debutHSlider" min="0" max="23" value="8" oninput="updateTime('debut')"></div>
+                    <div class="time-slider-row"><span class="time-slider-label">M</span><input type="range" class="time-slider" id="debutMSlider" min="0" max="55" step="5" value="0" oninput="updateTime('debut')"></div>
                   </div>
                   <div class="time-quick-btns" id="debutQuickBtns">
                     <button type="button" class="time-quick-btn" onclick="setQuickTime('debut','08:00')">08:00</button>
@@ -366,12 +312,11 @@
                     <button type="button" class="time-quick-btn" onclick="setQuickTime('debut','14:00')">14:00</button>
                     <button type="button" class="time-quick-btn" onclick="setQuickTime('debut','16:00')">16:00</button>
                   </div>
-                  <button type="button" class="time-confirm-btn" id="debutConfirmBtn" onclick="confirmTime('debut')">
-                    <i class="fas fa-check me-1"></i> Confirmer
-                  </button>
+                  <div class="overlap-badge" id="debutOverlapBadge"><i class="fas fa-exclamation-triangle me-1"></i><span id="debutOverlapText"></span></div>
+                  <button type="button" class="time-confirm-btn" id="debutConfirmBtn" onclick="confirmTime('debut')"><i class="fas fa-check me-1"></i> Confirmer</button>
                 </div>
               </div>
-              <input type="hidden" id="heure_debut" name="heure_debut" value="<%= formData.heure_debut || '' %>" required>
+              <input type="hidden" id="heure_debut" name="heure_debut" value="<%= (formData && formData.heure_debut) ? formData.heure_debut : '' %>" required>
               <div class="field-error" id="debutError">Veuillez choisir une heure de début valide.</div>
             </div>
 
@@ -392,14 +337,8 @@
                     <span class="time-warn" id="finWarn"></span>
                   </div>
                   <div class="time-sliders">
-                    <div class="time-slider-row">
-                      <span class="time-slider-label">H</span>
-                      <input type="range" class="time-slider" id="finHSlider" min="0" max="23" value="10" oninput="updateTime('fin')">
-                    </div>
-                    <div class="time-slider-row">
-                      <span class="time-slider-label">M</span>
-                      <input type="range" class="time-slider" id="finMSlider" min="0" max="55" step="5" value="0" oninput="updateTime('fin')">
-                    </div>
+                    <div class="time-slider-row"><span class="time-slider-label">H</span><input type="range" class="time-slider" id="finHSlider" min="0" max="23" value="10" oninput="updateTime('fin')"></div>
+                    <div class="time-slider-row"><span class="time-slider-label">M</span><input type="range" class="time-slider" id="finMSlider" min="0" max="55" step="5" value="0" oninput="updateTime('fin')"></div>
                   </div>
                   <div class="time-quick-btns" id="finQuickBtns">
                     <button type="button" class="time-quick-btn" onclick="setQuickTime('fin','10:00')">10:00</button>
@@ -408,32 +347,48 @@
                     <button type="button" class="time-quick-btn" onclick="setQuickTime('fin','17:00')">17:00</button>
                     <button type="button" class="time-quick-btn" onclick="setQuickTime('fin','18:00')">18:00</button>
                   </div>
-                  <button type="button" class="time-confirm-btn" id="finConfirmBtn" onclick="confirmTime('fin')">
-                    <i class="fas fa-check me-1"></i> Confirmer
-                  </button>
+                  <div class="overlap-badge" id="finOverlapBadge"><i class="fas fa-exclamation-triangle me-1"></i><span id="finOverlapText"></span></div>
+                  <button type="button" class="time-confirm-btn" id="finConfirmBtn" onclick="confirmTime('fin')"><i class="fas fa-check me-1"></i> Confirmer</button>
                 </div>
               </div>
-              <input type="hidden" id="heure_fin" name="heure_fin" value="<%= formData.heure_fin || '' %>" required>
+              <input type="hidden" id="heure_fin" name="heure_fin" value="<%= (formData && formData.heure_fin) ? formData.heure_fin : '' %>" required>
               <div class="field-error" id="finError">L'heure de fin doit être après l'heure de début.</div>
             </div>
           </div>
 
-          <!-- ── NOTES ── -->
-          <div class="section-label mt-2"><i class="fas fa-sticky-note"></i> Notes</div>
+          <!-- ── ALERTE CHEVAUCHEMENT TEMPS RÉEL (sous les heures) ── -->
+          <div class="overlap-inline" id="overlapInlineAlert">
+            <i class="fas fa-exclamation-triangle" style="color:#f59e0b;font-size:1.1rem;flex-shrink:0;"></i>
+            <div>
+              <strong>Chevauchement détecté</strong>
+              <div id="overlapInlineText" style="font-size:0.82rem;margin-top:0.15rem;"></div>
+            </div>
+          </div>
+
+          <!-- ── CASE À COCHER FORCER — visible si chevauchement serveur ou client ── -->
+          <div id="overlapConfirmBox" style="display:<%= chevauchement ? 'block' : 'none' %>;margin-top:0.75rem;">
+            <div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:10px;padding:0.75rem 1rem;display:flex;align-items:center;gap:0.75rem;">
+              <input type="checkbox" id="confirmer_chevauchement" name="confirmer_chevauchement" value="1" style="width:18px;height:18px;cursor:pointer;accent-color:#667eea;">
+              <label for="confirmer_chevauchement" style="font-size:0.85rem;color:#92400e;cursor:pointer;margin:0;font-weight:600;">
+                Je confirme vouloir créer cette intervention malgré le chevauchement
+              </label>
+            </div>
+          </div>
+
+          <!-- NOTES -->
+          <div class="section-label mt-3"><i class="fas fa-sticky-note"></i> Notes</div>
           <div class="mb-4">
             <label class="form-label fw-semibold" style="font-size:0.88rem;">Instructions particulières</label>
             <textarea class="notes-field" id="notes_prestataire" name="notes_prestataire"
-                      maxlength="500" placeholder="Ex : Sonnette cassée, préférence pour l'après-midi, chien dans le jardin..."
-                      oninput="updateCharCount()"><%= formData.notes_prestataire || '' %></textarea>
+                      maxlength="500" placeholder="Ex : Sonnette cassée, préférence pour l'après-midi..."
+                      oninput="updateCharCount()"><%= (formData && formData.notes_prestataire) ? formData.notes_prestataire : '' %></textarea>
             <div class="notes-char-count"><span id="charCount">0</span> / 500 caractères</div>
           </div>
 
-          <hr style="border-color:#f1f5f9; margin: 1.5rem 0;">
+          <hr style="border-color:#f1f5f9;margin:1.5rem 0;">
 
           <div class="d-flex gap-2 align-items-center">
-            <button type="submit" class="btn-submit-main">
-              <i class="fas fa-save"></i> Enregistrer l'intervention
-            </button>
+            <button type="submit" class="btn-submit-main"><i class="fas fa-save"></i> Enregistrer l'intervention</button>
             <a href="/interventions" class="btn btn-outline-secondary" style="border-radius:10px;padding:0.75rem 1.5rem;">
               <i class="fas fa-times me-1"></i> Annuler
             </a>
@@ -445,361 +400,248 @@
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════
-//  ÉTAT GLOBAL
-// ═══════════════════════════════════════════════════
-const now = new Date();
+const now    = new Date();
 const todayY = now.getFullYear(), todayM = now.getMonth(), todayD = now.getDate();
-const todayH = now.getHours(), todayMin = now.getMinutes();
+const todayH = now.getHours(),    todayMin = now.getMinutes();
 
-let selectedDate = null; // { y, m, d } — date choisie dans le calendrier
-let isToday = false;     // true si la date sélectionnée = aujourd'hui
+let selectedDate = null;
+let isToday = false;
+let dailyInterventions = [];
 
-// ═══════════════════════════════════════════════════
-//  CUSTOM SELECTS (Client / Service)
-// ═══════════════════════════════════════════════════
+// ── API — charger les interventions du jour ───────────────────────────────────
+async function loadDayInterventions(dateStr) {
+  try {
+    const res = await fetch(`/interventions/api/day?date=${dateStr}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.interventions || [];
+  } catch (e) { return []; }
+}
+
+// ── Détection chevauchement côté client ──────────────────────────────────────
+function checkOverlapClient(hDebut, hFin) {
+  if (!hDebut || !hFin || !dailyInterventions.length) return null;
+  const toMin = t => { const [h,m] = t.slice(0,5).split(':').map(Number); return h*60+m; };
+  const dMin = toMin(hDebut), fMin = toMin(hFin);
+  return dailyInterventions.find(i => dMin < toMin(i.heure_fin) && fMin > toMin(i.heure_debut)) || null;
+}
+
+function showOverlapAlert(conflict) {
+  const box = document.getElementById('overlapInlineAlert');
+  const txt = document.getElementById('overlapInlineText');
+  if (conflict) {
+    txt.textContent = `Conflit avec ${conflict.client_prenom} ${conflict.client_nom} (${conflict.heure_debut.slice(0,5)} – ${conflict.heure_fin.slice(0,5)})`;
+    box.classList.add('show');
+    document.getElementById('overlapConfirmBox').style.display = 'block';
+  } else {
+    box.classList.remove('show');
+    if (!document.getElementById('confirmer_chevauchement').checked) {
+      document.getElementById('overlapConfirmBox').style.display = 'none';
+    }
+  }
+}
+
+// ── CUSTOM SELECTS ────────────────────────────────────────────────────────────
 function toggleCustomSelect(id) {
-  const dd   = document.getElementById(`${id}Dropdown`);
+  const dd = document.getElementById(`${id}Dropdown`);
   const disp = document.getElementById(`${id}Display`);
   const isOpen = dd.classList.contains('open');
   closeAll();
   if (!isOpen) {
-    dd.classList.add('open');
-    disp.classList.add('active');
-    const search = document.getElementById(`${id}Search`);
-    if (search) setTimeout(() => search.focus(), 50);
+    dd.classList.add('open'); disp.classList.add('active');
+    const s = document.getElementById(`${id}Search`);
+    if (s) setTimeout(() => s.focus(), 50);
   }
 }
-
 function selectOption(id, value, label) {
-  document.getElementById(`${id}_id`) || (document.getElementById(id === 'client' ? 'client_id' : 'type_service_id').value = value);
-  if (id === 'client')  document.getElementById('client_id').value = value;
-  if (id === 'service') document.getElementById('type_service_id').value = value;
-
-  const display = document.getElementById(`${id}DisplayValue`);
-  display.textContent = label;
-  display.classList.remove('placeholder');
-
-  // Mark selected visually
+  document.getElementById(id === 'client' ? 'client_id' : 'type_service_id').value = value;
+  const dv = document.getElementById(`${id}DisplayValue`);
+  dv.textContent = label; dv.classList.remove('placeholder');
   document.querySelectorAll(`#${id}Options .cs-option`).forEach(o => o.classList.remove('selected'));
   event.currentTarget.classList.add('selected');
-
   document.getElementById(`${id}Error`).classList.remove('show');
   closeAll();
 }
-
 function filterOptions(id) {
-  const query = document.getElementById(`${id}Search`).value.toLowerCase();
-  const options = document.querySelectorAll(`#${id}Options .cs-option`);
-  let visible = 0;
-  options.forEach(o => {
-    const match = o.textContent.toLowerCase().includes(query);
-    o.style.display = match ? '' : 'none';
-    if (match) visible++;
-  });
-  // Show empty state
+  const q = document.getElementById(`${id}Search`).value.toLowerCase();
+  const opts = document.querySelectorAll(`#${id}Options .cs-option`);
+  let v = 0;
+  opts.forEach(o => { const m = o.textContent.toLowerCase().includes(q); o.style.display = m ? '' : 'none'; if (m) v++; });
   let empty = document.getElementById(`${id}Empty`);
-  if (!empty) {
-    empty = document.createElement('div');
-    empty.className = 'cs-empty'; empty.id = `${id}Empty`;
-    empty.textContent = 'Aucun résultat';
-    document.getElementById(`${id}Options`).appendChild(empty);
-  }
-  empty.style.display = visible === 0 ? '' : 'none';
+  if (!empty) { empty = document.createElement('div'); empty.className='cs-empty'; empty.id=`${id}Empty`; empty.textContent='Aucun résultat'; document.getElementById(`${id}Options`).appendChild(empty); }
+  empty.style.display = v === 0 ? '' : 'none';
 }
 
-// Pré-remplir selects si formData
-(function initSelects() {
-  const preClient  = '<%= formData.client_id || "" %>';
-  const preService = '<%= formData.type_service_id || "" %>';
-  if (preClient) {
-    const opt = document.querySelector(`#clientOptions .cs-option[data-value="${preClient}"]`);
-    if (opt) { document.getElementById('clientDisplayValue').textContent = opt.dataset.label; document.getElementById('clientDisplayValue').classList.remove('placeholder'); }
-  }
-  if (preService) {
-    const opt = document.querySelector(`#serviceOptions .cs-option[data-value="${preService}"]`);
-    if (opt) { document.getElementById('serviceDisplayValue').textContent = opt.dataset.label; document.getElementById('serviceDisplayValue').classList.remove('placeholder'); }
-  }
+// Initialisation pré-remplissage selects
+(function() {
+  const pc = document.getElementById('client_id').value;
+  const ps = document.getElementById('type_service_id').value;
+  if (pc) { const o = document.querySelector(`#clientOptions .cs-option[data-value="${pc}"]`); if (o) { document.getElementById('clientDisplayValue').textContent = o.dataset.label; document.getElementById('clientDisplayValue').classList.remove('placeholder'); } }
+  if (ps) { const o = document.querySelector(`#serviceOptions .cs-option[data-value="${ps}"]`); if (o) { document.getElementById('serviceDisplayValue').textContent = o.dataset.label; document.getElementById('serviceDisplayValue').classList.remove('placeholder'); } }
 })();
 
-// ═══════════════════════════════════════════════════
-//  CALENDAR
-// ═══════════════════════════════════════════════════
+// ── CALENDRIER ────────────────────────────────────────────────────────────────
 const MONTHS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 let calDate = new Date(todayY, todayM, 1);
 
-const preDate = '<%= formData.date_intervention || "" %>';
+// Pré-remplissage date (depuis le planning ou depuis formData après erreur serveur)
+const preDate = document.getElementById('date_intervention').value;
 if (preDate) {
-  const [py, pm, pd] = preDate.split('-').map(Number);
-  selectedDate = { y: py, m: pm - 1, d: pd };
-  calDate = new Date(py, pm - 1, 1);
-  isToday = (py === todayY && pm - 1 === todayM && pd === todayD);
-  document.getElementById('dateDisplayValue').textContent = new Date(py, pm-1, pd).toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  const [py,pm,pd] = preDate.split('-').map(Number);
+  selectedDate = { y:py, m:pm-1, d:pd };
+  calDate = new Date(py, pm-1, 1);
+  isToday = (py===todayY && pm-1===todayM && pd===todayD);
+  document.getElementById('dateDisplayValue').textContent = new Date(py,pm-1,pd).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   document.getElementById('dateDisplayValue').classList.remove('placeholder');
-  refreshTimePickers();
+  // Charger les interventions du jour pré-sélectionné
+  loadDayInterventions(preDate).then(list => { dailyInterventions = list; refreshTimePickers(); });
 }
 
 function renderCalendar() {
   const y = calDate.getFullYear(), m = calDate.getMonth();
   document.getElementById('calMonthYear').textContent = `${MONTHS_FR[m]} ${y}`;
-
-  // Désactiver bouton "précédent" si on est déjà sur le mois actuel
-  document.getElementById('calPrev').disabled = (y === todayY && m === todayM);
-
-  const firstDay = new Date(y, m, 1).getDay();
-  const offset = firstDay === 0 ? 6 : firstDay - 1;
-  const daysInMonth = new Date(y, m + 1, 0).getDate();
-
+  document.getElementById('calPrev').disabled = (y===todayY && m===todayM);
+  const firstDay = new Date(y,m,1).getDay();
+  const offset   = firstDay===0 ? 6 : firstDay-1;
+  const total    = new Date(y,m+1,0).getDate();
   let html = '';
-  for (let i = 0; i < offset; i++) html += `<button class="cal-day empty" type="button" disabled></button>`;
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const isT   = (d === todayD && m === todayM && y === todayY);
-    const isSel = selectedDate && d === selectedDate.d && m === selectedDate.m && y === selectedDate.y;
-    // Passé = avant aujourd'hui
-    const isPast = new Date(y, m, d) < new Date(todayY, todayM, todayD);
-    const classes = ['cal-day', isPast ? 'past' : '', isT ? 'today' : '', isSel ? 'selected' : ''].filter(Boolean).join(' ');
-    const onclick = isPast ? '' : `onclick="selectDate(${y},${m},${d})"`;
-    html += `<button class="${classes}" type="button" ${isPast ? 'disabled' : ''} ${onclick}>${d}</button>`;
+  for (let i=0;i<offset;i++) html += `<button class="cal-day empty" type="button" disabled></button>`;
+  for (let d=1;d<=total;d++) {
+    const isT   = (d===todayD&&m===todayM&&y===todayY);
+    const isSel = selectedDate&&d===selectedDate.d&&m===selectedDate.m&&y===selectedDate.y;
+    const past  = new Date(y,m,d) < new Date(todayY,todayM,todayD);
+    const cls   = ['cal-day', past?'past':'', isT?'today':'', isSel?'selected':''].filter(Boolean).join(' ');
+    html += `<button class="${cls}" type="button" ${past?'disabled':''} ${!past?`onclick="selectDate(${y},${m},${d})"`:''} >${d}</button>`;
   }
   document.getElementById('calDays').innerHTML = html;
 }
-
 function changeMonth(dir) {
-  calDate.setMonth(calDate.getMonth() + dir);
-  // Ne pas aller avant le mois actuel
-  if (calDate.getFullYear() < todayY || (calDate.getFullYear() === todayY && calDate.getMonth() < todayM)) {
-    calDate = new Date(todayY, todayM, 1);
-  }
+  calDate.setMonth(calDate.getMonth()+dir);
+  if (calDate.getFullYear()<todayY||(calDate.getFullYear()===todayY&&calDate.getMonth()<todayM)) calDate=new Date(todayY,todayM,1);
   renderCalendar();
 }
-
-function selectDate(y, m, d) {
-  selectedDate = { y, m, d };
-  isToday = (y === todayY && m === todayM && d === todayD);
-
-  const fmt = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-  document.getElementById('date_intervention').value = fmt;
-  document.getElementById('dateDisplayValue').textContent = new Date(y, m, d).toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+async function selectDate(y,m,d) {
+  selectedDate={y,m,d};
+  isToday=(y===todayY&&m===todayM&&d===todayD);
+  const fmt=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  document.getElementById('date_intervention').value=fmt;
+  document.getElementById('dateDisplayValue').textContent=new Date(y,m,d).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   document.getElementById('dateDisplayValue').classList.remove('placeholder');
   document.getElementById('dateError').classList.remove('show');
-
-  // Réinitialiser les heures quand on change de date
-  document.getElementById('heure_debut').value = '';
-  document.getElementById('heure_fin').value = '';
-  document.getElementById('debutDisplayValue').textContent = '--:--';
-  document.getElementById('debutDisplayValue').classList.add('placeholder');
-  document.getElementById('finDisplayValue').textContent = '--:--';
-  document.getElementById('finDisplayValue').classList.add('placeholder');
-
+  // Reset heures
+  ['debut','fin'].forEach(id=>{
+    document.getElementById(`heure_${id}`).value='';
+    document.getElementById(`${id}DisplayValue`).textContent='--:--';
+    document.getElementById(`${id}DisplayValue`).classList.add('placeholder');
+  });
+  showOverlapAlert(null);
+  dailyInterventions = await loadDayInterventions(fmt);
   refreshTimePickers();
   renderCalendar();
-  setTimeout(() => closeCalendar(), 150);
+  setTimeout(()=>{ document.getElementById('calendarDropdown').classList.remove('open'); document.getElementById('dateDisplay').classList.remove('active'); }, 150);
 }
-
 function toggleCalendar() {
-  const dd = document.getElementById('calendarDropdown');
-  const isOpen = dd.classList.contains('open');
+  const dd=document.getElementById('calendarDropdown');
+  const open=dd.classList.contains('open');
   closeAll();
-  if (!isOpen) { renderCalendar(); dd.classList.add('open'); document.getElementById('dateDisplay').classList.add('active'); }
-}
-function closeCalendar() {
-  document.getElementById('calendarDropdown').classList.remove('open');
-  document.getElementById('dateDisplay').classList.remove('active');
+  if (!open) { renderCalendar(); dd.classList.add('open'); document.getElementById('dateDisplay').classList.add('active'); }
 }
 
-// ═══════════════════════════════════════════════════
-//  TIME PICKERS — avec contrôles horaires
-// ═══════════════════════════════════════════════════
-function pad(n) { return String(n).padStart(2, '0'); }
-
-// Recalcule les contraintes selon la date sélectionnée
-function refreshTimePickers() {
-  updateTime('debut');
-  updateTime('fin');
-  refreshQuickBtns('debut');
-  refreshQuickBtns('fin');
-}
-
-// Heure minimum autorisée pour "debut" selon si c'est aujourd'hui
-function getMinHourDebut() {
-  if (!isToday) return 0;
-  // Ajouter 30 min de marge pour aujourd'hui
-  const minH = todayH + (todayMin >= 30 ? 1 : 0);
-  return Math.min(minH, 23);
-}
+// ── TIME PICKERS ──────────────────────────────────────────────────────────────
+function pad(n){return String(n).padStart(2,'0');}
+function refreshTimePickers(){updateTime('debut');updateTime('fin');refreshQuickBtns('debut');refreshQuickBtns('fin');}
+function getMinHourDebut(){if(!isToday)return 0;return Math.min(todayH+(todayMin>=30?1:0),23);}
 
 function updateTime(id) {
-  let h = parseInt(document.getElementById(`${id}HSlider`).value);
-  let m = parseInt(document.getElementById(`${id}MSlider`).value);
-
-  let warn = '';
-  let invalid = false;
-
-  if (id === 'debut') {
-    const minH = getMinHourDebut();
-    const minM = (isToday && h === todayH) ? todayMin : 0;
-    if (isToday && (h < minH || (h === minH && m < minM))) {
-      warn = `⚠ Il est ${pad(todayH)}:${pad(todayMin)} — heure trop tôt`;
-      invalid = true;
+  const h=parseInt(document.getElementById(`${id}HSlider`).value);
+  const m=parseInt(document.getElementById(`${id}MSlider`).value);
+  let warn='',invalid=false;
+  if (id==='debut'&&isToday) { const minH=getMinHourDebut(); if(h<minH||(h===minH&&m<todayMin)){warn=`⚠ Il est ${pad(todayH)}:${pad(todayMin)} — heure trop tôt`;invalid=true;} }
+  if (id==='fin') { const dv=document.getElementById('heure_debut').value; if(dv){const[dH,dM]=dv.split(':').map(Number);if(h<dH||(h===dH&&m<=dM)){warn=`⚠ Doit être après ${dv}`;invalid=true;}} }
+  document.getElementById(`${id}H`).textContent=pad(h);
+  document.getElementById(`${id}M`).textContent=pad(m);
+  document.getElementById(`${id}Warn`).textContent=warn;
+  document.getElementById(`${id}ConfirmBtn`).disabled=invalid;
+  // Chevauchement en temps réel (sur heure de fin uniquement)
+  if (id==='fin'&&!invalid) {
+    const debut=document.getElementById('heure_debut').value;
+    const fin=`${pad(h)}:${pad(m)}`;
+    if (debut&&fin) {
+      const c=checkOverlapClient(debut,fin);
+      const badge=document.getElementById('finOverlapBadge');
+      if(c){badge.classList.add('show');document.getElementById('finOverlapText').textContent=`Conflit : ${c.client_prenom} ${c.client_nom} (${c.heure_debut.slice(0,5)}–${c.heure_fin.slice(0,5)})`;}
+      else{badge.classList.remove('show');}
     }
   }
-
-  if (id === 'fin') {
-    const debutVal = document.getElementById('heure_debut').value;
-    if (debutVal) {
-      const [dH, dM] = debutVal.split(':').map(Number);
-      if (h < dH || (h === dH && m <= dM)) {
-        warn = `⚠ Doit être après ${debutVal}`;
-        invalid = true;
-      }
-    }
-  }
-
-  document.getElementById(`${id}H`).textContent = pad(h);
-  document.getElementById(`${id}M`).textContent = pad(m);
-  document.getElementById(`${id}Warn`).textContent = warn;
-  document.getElementById(`${id}ConfirmBtn`).disabled = invalid;
 }
-
-function refreshQuickBtns(id) {
-  const btns = document.querySelectorAll(`#${id}QuickBtns .time-quick-btn`);
-  btns.forEach(btn => {
-    const [bH, bM] = btn.textContent.trim().split(':').map(Number);
-    let disabled = false;
-    if (id === 'debut' && isToday) {
-      const minH = getMinHourDebut();
-      disabled = bH < minH || (bH === minH && bM < todayMin);
-    }
-    if (id === 'fin') {
-      const debutVal = document.getElementById('heure_debut').value;
-      if (debutVal) {
-        const [dH, dM] = debutVal.split(':').map(Number);
-        disabled = bH < dH || (bH === dH && bM <= dM);
-      }
-    }
-    btn.disabled = disabled;
+function refreshQuickBtns(id){
+  document.querySelectorAll(`#${id}QuickBtns .time-quick-btn`).forEach(btn=>{
+    const[bH,bM]=btn.textContent.trim().split(':').map(Number);
+    let dis=false;
+    if(id==='debut'&&isToday){const minH=getMinHourDebut();dis=bH<minH||(bH===minH&&bM<todayMin);}
+    if(id==='fin'){const d=document.getElementById('heure_debut').value;if(d){const[dH,dM]=d.split(':').map(Number);dis=bH<dH||(bH===dH&&bM<=dM);}}
+    btn.disabled=dis;
   });
 }
-
-function setQuickTime(id, time) {
-  const [h, m] = time.split(':').map(Number);
-  document.getElementById(`${id}HSlider`).value = h;
-  document.getElementById(`${id}MSlider`).value = m;
-  updateTime(id);
-}
-
-function confirmTime(id) {
-  const h = parseInt(document.getElementById(`${id}HSlider`).value);
-  const m = parseInt(document.getElementById(`${id}MSlider`).value);
-  const val = `${pad(h)}:${pad(m)}`;
-
-  document.getElementById(`heure_${id}`).value = val;
-  document.getElementById(`${id}DisplayValue`).textContent = val;
+function setQuickTime(id,time){const[h,m]=time.split(':').map(Number);document.getElementById(`${id}HSlider`).value=h;document.getElementById(`${id}MSlider`).value=m;updateTime(id);}
+function confirmTime(id){
+  const h=parseInt(document.getElementById(`${id}HSlider`).value);
+  const m=parseInt(document.getElementById(`${id}MSlider`).value);
+  const val=`${pad(h)}:${pad(m)}`;
+  document.getElementById(`heure_${id}`).value=val;
+  document.getElementById(`${id}DisplayValue`).textContent=val;
   document.getElementById(`${id}DisplayValue`).classList.remove('placeholder');
   document.getElementById(`${id}Error`).classList.remove('show');
   document.getElementById(`${id}Dropdown`).classList.remove('open');
   document.getElementById(`${id}Display`).classList.remove('active');
-
-  // Après avoir confirmé "debut", rafraîchir les contraintes de "fin"
-  if (id === 'debut') refreshQuickBtns('fin');
+  if(id==='debut')refreshQuickBtns('fin');
+  const debut=document.getElementById('heure_debut').value;
+  const fin=document.getElementById('heure_fin').value;
+  if(debut&&fin)showOverlapAlert(checkOverlapClient(debut,fin));
 }
-
-function toggleTime(id) {
-  if (!selectedDate) {
-    document.getElementById('dateError').textContent = 'Choisissez d\'abord une date.';
-    document.getElementById('dateError').classList.add('show');
-    return;
-  }
-  const dd = document.getElementById(`${id}Dropdown`);
-  const isOpen = dd.classList.contains('open');
+function toggleTime(id){
+  if(!selectedDate){document.getElementById('dateError').textContent="Choisissez d'abord une date.";document.getElementById('dateError').classList.add('show');return;}
+  const dd=document.getElementById(`${id}Dropdown`);
+  const open=dd.classList.contains('open');
   closeAll();
-  if (!isOpen) {
-    // Initialiser le slider à l'heure min si aujourd'hui
-    if (id === 'debut' && isToday) {
-      const minH = getMinHourDebut();
-      const curH = parseInt(document.getElementById('debutHSlider').value);
-      if (curH < minH) {
-        document.getElementById('debutHSlider').value = minH;
-        document.getElementById('debutMSlider').value = 0;
-      }
-    }
-    updateTime(id);
-    refreshQuickBtns(id);
-    dd.classList.add('open');
-    document.getElementById(`${id}Display`).classList.add('active');
+  if(!open){
+    if(id==='debut'&&isToday){const minH=getMinHourDebut();if(parseInt(document.getElementById('debutHSlider').value)<minH){document.getElementById('debutHSlider').value=minH;document.getElementById('debutMSlider').value=0;}}
+    updateTime(id);refreshQuickBtns(id);
+    dd.classList.add('open');document.getElementById(`${id}Display`).classList.add('active');
   }
 }
 
-// Pré-remplir heures si formData
-['debut', 'fin'].forEach(id => {
-  const val = document.getElementById(`heure_${id}`).value;
-  if (val) {
-    const [h, m] = val.split(':').map(Number);
-    document.getElementById(`${id}HSlider`).value = h;
-    document.getElementById(`${id}MSlider`).value = m;
-    updateTime(id);
-    document.getElementById(`${id}DisplayValue`).textContent = `${pad(h)}:${pad(m)}`;
-    document.getElementById(`${id}DisplayValue`).classList.remove('placeholder');
-  }
+// Restaurer les heures si pré-remplies (retour après erreur serveur)
+['debut','fin'].forEach(id=>{
+  const val=document.getElementById(`heure_${id}`).value;
+  if(val){const[h,m]=val.split(':').map(Number);document.getElementById(`${id}HSlider`).value=h;document.getElementById(`${id}MSlider`).value=m;updateTime(id);document.getElementById(`${id}DisplayValue`).textContent=`${pad(h)}:${pad(m)}`;document.getElementById(`${id}DisplayValue`).classList.remove('placeholder');}
 });
 
-// ═══════════════════════════════════════════════════
-//  NOTES — compteur de caractères
-// ═══════════════════════════════════════════════════
-function updateCharCount() {
-  const len = document.getElementById('notes_prestataire').value.length;
-  document.getElementById('charCount').textContent = len;
-}
+// ── NOTES ─────────────────────────────────────────────────────────────────────
+function updateCharCount(){document.getElementById('charCount').textContent=document.getElementById('notes_prestataire').value.length;}
 updateCharCount();
 
-// ═══════════════════════════════════════════════════
-//  CLOSE ALL
-// ═══════════════════════════════════════════════════
-function closeAll() {
-  ['calendarDropdown','debutDropdown','finDropdown','clientDropdown','serviceDropdown']
-    .forEach(id => document.getElementById(id).classList.remove('open'));
-  ['dateDisplay','debutDisplay','finDisplay','clientDisplay','serviceDisplay']
-    .forEach(id => document.getElementById(id).classList.remove('active'));
+// ── CLOSE ALL ─────────────────────────────────────────────────────────────────
+function closeAll(){
+  ['calendarDropdown','debutDropdown','finDropdown','clientDropdown','serviceDropdown'].forEach(id=>document.getElementById(id).classList.remove('open'));
+  ['dateDisplay','debutDisplay','finDisplay','clientDisplay','serviceDisplay'].forEach(id=>document.getElementById(id).classList.remove('active'));
 }
+document.addEventListener('click',e=>{if(!e.target.closest('.picker-wrapper')&&!e.target.closest('.custom-select-wrapper'))closeAll();});
 
-document.addEventListener('click', e => {
-  if (!e.target.closest('.picker-wrapper') && !e.target.closest('.custom-select-wrapper')) closeAll();
-});
-
-// ═══════════════════════════════════════════════════
-//  VALIDATION SUBMIT
-// ═══════════════════════════════════════════════════
-document.getElementById('intervention-form').addEventListener('submit', function(e) {
-  let valid = true;
-
-  if (!document.getElementById('client_id').value) {
-    document.getElementById('clientError').classList.add('show'); valid = false;
+// ── VALIDATION FORMULAIRE ─────────────────────────────────────────────────────
+document.getElementById('intervention-form').addEventListener('submit',function(e){
+  let valid=true;
+  if(!document.getElementById('client_id').value){document.getElementById('clientError').classList.add('show');valid=false;}
+  if(!document.getElementById('type_service_id').value){document.getElementById('serviceError').classList.add('show');valid=false;}
+  if(!document.getElementById('date_intervention').value){document.getElementById('dateError').textContent='Veuillez choisir une date.';document.getElementById('dateError').classList.add('show');valid=false;}
+  const hd=document.getElementById('heure_debut').value;
+  const hf=document.getElementById('heure_fin').value;
+  if(!hd){document.getElementById('debutError').textContent='Veuillez choisir une heure de début.';document.getElementById('debutError').classList.add('show');valid=false;}
+  if(!hf){document.getElementById('finError').textContent='Veuillez choisir une heure de fin.';document.getElementById('finError').classList.add('show');valid=false;}
+  else if(hd){
+    const[dH,dM]=hd.split(':').map(Number);const[fH,fM]=hf.split(':').map(Number);
+    if(fH<dH||(fH===dH&&fM<=dM)){document.getElementById('finError').textContent="L'heure de fin doit être après l'heure de début.";document.getElementById('finError').classList.add('show');valid=false;}
   }
-  if (!document.getElementById('type_service_id').value) {
-    document.getElementById('serviceError').classList.add('show'); valid = false;
-  }
-  if (!document.getElementById('date_intervention').value) {
-    document.getElementById('dateError').textContent = 'Veuillez choisir une date.';
-    document.getElementById('dateError').classList.add('show'); valid = false;
-  }
-  if (!document.getElementById('heure_debut').value) {
-    document.getElementById('debutError').textContent = 'Veuillez choisir une heure de début.';
-    document.getElementById('debutError').classList.add('show'); valid = false;
-  }
-  if (!document.getElementById('heure_fin').value) {
-    document.getElementById('finError').textContent = 'Veuillez choisir une heure de fin.';
-    document.getElementById('finError').classList.add('show'); valid = false;
-  } else {
-    // Vérifier fin > debut
-    const [dH, dM] = document.getElementById('heure_debut').value.split(':').map(Number);
-    const [fH, fM] = document.getElementById('heure_fin').value.split(':').map(Number);
-    if (fH < dH || (fH === dH && fM <= dM)) {
-      document.getElementById('finError').textContent = 'L\'heure de fin doit être après l\'heure de début.';
-      document.getElementById('finError').classList.add('show'); valid = false;
-    }
-  }
-
-  if (!valid) e.preventDefault();
+  if(!valid)e.preventDefault();
 });
 </script>

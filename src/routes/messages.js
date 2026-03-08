@@ -2,21 +2,25 @@
 // ROUTES MESSAGES
 // ============================================================
 
-const express = require('express');
-const router = express.Router();
+const express    = require('express');
+const router     = express.Router();
 const messageController = require('../controllers/messageController');
 const { isAuthenticated } = require('../middlewares/auth');
+const { createLimiter, validateParamId } = require('../middlewares/security');
 
-// routes/messages.js
-
+// GET /messages — Liste des conversations
 router.get('/', isAuthenticated, messageController.index);
 
-
+// GET /messages/unread-count — Compteur non lus (API)
 router.get('/unread-count', isAuthenticated, messageController.getUnreadCount);
 
-router.get('/:clientId', isAuthenticated, messageController.show);
+// GET /messages/:clientId — Conversation avec un client
+router.get('/:clientId', isAuthenticated, validateParamId, messageController.show);
 
-router.post('/:clientId', isAuthenticated, messageController.send);
-router.post('/:clientId/read', isAuthenticated, messageController.markAsRead);
+// POST /messages/:clientId — Envoyer un message (limité à 30 / 10 min)
+router.post('/:clientId', isAuthenticated, validateParamId, createLimiter, messageController.send);
+
+// POST /messages/:clientId/read — Marquer comme lu
+router.post('/:clientId/read', isAuthenticated, validateParamId, messageController.markAsRead);
 
 module.exports = router;

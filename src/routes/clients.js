@@ -2,52 +2,32 @@
 // ROUTES CLIENTS
 // ============================================================
 
-const express = require('express');
-const router = express.Router();
+const express    = require('express');
+const router     = express.Router();
 const clientController = require('../controllers/clientController');
 const { isAuthenticated } = require('../middlewares/auth');
 const { clientValidation, checkValidation } = require('../middlewares/validator');
+const { createLimiter, validateParamId } = require('../middlewares/security');
 
-/**
- * Liste des clients
- * GET /clients
- */
+// GET /clients — Liste
 router.get('/', isAuthenticated, clientController.index);
 
-/**
- * Afficher le formulaire de création
- * GET /clients/create
- */
+// GET /clients/create — Formulaire
 router.get('/create', isAuthenticated, clientController.create);
 
-/**
- * Enregistrer un nouveau client
- * POST /clients
- */
-router.post('/', isAuthenticated, clientValidation, checkValidation, clientController.store);
+// POST /clients — Créer (limité à 30 créations / 10 min)
+router.post('/', isAuthenticated, createLimiter, clientValidation, checkValidation, clientController.store);
 
-/**
- * Afficher un client
- * GET /clients/:id
- */
-router.get('/:id', isAuthenticated, clientController.show);
+// GET /clients/:id — Afficher
+router.get('/:id', isAuthenticated, validateParamId, clientController.show);
 
-/**
- * Afficher le formulaire de modification
- * GET /clients/:id/edit
- */
-router.get('/:id/edit', isAuthenticated, clientController.edit);
+// GET /clients/:id/edit — Formulaire modification
+router.get('/:id/edit', isAuthenticated, validateParamId, clientController.edit);
 
-/**
- * Mettre à jour un client
- * PUT /clients/:id
- */
-router.put('/:id', isAuthenticated, clientValidation, checkValidation, clientController.update);
+// PUT /clients/:id — Mettre à jour
+router.put('/:id', isAuthenticated, validateParamId, clientValidation, checkValidation, clientController.update);
 
-/**
- * Désactiver un client
- * DELETE /clients/:id
- */
-router.delete('/:id', isAuthenticated, clientController.destroy);
+// DELETE /clients/:id — Désactiver
+router.delete('/:id', isAuthenticated, validateParamId, clientController.destroy);
 
 module.exports = router;

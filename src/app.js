@@ -15,7 +15,11 @@ const flash = require('express-flash');
 const methodOverride = require('method-override');
 const cookieParser = require('cookie-parser');
 
+const { apiLimiter, loginLimiter, createLimiter, emailLimiter, sanitizeInput, securityLogger } = require('./middlewares/security');
 
+
+const profilRoutes     = require('./routes/profil');
+const parametresRoutes = require('./routes/parametres');
 
 const { pool } = require('./config/database');
 const expressLayouts = require('express-ejs-layouts');
@@ -61,6 +65,15 @@ app.use(express.static(path.join(__dirname, '../public')));
 // ============================================================
 
 app.set('trust proxy', 1);
+
+app.use(sanitizeInput);
+
+// Logger sécurité
+app.use(securityLogger);
+
+// Rate limiting global sur les API
+app.use('/api', apiLimiter);
+
 
 app.use(session({
   store: new pgSession({
@@ -117,6 +130,8 @@ app.use((req, res, next) => {
 // ROUTES
 // ============================================================
 
+
+
 // Routes principales
 app.use('/', require('./routes/index'));
 
@@ -125,6 +140,9 @@ app.use('/auth', require('./routes/auth'));
 
 // Routes du tableau de bord
 app.use('/dashboard', require('./routes/dashboard'));
+
+app.use('/profil',     profilRoutes);
+app.use('/parametres', parametresRoutes);
 
 // Routes clients
 app.use('/clients', require('./routes/clients'));

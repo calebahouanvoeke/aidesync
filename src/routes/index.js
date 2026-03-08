@@ -3,15 +3,10 @@
 // ============================================================
 
 const express = require('express');
-const router = express.Router();
+const router  = express.Router();
 
-/**
- * Page d'accueil (redirection)
- */
 router.get('/', (req, res) => {
-  if (req.isAuthenticated()) {
-    return res.redirect('/dashboard');
-  }
+  if (req.isAuthenticated()) return res.redirect('/dashboard');
   res.redirect('/auth/login');
 });
 
