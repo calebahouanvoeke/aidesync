@@ -6,17 +6,21 @@ const nodemailer = require('nodemailer');
 
 class EmailService {
 
-  static createTransporter() {
-    return nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: process.env.EMAIL_PORT,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD
-      }
-    });
-  }
+static createTransporter() {
+  return nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: parseInt(process.env.EMAIL_PORT),
+    secure: false,
+    requireTLS: true,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD
+    },
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
+}
 
   // ─────────────────────────────────────────────────────────────
   // EXISTANT — Intervention planifiée
@@ -367,6 +371,10 @@ class EmailService {
 </body>
 </html>`;
 
+
+console.log('📧 Tentative envoi email à:', client.email);
+console.log('📧 Config:', process.env.EMAIL_HOST, process.env.EMAIL_PORT, process.env.EMAIL_USER);
+
       await transporter.sendMail({
         from:    process.env.EMAIL_FROM,
         to:      client.email,
@@ -525,6 +533,8 @@ class EmailService {
       return false;
     }
   }
+
+  
 
   // ─────────────────────────────────────────────────────────────
   // EXISTANT — Test de config
