@@ -13,7 +13,6 @@
 <%
   const flashErrors   = errors   || [];
   const flashWarnings = warnings || [];
-  const chevauchement = formData && formData.chevauchement_detecte === '1';
 %>
 
 <% if (flashErrors.length > 0) { %>
@@ -29,12 +28,12 @@
 
 <% if (flashWarnings.length > 0) { %>
   <div class="alert d-flex align-items-start gap-2 mb-3"
-       style="border-radius:14px;border:none;background:#fffbeb;color:#92400e;font-size:0.9rem;padding:1rem 1.25rem;border-left:4px solid #f59e0b;">
-    <i class="fas fa-exclamation-triangle mt-1" style="color:#f59e0b;"></i>
+       style="border-radius:14px;border:none;background:#fef2f2;color:#dc2626;font-size:0.9rem;padding:1rem 1.25rem;border-left:4px solid #dc2626;">
+    <i class="fas fa-ban mt-1" style="color:#dc2626;"></i>
     <div>
-      <strong>Chevauchement détecté</strong><br>
+      <strong>Chevauchement détecté — création impossible</strong><br>
       <span><%= flashWarnings[0] %></span><br>
-      <small style="opacity:0.75;">Vous pouvez forcer la création en cochant la case ci-dessous.</small>
+      <small style="opacity:0.75;">Modifiez la date ou les horaires pour éviter le conflit.</small>
     </div>
   </div>
 <% } %>
@@ -44,11 +43,7 @@
   .form-card .card-header { padding: 1.5rem 2rem; border-bottom: 1px solid #f1f5f9; }
   .form-card .card-body { padding: 2rem; }
   .custom-select-wrapper { position: relative; }
-  .custom-select-display {
-    background: #fff; border: 2px solid #e2e8f0; border-radius: 12px;
-    padding: 0.75rem 1rem; cursor: pointer; transition: all 0.2s;
-    display: flex; align-items: center; gap: 0.75rem; user-select: none;
-  }
+  .custom-select-display { background: #fff; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0.75rem 1rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.75rem; user-select: none; }
   .custom-select-display:hover { border-color: #667eea; }
   .custom-select-display.active { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); }
   .custom-select-display .cs-icon { font-size: 1.1rem; color: #667eea; width: 20px; text-align: center; }
@@ -56,13 +51,7 @@
   .custom-select-display .cs-label { font-size: 0.68rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
   .custom-select-display .cs-value { font-size: 0.95rem; font-weight: 600; color: #1e293b; }
   .custom-select-display .cs-value.placeholder { color: #94a3b8; font-weight: 400; }
-  .custom-select-dropdown {
-    position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 1000;
-    background: #fff; border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,0.12);
-    max-height: 280px; overflow: hidden;
-    opacity: 0; transform: translateY(-6px); pointer-events: none;
-    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
+  .custom-select-dropdown { position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 1000; background: #fff; border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,0.12); max-height: 280px; overflow: hidden; opacity: 0; transform: translateY(-6px); pointer-events: none; transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
   .custom-select-dropdown.open { opacity: 1; transform: translateY(0); pointer-events: all; }
   .cs-search { padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 0.5rem; }
   .cs-search input { border: none; outline: none; flex: 1; font-size: 0.88rem; color: #1e293b; background: transparent; }
@@ -74,11 +63,7 @@
   .cs-option .cs-opt-badge { font-size: 0.68rem; padding: 0.15rem 0.5rem; border-radius: 20px; background: #e2e8f0; color: #64748b; margin-left: auto; }
   .cs-empty { padding: 1.5rem; text-align: center; color: #94a3b8; font-size: 0.88rem; }
   .picker-wrapper { position: relative; }
-  .date-picker-display {
-    background: #fff; border: 2px solid #e2e8f0; border-radius: 12px;
-    padding: 0.75rem 1rem; cursor: pointer; transition: all 0.2s;
-    display: flex; align-items: center; gap: 0.75rem; user-select: none;
-  }
+  .date-picker-display { background: #fff; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0.75rem 1rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.75rem; user-select: none; }
   .date-picker-display:hover { border-color: #667eea; }
   .date-picker-display.active { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); }
   .date-picker-display .dp-icon { font-size: 1.1rem; color: #667eea; width: 20px; text-align: center; }
@@ -86,13 +71,7 @@
   .date-picker-display .dp-label { font-size: 0.68rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
   .date-picker-display .dp-value { font-size: 0.95rem; font-weight: 600; color: #1e293b; }
   .date-picker-display .dp-value.placeholder { color: #94a3b8; font-weight: 400; }
-  .calendar-dropdown {
-    position: absolute; top: calc(100% + 6px); left: 0; z-index: 1000;
-    background: #fff; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.12);
-    padding: 1.25rem; width: 310px;
-    opacity: 0; transform: translateY(-6px); pointer-events: none;
-    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
+  .calendar-dropdown { position: absolute; top: calc(100% + 6px); left: 0; z-index: 1000; background: #fff; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.12); padding: 1.25rem; width: 310px; opacity: 0; transform: translateY(-6px); pointer-events: none; transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
   .calendar-dropdown.open { opacity: 1; transform: translateY(0); pointer-events: all; }
   .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
   .cal-nav { background: none; border: none; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; color: #475569; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
@@ -102,17 +81,13 @@
   .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 0.4rem; }
   .cal-weekday { text-align: center; font-size: 0.67rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; padding: 0.2rem 0; }
   .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-  .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 0.83rem; cursor: pointer; color: #475569; transition: all 0.12s; border: none; background: none; position: relative; }
+  .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 0.83rem; cursor: pointer; color: #475569; transition: all 0.12s; border: none; background: none; }
   .cal-day:hover:not(.empty):not(.selected):not(.past) { background: #f1f5f9; }
   .cal-day.today { color: #667eea; font-weight: 700; border: 1.5px solid #667eea; }
   .cal-day.selected { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff !important; font-weight: 700; border: none; }
   .cal-day.past { color: #cbd5e1; cursor: not-allowed; }
   .cal-day.empty { cursor: default; }
-  .time-picker-display {
-    background: #fff; border: 2px solid #e2e8f0; border-radius: 12px;
-    padding: 0.75rem 1rem; cursor: pointer; transition: all 0.2s;
-    display: flex; align-items: center; gap: 0.75rem; user-select: none;
-  }
+  .time-picker-display { background: #fff; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0.75rem 1rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.75rem; user-select: none; }
   .time-picker-display:hover { border-color: #667eea; }
   .time-picker-display.active { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); }
   .time-picker-display .tp-icon { font-size: 1.1rem; color: #667eea; width: 20px; text-align: center; }
@@ -120,27 +95,11 @@
   .time-picker-display .tp-label { font-size: 0.68rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
   .time-picker-display .tp-value { font-size: 0.95rem; font-weight: 600; color: #1e293b; }
   .time-picker-display .tp-value.placeholder { color: #94a3b8; font-weight: 400; }
-  .time-dropdown {
-    position: absolute; top: calc(100% + 6px); left: 0; z-index: 1000;
-    background: #fff; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.12);
-    padding: 1.25rem; width: 250px;
-    opacity: 0; transform: translateY(-6px); pointer-events: none;
-    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
+  .time-dropdown { position: absolute; top: calc(100% + 6px); left: 0; z-index: 1000; background: #fff; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.12); padding: 1.25rem; width: 250px; opacity: 0; transform: translateY(-6px); pointer-events: none; transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
   .time-dropdown.open { opacity: 1; transform: translateY(0); pointer-events: all; }
-  .time-display-big {
-    text-align: center; font-size: 2.8rem; font-weight: 800; color: #1e293b;
-    letter-spacing: 0.04em; margin-bottom: 1rem;
-    background: #f8fafc; border-radius: 12px; padding: 0.5rem; line-height: 1;
-  }
+  .time-display-big { text-align: center; font-size: 2.8rem; font-weight: 800; color: #1e293b; letter-spacing: 0.04em; margin-bottom: 1rem; background: #f8fafc; border-radius: 12px; padding: 0.5rem; line-height: 1; }
   .time-display-big span.time-part { color: #667eea; }
   .time-display-big .time-warn { font-size: 0.65rem; font-weight: 500; color: #ef4444; display: block; margin-top: 0.25rem; letter-spacing: 0; }
-  .overlap-badge {
-    display: none; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
-    padding: 0.4rem 0.65rem; font-size: 0.72rem; color: #92400e;
-    margin-top: 0.5rem; text-align: center;
-  }
-  .overlap-badge.show { display: block; }
   .time-sliders { display: flex; flex-direction: column; gap: 0.6rem; }
   .time-slider-row { display: flex; align-items: center; gap: 0.75rem; }
   .time-slider-label { font-size: 0.68rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; width: 18px; }
@@ -162,14 +121,17 @@
   .section-label::after { content: ''; flex: 1; height: 1px; background: #f1f5f9; }
   .field-error { font-size: 0.75rem; color: #ef4444; margin-top: 0.3rem; display: none; }
   .field-error.show { display: block; }
+  /* Bouton submit */
   .btn-submit-main { background: linear-gradient(135deg, #667eea, #764ba2); border: none; border-radius: 10px; padding: 0.75rem 2rem; font-weight: 600; color: #fff; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
-  .btn-submit-main:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(102,126,234,0.35); }
-  .overlap-inline {
-    display: none; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 12px;
-    padding: 0.85rem 1.1rem; margin-top: 0.75rem; font-size: 0.85rem; color: #92400e;
-    align-items: center; gap: 0.75rem;
-  }
-  .overlap-inline.show { display: flex; }
+  .btn-submit-main:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(102,126,234,0.35); }
+  .btn-submit-main:disabled { background: #d1d5db !important; color: #9ca3af !important; cursor: not-allowed !important; transform: none !important; box-shadow: none !important; }
+  /* Bandeau chevauchement bloquant */
+  .overlap-block { display: none; background: #fef2f2; border: 1.5px solid #fca5a5; border-left: 4px solid #dc2626; border-radius: 12px; padding: 1rem 1.1rem; margin-top: 0.75rem; gap: 0.75rem; align-items: flex-start; }
+  .overlap-block.show { display: flex; }
+  .overlap-block-icon { color: #dc2626; font-size: 1.15rem; flex-shrink: 0; margin-top: 2px; }
+  .overlap-block-title { font-weight: 700; color: #dc2626; font-size: 0.88rem; margin-bottom: 0.25rem; }
+  .overlap-block-detail { font-size: 0.82rem; color: #7f1d1d; margin-bottom: 0.4rem; }
+  .overlap-block-hint { font-size: 0.78rem; color: #991b1b; background: #fee2e2; border-radius: 6px; padding: 0.35rem 0.65rem; display: inline-block; }
 </style>
 
 <div class="row">
@@ -237,10 +199,11 @@
                 <div class="cs-search"><i class="fas fa-search"></i><input type="text" placeholder="Rechercher..." id="serviceSearch" oninput="filterOptions('service')"></div>
                 <div class="cs-options" id="serviceOptions">
                   <% typesService.forEach(type => { %>
-                   <div class="cs-option ..."
-     data-value="<%= type.id %>"
-     data-label="<%= type.nom %>"
-     onclick="selectOption('service', this.dataset.value, this.dataset.label)">                                             <i class="fas <%= type.icone || 'fa-star' %>" style="color:<%= type.couleur || '#667eea' %>;font-size:0.9rem;"></i>
+                    <div class="cs-option <%= formData && formData.type_service_id == type.id ? 'selected' : '' %>"
+                         data-value="<%= type.id %>"
+                         data-label="<%= type.nom %>"
+                         onclick="selectOption('service', '<%= type.id %>', '<%= type.nom %>')">
+                      <i class="fas <%= type.icone || 'fa-star' %>" style="color:<%= type.couleur || '#667eea' %>;font-size:0.9rem;"></i>
                       <span><%= type.nom %></span>
                     </div>
                   <% }) %>
@@ -290,17 +253,11 @@
               <div class="picker-wrapper">
                 <div class="time-picker-display" id="debutDisplay" onclick="toggleTime('debut')">
                   <span class="tp-icon"><i class="fas fa-play-circle"></i></span>
-                  <div class="tp-text">
-                    <div class="tp-label">Début</div>
-                    <div class="tp-value placeholder" id="debutDisplayValue">--:--</div>
-                  </div>
+                  <div class="tp-text"><div class="tp-label">Début</div><div class="tp-value placeholder" id="debutDisplayValue">--:--</div></div>
                   <i class="fas fa-chevron-down text-muted" style="font-size:0.8rem;"></i>
                 </div>
                 <div class="time-dropdown" id="debutDropdown">
-                  <div class="time-display-big">
-                    <span class="time-part" id="debutH">08</span>:<span class="time-part" id="debutM">00</span>
-                    <span class="time-warn" id="debutWarn"></span>
-                  </div>
+                  <div class="time-display-big"><span class="time-part" id="debutH">08</span>:<span class="time-part" id="debutM">00</span><span class="time-warn" id="debutWarn"></span></div>
                   <div class="time-sliders">
                     <div class="time-slider-row"><span class="time-slider-label">H</span><input type="range" class="time-slider" id="debutHSlider" min="0" max="23" value="8" oninput="updateTime('debut')"></div>
                     <div class="time-slider-row"><span class="time-slider-label">M</span><input type="range" class="time-slider" id="debutMSlider" min="0" max="55" step="5" value="0" oninput="updateTime('debut')"></div>
@@ -312,7 +269,6 @@
                     <button type="button" class="time-quick-btn" onclick="setQuickTime('debut','14:00')">14:00</button>
                     <button type="button" class="time-quick-btn" onclick="setQuickTime('debut','16:00')">16:00</button>
                   </div>
-                  <div class="overlap-badge" id="debutOverlapBadge"><i class="fas fa-exclamation-triangle me-1"></i><span id="debutOverlapText"></span></div>
                   <button type="button" class="time-confirm-btn" id="debutConfirmBtn" onclick="confirmTime('debut')"><i class="fas fa-check me-1"></i> Confirmer</button>
                 </div>
               </div>
@@ -325,17 +281,11 @@
               <div class="picker-wrapper">
                 <div class="time-picker-display" id="finDisplay" onclick="toggleTime('fin')">
                   <span class="tp-icon"><i class="fas fa-stop-circle"></i></span>
-                  <div class="tp-text">
-                    <div class="tp-label">Fin</div>
-                    <div class="tp-value placeholder" id="finDisplayValue">--:--</div>
-                  </div>
+                  <div class="tp-text"><div class="tp-label">Fin</div><div class="tp-value placeholder" id="finDisplayValue">--:--</div></div>
                   <i class="fas fa-chevron-down text-muted" style="font-size:0.8rem;"></i>
                 </div>
                 <div class="time-dropdown" id="finDropdown">
-                  <div class="time-display-big">
-                    <span class="time-part" id="finH">10</span>:<span class="time-part" id="finM">00</span>
-                    <span class="time-warn" id="finWarn"></span>
-                  </div>
+                  <div class="time-display-big"><span class="time-part" id="finH">10</span>:<span class="time-part" id="finM">00</span><span class="time-warn" id="finWarn"></span></div>
                   <div class="time-sliders">
                     <div class="time-slider-row"><span class="time-slider-label">H</span><input type="range" class="time-slider" id="finHSlider" min="0" max="23" value="10" oninput="updateTime('fin')"></div>
                     <div class="time-slider-row"><span class="time-slider-label">M</span><input type="range" class="time-slider" id="finMSlider" min="0" max="55" step="5" value="0" oninput="updateTime('fin')"></div>
@@ -347,7 +297,6 @@
                     <button type="button" class="time-quick-btn" onclick="setQuickTime('fin','17:00')">17:00</button>
                     <button type="button" class="time-quick-btn" onclick="setQuickTime('fin','18:00')">18:00</button>
                   </div>
-                  <div class="overlap-badge" id="finOverlapBadge"><i class="fas fa-exclamation-triangle me-1"></i><span id="finOverlapText"></span></div>
                   <button type="button" class="time-confirm-btn" id="finConfirmBtn" onclick="confirmTime('fin')"><i class="fas fa-check me-1"></i> Confirmer</button>
                 </div>
               </div>
@@ -356,22 +305,16 @@
             </div>
           </div>
 
-          <!-- ── ALERTE CHEVAUCHEMENT TEMPS RÉEL (sous les heures) ── -->
-          <div class="overlap-inline" id="overlapInlineAlert">
-            <i class="fas fa-exclamation-triangle" style="color:#f59e0b;font-size:1.1rem;flex-shrink:0;"></i>
-            <div>
-              <strong>Chevauchement détecté</strong>
-              <div id="overlapInlineText" style="font-size:0.82rem;margin-top:0.15rem;"></div>
-            </div>
-          </div>
-
-          <!-- ── CASE À COCHER FORCER — visible si chevauchement serveur ou client ── -->
-          <div id="overlapConfirmBox" style="display:<%= chevauchement ? 'block' : 'none' %>;margin-top:0.75rem;">
-            <div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:10px;padding:0.75rem 1rem;display:flex;align-items:center;gap:0.75rem;">
-              <input type="checkbox" id="confirmer_chevauchement" name="confirmer_chevauchement" value="1" style="width:18px;height:18px;cursor:pointer;accent-color:#667eea;">
-              <label for="confirmer_chevauchement" style="font-size:0.85rem;color:#92400e;cursor:pointer;margin:0;font-weight:600;">
-                Je confirme vouloir créer cette intervention malgré le chevauchement
-              </label>
+          <!-- BANDEAU CHEVAUCHEMENT BLOQUANT -->
+          <div class="overlap-block" id="overlapBlockAlert">
+            <i class="fas fa-ban overlap-block-icon"></i>
+            <div style="flex:1;">
+              <div class="overlap-block-title">Création impossible — Chevauchement horaire</div>
+              <div class="overlap-block-detail" id="overlapBlockDetail"></div>
+              <span class="overlap-block-hint">
+                <i class="fas fa-lightbulb me-1"></i>
+                Modifiez la <strong>date</strong>, l'<strong>heure de début</strong> ou l'<strong>heure de fin</strong> pour résoudre le conflit.
+              </span>
             </div>
           </div>
 
@@ -379,20 +322,26 @@
           <div class="section-label mt-3"><i class="fas fa-sticky-note"></i> Notes</div>
           <div class="mb-4">
             <label class="form-label fw-semibold" style="font-size:0.88rem;">Instructions particulières</label>
-            <textarea class="notes-field" id="notes_prestataire" name="notes_prestataire"
-                      maxlength="500" placeholder="Ex : Sonnette cassée, préférence pour l'après-midi..."
-                      oninput="updateCharCount()"><%= (formData && formData.notes_prestataire) ? formData.notes_prestataire : '' %></textarea>
+            <textarea class="notes-field" id="notes_prestataire" name="notes_prestataire" maxlength="500" placeholder="Ex : Sonnette cassée, préférence pour l'après-midi..." oninput="updateCharCount()"><%= (formData && formData.notes_prestataire) ? formData.notes_prestataire : '' %></textarea>
             <div class="notes-char-count"><span id="charCount">0</span> / 500 caractères</div>
           </div>
 
           <hr style="border-color:#f1f5f9;margin:1.5rem 0;">
 
-          <div class="d-flex gap-2 align-items-center">
-            <button type="submit" class="btn-submit-main"><i class="fas fa-save"></i> Enregistrer l'intervention</button>
-            <a href="/interventions" class="btn btn-outline-secondary" style="border-radius:10px;padding:0.75rem 1.5rem;">
-              <i class="fas fa-times me-1"></i> Annuler
-            </a>
+          <div class="d-flex flex-column gap-2">
+            <div class="d-flex gap-2 align-items-center">
+              <button type="submit" class="btn-submit-main" id="submitBtn">
+                <i class="fas fa-save"></i> Enregistrer l'intervention
+              </button>
+              <a href="/interventions" class="btn btn-outline-secondary" style="border-radius:10px;padding:0.75rem 1.5rem;">
+                <i class="fas fa-times me-1"></i> Annuler
+              </a>
+            </div>
+            <div id="submitBlockedHint" style="display:none;font-size:0.8rem;color:#dc2626;">
+              <i class="fas fa-lock me-1"></i> Résolvez le chevauchement horaire pour pouvoir enregistrer.
+            </div>
           </div>
+
         </form>
       </div>
     </div>
@@ -403,22 +352,24 @@
 const now    = new Date();
 const todayY = now.getFullYear(), todayM = now.getMonth(), todayD = now.getDate();
 const todayH = now.getHours(),    todayMin = now.getMinutes();
+let selectedDate = null, isToday = false, dailyInterventions = [], hasOverlap = false;
 
-let selectedDate = null;
-let isToday = false;
-let dailyInterventions = [];
-
-// ── API — charger les interventions du jour ───────────────────────────────────
-async function loadDayInterventions(dateStr) {
-  try {
-    const res = await fetch(`/interventions/api/day?date=${dateStr}`);
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.interventions || [];
-  } catch (e) { return []; }
+// ── Bloquer / débloquer submit ────────────────────────────────────────────────
+function setSubmitBlocked(blocked) {
+  hasOverlap = blocked;
+  const btn  = document.getElementById('submitBtn');
+  const hint = document.getElementById('submitBlockedHint');
+  btn.disabled = blocked;
+  hint.style.display = blocked ? 'block' : 'none';
 }
 
-// ── Détection chevauchement côté client ──────────────────────────────────────
+// ── API interventions du jour ─────────────────────────────────────────────────
+async function loadDayInterventions(dateStr) {
+  try { const res = await fetch(`/interventions/api/day?date=${dateStr}`); const d = await res.json(); return d.interventions || []; }
+  catch(e) { return []; }
+}
+
+// ── Détection chevauchement ───────────────────────────────────────────────────
 function checkOverlapClient(hDebut, hFin) {
   if (!hDebut || !hFin || !dailyInterventions.length) return null;
   const toMin = t => { const [h,m] = t.slice(0,5).split(':').map(Number); return h*60+m; };
@@ -426,158 +377,112 @@ function checkOverlapClient(hDebut, hFin) {
   return dailyInterventions.find(i => dMin < toMin(i.heure_fin) && fMin > toMin(i.heure_debut)) || null;
 }
 
-function showOverlapAlert(conflict) {
-  const box = document.getElementById('overlapInlineAlert');
-  const txt = document.getElementById('overlapInlineText');
+// ── Afficher / masquer bandeau bloquant ───────────────────────────────────────
+function showOverlapBlock(conflict) {
+  const box    = document.getElementById('overlapBlockAlert');
+  const detail = document.getElementById('overlapBlockDetail');
   if (conflict) {
-    txt.textContent = `Conflit avec ${conflict.client_prenom} ${conflict.client_nom} (${conflict.heure_debut.slice(0,5)} – ${conflict.heure_fin.slice(0,5)})`;
+    detail.innerHTML = `Conflit avec <strong>${conflict.client_prenom} ${conflict.client_nom}</strong> de <strong>${conflict.heure_debut.slice(0,5)}</strong> à <strong>${conflict.heure_fin.slice(0,5)}</strong>.`;
     box.classList.add('show');
-    document.getElementById('overlapConfirmBox').style.display = 'block';
+    setSubmitBlocked(true);
   } else {
     box.classList.remove('show');
-    if (!document.getElementById('confirmer_chevauchement').checked) {
-      document.getElementById('overlapConfirmBox').style.display = 'none';
-    }
+    setSubmitBlocked(false);
   }
+}
+
+// ── Vérification globale ──────────────────────────────────────────────────────
+function runOverlapCheck() {
+  const debut = document.getElementById('heure_debut').value;
+  const fin   = document.getElementById('heure_fin').value;
+  if (debut && fin && debut < fin) showOverlapBlock(checkOverlapClient(debut, fin));
+  else showOverlapBlock(null);
 }
 
 // ── CUSTOM SELECTS ────────────────────────────────────────────────────────────
 function toggleCustomSelect(id) {
-  const dd = document.getElementById(`${id}Dropdown`);
-  const disp = document.getElementById(`${id}Display`);
-  const isOpen = dd.classList.contains('open');
-  closeAll();
-  if (!isOpen) {
-    dd.classList.add('open'); disp.classList.add('active');
-    const s = document.getElementById(`${id}Search`);
-    if (s) setTimeout(() => s.focus(), 50);
-  }
+  const dd = document.getElementById(`${id}Dropdown`), disp = document.getElementById(`${id}Display`);
+  const isOpen = dd.classList.contains('open'); closeAll();
+  if (!isOpen) { dd.classList.add('open'); disp.classList.add('active'); const s = document.getElementById(`${id}Search`); if(s) setTimeout(()=>s.focus(),50); }
 }
 function selectOption(id, value, label) {
   document.getElementById(id === 'client' ? 'client_id' : 'type_service_id').value = value;
-  const dv = document.getElementById(`${id}DisplayValue`);
-  dv.textContent = label; dv.classList.remove('placeholder');
+  const dv = document.getElementById(`${id}DisplayValue`); dv.textContent = label; dv.classList.remove('placeholder');
   document.querySelectorAll(`#${id}Options .cs-option`).forEach(o => o.classList.remove('selected'));
   event.currentTarget.classList.add('selected');
-  document.getElementById(`${id}Error`).classList.remove('show');
-  closeAll();
+  document.getElementById(`${id}Error`).classList.remove('show'); closeAll();
 }
 function filterOptions(id) {
   const q = document.getElementById(`${id}Search`).value.toLowerCase();
-  const opts = document.querySelectorAll(`#${id}Options .cs-option`);
-  let v = 0;
-  opts.forEach(o => { const m = o.textContent.toLowerCase().includes(q); o.style.display = m ? '' : 'none'; if (m) v++; });
+  const opts = document.querySelectorAll(`#${id}Options .cs-option`); let v = 0;
+  opts.forEach(o => { const m = o.textContent.toLowerCase().includes(q); o.style.display = m?'':'none'; if(m)v++; });
   let empty = document.getElementById(`${id}Empty`);
   if (!empty) { empty = document.createElement('div'); empty.className='cs-empty'; empty.id=`${id}Empty`; empty.textContent='Aucun résultat'; document.getElementById(`${id}Options`).appendChild(empty); }
-  empty.style.display = v === 0 ? '' : 'none';
+  empty.style.display = v===0?'':'none';
 }
-
-// Initialisation pré-remplissage selects
 (function() {
-  const pc = document.getElementById('client_id').value;
-  const ps = document.getElementById('type_service_id').value;
-  if (pc) { const o = document.querySelector(`#clientOptions .cs-option[data-value="${pc}"]`); if (o) { document.getElementById('clientDisplayValue').textContent = o.dataset.label; document.getElementById('clientDisplayValue').classList.remove('placeholder'); } }
-  if (ps) { const o = document.querySelector(`#serviceOptions .cs-option[data-value="${ps}"]`); if (o) { document.getElementById('serviceDisplayValue').textContent = o.dataset.label; document.getElementById('serviceDisplayValue').classList.remove('placeholder'); } }
+  const pc = document.getElementById('client_id').value, ps = document.getElementById('type_service_id').value;
+  if(pc){const o=document.querySelector(`#clientOptions .cs-option[data-value="${pc}"]`);if(o){document.getElementById('clientDisplayValue').textContent=o.dataset.label;document.getElementById('clientDisplayValue').classList.remove('placeholder');}}
+  if(ps){const o=document.querySelector(`#serviceOptions .cs-option[data-value="${ps}"]`);if(o){document.getElementById('serviceDisplayValue').textContent=o.dataset.label;document.getElementById('serviceDisplayValue').classList.remove('placeholder');}}
 })();
 
 // ── CALENDRIER ────────────────────────────────────────────────────────────────
 const MONTHS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 let calDate = new Date(todayY, todayM, 1);
-
-// Pré-remplissage date (depuis le planning ou depuis formData après erreur serveur)
 const preDate = document.getElementById('date_intervention').value;
 if (preDate) {
   const [py,pm,pd] = preDate.split('-').map(Number);
-  selectedDate = { y:py, m:pm-1, d:pd };
-  calDate = new Date(py, pm-1, 1);
-  isToday = (py===todayY && pm-1===todayM && pd===todayD);
+  selectedDate = {y:py,m:pm-1,d:pd}; calDate = new Date(py,pm-1,1); isToday = (py===todayY&&pm-1===todayM&&pd===todayD);
   document.getElementById('dateDisplayValue').textContent = new Date(py,pm-1,pd).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   document.getElementById('dateDisplayValue').classList.remove('placeholder');
-  // Charger les interventions du jour pré-sélectionné
-  loadDayInterventions(preDate).then(list => { dailyInterventions = list; refreshTimePickers(); });
+  loadDayInterventions(preDate).then(list => { dailyInterventions = list; refreshTimePickers(); runOverlapCheck(); });
 }
-
 function renderCalendar() {
-  const y = calDate.getFullYear(), m = calDate.getMonth();
-  document.getElementById('calMonthYear').textContent = `${MONTHS_FR[m]} ${y}`;
-  document.getElementById('calPrev').disabled = (y===todayY && m===todayM);
-  const firstDay = new Date(y,m,1).getDay();
-  const offset   = firstDay===0 ? 6 : firstDay-1;
-  const total    = new Date(y,m+1,0).getDate();
-  let html = '';
-  for (let i=0;i<offset;i++) html += `<button class="cal-day empty" type="button" disabled></button>`;
-  for (let d=1;d<=total;d++) {
-    const isT   = (d===todayD&&m===todayM&&y===todayY);
-    const isSel = selectedDate&&d===selectedDate.d&&m===selectedDate.m&&y===selectedDate.y;
-    const past  = new Date(y,m,d) < new Date(todayY,todayM,todayD);
-    const cls   = ['cal-day', past?'past':'', isT?'today':'', isSel?'selected':''].filter(Boolean).join(' ');
-    html += `<button class="${cls}" type="button" ${past?'disabled':''} ${!past?`onclick="selectDate(${y},${m},${d})"`:''} >${d}</button>`;
+  const y=calDate.getFullYear(),m=calDate.getMonth();
+  document.getElementById('calMonthYear').textContent=`${MONTHS_FR[m]} ${y}`;
+  document.getElementById('calPrev').disabled=(y===todayY&&m===todayM);
+  const firstDay=new Date(y,m,1).getDay(), offset=firstDay===0?6:firstDay-1, total=new Date(y,m+1,0).getDate();
+  let html='';
+  for(let i=0;i<offset;i++) html+=`<button class="cal-day empty" type="button" disabled></button>`;
+  for(let d=1;d<=total;d++){
+    const isT=(d===todayD&&m===todayM&&y===todayY),isSel=selectedDate&&d===selectedDate.d&&m===selectedDate.m&&y===selectedDate.y;
+    const past=new Date(y,m,d)<new Date(todayY,todayM,todayD);
+    const cls=['cal-day',past?'past':'',isT?'today':'',isSel?'selected':''].filter(Boolean).join(' ');
+    html+=`<button class="${cls}" type="button" ${past?'disabled':''} ${!past?`onclick="selectDate(${y},${m},${d})"`:''} >${d}</button>`;
   }
-  document.getElementById('calDays').innerHTML = html;
+  document.getElementById('calDays').innerHTML=html;
 }
-function changeMonth(dir) {
-  calDate.setMonth(calDate.getMonth()+dir);
-  if (calDate.getFullYear()<todayY||(calDate.getFullYear()===todayY&&calDate.getMonth()<todayM)) calDate=new Date(todayY,todayM,1);
-  renderCalendar();
-}
-async function selectDate(y,m,d) {
-  selectedDate={y,m,d};
-  isToday=(y===todayY&&m===todayM&&d===todayD);
+function changeMonth(dir){calDate.setMonth(calDate.getMonth()+dir);if(calDate.getFullYear()<todayY||(calDate.getFullYear()===todayY&&calDate.getMonth()<todayM))calDate=new Date(todayY,todayM,1);renderCalendar();}
+async function selectDate(y,m,d){
+  selectedDate={y,m,d}; isToday=(y===todayY&&m===todayM&&d===todayD);
   const fmt=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
   document.getElementById('date_intervention').value=fmt;
   document.getElementById('dateDisplayValue').textContent=new Date(y,m,d).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   document.getElementById('dateDisplayValue').classList.remove('placeholder');
   document.getElementById('dateError').classList.remove('show');
-  // Reset heures
-  ['debut','fin'].forEach(id=>{
-    document.getElementById(`heure_${id}`).value='';
-    document.getElementById(`${id}DisplayValue`).textContent='--:--';
-    document.getElementById(`${id}DisplayValue`).classList.add('placeholder');
-  });
-  showOverlapAlert(null);
+  ['debut','fin'].forEach(id=>{document.getElementById(`heure_${id}`).value='';document.getElementById(`${id}DisplayValue`).textContent='--:--';document.getElementById(`${id}DisplayValue`).classList.add('placeholder');});
+  showOverlapBlock(null);
   dailyInterventions = await loadDayInterventions(fmt);
-  refreshTimePickers();
-  renderCalendar();
-  setTimeout(()=>{ document.getElementById('calendarDropdown').classList.remove('open'); document.getElementById('dateDisplay').classList.remove('active'); }, 150);
+  refreshTimePickers(); renderCalendar();
+  setTimeout(()=>{document.getElementById('calendarDropdown').classList.remove('open');document.getElementById('dateDisplay').classList.remove('active');},150);
 }
-function toggleCalendar() {
-  const dd=document.getElementById('calendarDropdown');
-  const open=dd.classList.contains('open');
-  closeAll();
-  if (!open) { renderCalendar(); dd.classList.add('open'); document.getElementById('dateDisplay').classList.add('active'); }
-}
+function toggleCalendar(){const dd=document.getElementById('calendarDropdown'),open=dd.classList.contains('open');closeAll();if(!open){renderCalendar();dd.classList.add('open');document.getElementById('dateDisplay').classList.add('active');}}
 
 // ── TIME PICKERS ──────────────────────────────────────────────────────────────
 function pad(n){return String(n).padStart(2,'0');}
 function refreshTimePickers(){updateTime('debut');updateTime('fin');refreshQuickBtns('debut');refreshQuickBtns('fin');}
 function getMinHourDebut(){if(!isToday)return 0;return Math.min(todayH+(todayMin>=30?1:0),23);}
-
-function updateTime(id) {
-  const h=parseInt(document.getElementById(`${id}HSlider`).value);
-  const m=parseInt(document.getElementById(`${id}MSlider`).value);
+function updateTime(id){
+  const h=parseInt(document.getElementById(`${id}HSlider`).value),m=parseInt(document.getElementById(`${id}MSlider`).value);
   let warn='',invalid=false;
-  if (id==='debut'&&isToday) { const minH=getMinHourDebut(); if(h<minH||(h===minH&&m<todayMin)){warn=`⚠ Il est ${pad(todayH)}:${pad(todayMin)} — heure trop tôt`;invalid=true;} }
-  if (id==='fin') { const dv=document.getElementById('heure_debut').value; if(dv){const[dH,dM]=dv.split(':').map(Number);if(h<dH||(h===dH&&m<=dM)){warn=`⚠ Doit être après ${dv}`;invalid=true;}} }
-  document.getElementById(`${id}H`).textContent=pad(h);
-  document.getElementById(`${id}M`).textContent=pad(m);
-  document.getElementById(`${id}Warn`).textContent=warn;
-  document.getElementById(`${id}ConfirmBtn`).disabled=invalid;
-  // Chevauchement en temps réel (sur heure de fin uniquement)
-  if (id==='fin'&&!invalid) {
-    const debut=document.getElementById('heure_debut').value;
-    const fin=`${pad(h)}:${pad(m)}`;
-    if (debut&&fin) {
-      const c=checkOverlapClient(debut,fin);
-      const badge=document.getElementById('finOverlapBadge');
-      if(c){badge.classList.add('show');document.getElementById('finOverlapText').textContent=`Conflit : ${c.client_prenom} ${c.client_nom} (${c.heure_debut.slice(0,5)}–${c.heure_fin.slice(0,5)})`;}
-      else{badge.classList.remove('show');}
-    }
-  }
+  if(id==='debut'&&isToday){const minH=getMinHourDebut();if(h<minH||(h===minH&&m<todayMin)){warn=`⚠ Il est ${pad(todayH)}:${pad(todayMin)} — heure trop tôt`;invalid=true;}}
+  if(id==='fin'){const dv=document.getElementById('heure_debut').value;if(dv){const[dH,dM]=dv.split(':').map(Number);if(h<dH||(h===dH&&m<=dM)){warn=`⚠ Doit être après ${dv}`;invalid=true;}}}
+  document.getElementById(`${id}H`).textContent=pad(h);document.getElementById(`${id}M`).textContent=pad(m);
+  document.getElementById(`${id}Warn`).textContent=warn;document.getElementById(`${id}ConfirmBtn`).disabled=invalid;
 }
 function refreshQuickBtns(id){
   document.querySelectorAll(`#${id}QuickBtns .time-quick-btn`).forEach(btn=>{
-    const[bH,bM]=btn.textContent.trim().split(':').map(Number);
-    let dis=false;
+    const[bH,bM]=btn.textContent.trim().split(':').map(Number);let dis=false;
     if(id==='debut'&&isToday){const minH=getMinHourDebut();dis=bH<minH||(bH===minH&&bM<todayMin);}
     if(id==='fin'){const d=document.getElementById('heure_debut').value;if(d){const[dH,dM]=d.split(':').map(Number);dis=bH<dH||(bH===dH&&bM<=dM);}}
     btn.disabled=dis;
@@ -585,33 +490,22 @@ function refreshQuickBtns(id){
 }
 function setQuickTime(id,time){const[h,m]=time.split(':').map(Number);document.getElementById(`${id}HSlider`).value=h;document.getElementById(`${id}MSlider`).value=m;updateTime(id);}
 function confirmTime(id){
-  const h=parseInt(document.getElementById(`${id}HSlider`).value);
-  const m=parseInt(document.getElementById(`${id}MSlider`).value);
-  const val=`${pad(h)}:${pad(m)}`;
+  const h=parseInt(document.getElementById(`${id}HSlider`).value),m=parseInt(document.getElementById(`${id}MSlider`).value),val=`${pad(h)}:${pad(m)}`;
   document.getElementById(`heure_${id}`).value=val;
-  document.getElementById(`${id}DisplayValue`).textContent=val;
-  document.getElementById(`${id}DisplayValue`).classList.remove('placeholder');
+  document.getElementById(`${id}DisplayValue`).textContent=val;document.getElementById(`${id}DisplayValue`).classList.remove('placeholder');
   document.getElementById(`${id}Error`).classList.remove('show');
-  document.getElementById(`${id}Dropdown`).classList.remove('open');
-  document.getElementById(`${id}Display`).classList.remove('active');
+  document.getElementById(`${id}Dropdown`).classList.remove('open');document.getElementById(`${id}Display`).classList.remove('active');
   if(id==='debut')refreshQuickBtns('fin');
-  const debut=document.getElementById('heure_debut').value;
-  const fin=document.getElementById('heure_fin').value;
-  if(debut&&fin)showOverlapAlert(checkOverlapClient(debut,fin));
+  runOverlapCheck(); // ← vérifier chevauchement à chaque confirmation
 }
 function toggleTime(id){
   if(!selectedDate){document.getElementById('dateError').textContent="Choisissez d'abord une date.";document.getElementById('dateError').classList.add('show');return;}
-  const dd=document.getElementById(`${id}Dropdown`);
-  const open=dd.classList.contains('open');
-  closeAll();
+  const dd=document.getElementById(`${id}Dropdown`),open=dd.classList.contains('open');closeAll();
   if(!open){
     if(id==='debut'&&isToday){const minH=getMinHourDebut();if(parseInt(document.getElementById('debutHSlider').value)<minH){document.getElementById('debutHSlider').value=minH;document.getElementById('debutMSlider').value=0;}}
-    updateTime(id);refreshQuickBtns(id);
-    dd.classList.add('open');document.getElementById(`${id}Display`).classList.add('active');
+    updateTime(id);refreshQuickBtns(id);dd.classList.add('open');document.getElementById(`${id}Display`).classList.add('active');
   }
 }
-
-// Restaurer les heures si pré-remplies (retour après erreur serveur)
 ['debut','fin'].forEach(id=>{
   const val=document.getElementById(`heure_${id}`).value;
   if(val){const[h,m]=val.split(':').map(Number);document.getElementById(`${id}HSlider`).value=h;document.getElementById(`${id}MSlider`).value=m;updateTime(id);document.getElementById(`${id}DisplayValue`).textContent=`${pad(h)}:${pad(m)}`;document.getElementById(`${id}DisplayValue`).classList.remove('placeholder');}
@@ -630,18 +524,15 @@ document.addEventListener('click',e=>{if(!e.target.closest('.picker-wrapper')&&!
 
 // ── VALIDATION FORMULAIRE ─────────────────────────────────────────────────────
 document.getElementById('intervention-form').addEventListener('submit',function(e){
+  if(hasOverlap){e.preventDefault();return;} // double sécurité
   let valid=true;
   if(!document.getElementById('client_id').value){document.getElementById('clientError').classList.add('show');valid=false;}
   if(!document.getElementById('type_service_id').value){document.getElementById('serviceError').classList.add('show');valid=false;}
   if(!document.getElementById('date_intervention').value){document.getElementById('dateError').textContent='Veuillez choisir une date.';document.getElementById('dateError').classList.add('show');valid=false;}
-  const hd=document.getElementById('heure_debut').value;
-  const hf=document.getElementById('heure_fin').value;
+  const hd=document.getElementById('heure_debut').value,hf=document.getElementById('heure_fin').value;
   if(!hd){document.getElementById('debutError').textContent='Veuillez choisir une heure de début.';document.getElementById('debutError').classList.add('show');valid=false;}
   if(!hf){document.getElementById('finError').textContent='Veuillez choisir une heure de fin.';document.getElementById('finError').classList.add('show');valid=false;}
-  else if(hd){
-    const[dH,dM]=hd.split(':').map(Number);const[fH,fM]=hf.split(':').map(Number);
-    if(fH<dH||(fH===dH&&fM<=dM)){document.getElementById('finError').textContent="L'heure de fin doit être après l'heure de début.";document.getElementById('finError').classList.add('show');valid=false;}
-  }
+  else if(hd){const[dH,dM]=hd.split(':').map(Number);const[fH,fM]=hf.split(':').map(Number);if(fH<dH||(fH===dH&&fM<=dM)){document.getElementById('finError').textContent="L'heure de fin doit être après l'heure de début.";document.getElementById('finError').classList.add('show');valid=false;}}
   if(!valid)e.preventDefault();
 });
 </script>

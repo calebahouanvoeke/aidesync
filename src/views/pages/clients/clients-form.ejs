@@ -1,80 +1,80 @@
-<style>
-  :root { --grad:linear-gradient(135deg,#667eea,#764ba2); --radius:14px; }
-
-  .bc { font-size:.82rem; color:#94a3b8; margin-bottom:1.25rem; display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
-  .bc a { color:#667eea; text-decoration:none; }
-
-  .form-card { border-radius:var(--radius); border:none; box-shadow:0 4px 20px rgba(0,0,0,.07); background:#fff; overflow:hidden; }
-  .form-card-header { padding:1.25rem 1.75rem; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; gap:.75rem; }
-  .form-card-header h4 { font-weight:800; font-size:1.1rem; color:#1e293b; margin:0; }
-  .fch-icon { width:40px; height:40px; border-radius:10px; background:var(--grad); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .form-card-body { padding:1.5rem 1.75rem; }
-
-  .section-label {
-    font-size:.7rem; text-transform:uppercase; letter-spacing:.08em; font-weight:700;
-    color:#94a3b8; margin:1.25rem 0 .9rem; display:flex; align-items:center; gap:.5rem;
-  }
-  .section-label:first-child { margin-top:0; }
-  .section-label::after { content:''; flex:1; height:1px; background:#f1f5f9; }
-
-  .form-label { font-size:.82rem; font-weight:600; color:#475569; margin-bottom:.35rem; }
-  .req { color:#ef4444; margin-left:.1rem; }
-
-  .form-control, .form-select {
-    border:1.5px solid #e2e8f0; border-radius:10px; font-size:.88rem;
-    padding:.6rem .9rem; transition:.15s; width:100%; outline:none;
-  }
-  .form-control:focus, .form-select:focus {
-    border-color:#667eea; box-shadow:0 0 0 3px rgba(102,126,234,.1);
-  }
-  .form-control.is-invalid { border-color:#ef4444; }
-  .form-text { font-size:.73rem; color:#94a3b8; margin-top:.3rem; display:block; }
-
-  .field-wrap { position:relative; }
-  .field-wrap .fi {
-    position:absolute; left:.9rem; top:50%; transform:translateY(-50%);
-    color:#94a3b8; font-size:.8rem; pointer-events:none; z-index:1;
-  }
-  .field-wrap textarea ~ .fi { top:.85rem; transform:none; }
-  .field-wrap .form-control { padding-left:2.3rem; }
-  .field-wrap textarea.form-control { padding-left:2.3rem; padding-top:.65rem; }
-
-  .char-row { display:flex; justify-content:flex-end; }
-  .char-count { font-size:.72rem; color:#94a3b8; margin-top:.25rem; }
-
-  .form-footer { display:flex; align-items:center; gap:.75rem; padding-top:.5rem; margin-top:.75rem; border-top:1px solid #f1f5f9; flex-wrap:wrap; }
-  .btn-submit {
-    background:var(--grad); border:none; color:#fff; font-weight:700;
-    padding:.7rem 1.5rem; border-radius:10px; font-size:.9rem; cursor:pointer; transition:.15s;
-    display:flex; align-items:center; gap:.45rem;
-  }
-  .btn-submit:hover { opacity:.88; }
-  .btn-cancel {
-    background:none; border:1.5px solid #e2e8f0; color:#64748b; font-weight:600;
-    padding:.7rem 1.25rem; border-radius:10px; font-size:.9rem; cursor:pointer;
-    transition:.15s; text-decoration:none; display:flex; align-items:center; gap:.4rem;
-  }
-  .btn-cancel:hover { border-color:#94a3b8; color:#1e293b; }
-</style>
+<%- contentFor('body') %>
 
 <%
-  // ── Déterminer le mode (create ou edit) ──
-  // Le contrôleur doit passer isEdit:true/false et formData:{} pour create, client:{} pour edit
   const editMode = (typeof isEdit !== 'undefined' && isEdit === true);
-  const fd = editMode ? client : (typeof formData !== 'undefined' && formData ? formData : {});
+  // En mode édition : priorité aux données flash (retour erreur), sinon données client
+  const fd = (Object.keys(typeof formData !== 'undefined' && formData ? formData : {}).length > 0)
+    ? formData
+    : (editMode && client ? client : {});
+  const flashErrors = (typeof errors !== 'undefined' && errors) ? errors : [];
 %>
 
 <!-- BREADCRUMB -->
-<nav class="bc">
-  <a href="/dashboard">Tableau de bord</a> <span>/</span>
-  <a href="/clients">Clients</a> <span>/</span>
+<nav style="font-size:.82rem;color:#94a3b8;margin-bottom:1.25rem;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;">
+  <a href="/dashboard" style="color:#667eea;text-decoration:none;">Tableau de bord</a> <span>/</span>
+  <a href="/clients" style="color:#667eea;text-decoration:none;">Clients</a> <span>/</span>
   <% if (editMode) { %>
-    <a href="/clients/<%= client.id %>"><%= client.prenom %> <%= client.nom %></a> <span>/</span>
+    <a href="/clients/<%= client.id %>" style="color:#667eea;text-decoration:none;"><%= client.prenom %> <%= client.nom %></a> <span>/</span>
     <span style="color:#475569;">Modifier</span>
   <% } else { %>
     <span style="color:#475569;">Nouveau client</span>
   <% } %>
 </nav>
+
+<!-- ERREURS SERVEUR -->
+<% if (flashErrors.length > 0) { %>
+  <div style="background:#fef2f2;border:1.5px solid #fca5a5;border-left:4px solid #dc2626;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.25rem;">
+    <div style="display:flex;align-items:flex-start;gap:.75rem;">
+      <i class="fas fa-exclamation-circle" style="color:#dc2626;margin-top:2px;font-size:1rem;flex-shrink:0;"></i>
+      <div>
+        <div style="font-weight:700;color:#dc2626;font-size:.9rem;margin-bottom:.35rem;">
+          <%= flashErrors.length === 1 ? 'Une erreur a été détectée' : `${flashErrors.length} erreurs ont été détectées` %>
+        </div>
+        <ul style="margin:0;padding-left:1.2rem;color:#7f1d1d;font-size:.83rem;">
+          <% flashErrors.forEach(err => { %>
+            <li><%= err %></li>
+          <% }) %>
+        </ul>
+      </div>
+    </div>
+  </div>
+<% } %>
+
+<style>
+  :root { --grad: linear-gradient(135deg,#667eea,#764ba2); }
+  .form-card { border-radius:14px; border:none; box-shadow:0 4px 20px rgba(0,0,0,.07); background:#fff; overflow:hidden; }
+  .form-card-header { padding:1.25rem 1.75rem; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; gap:.75rem; }
+  .form-card-header h4 { font-weight:800;font-size:1.1rem;color:#1e293b;margin:0; }
+  .fch-icon { width:40px;height:40px;border-radius:10px;background:var(--grad);display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+  .form-card-body { padding:1.5rem 1.75rem; }
+  .section-label { font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:#94a3b8;margin:1.25rem 0 .9rem;display:flex;align-items:center;gap:.5rem; }
+  .section-label:first-child { margin-top:0; }
+  .section-label::after { content:'';flex:1;height:1px;background:#f1f5f9; }
+  .form-label { font-size:.82rem;font-weight:600;color:#475569;margin-bottom:.35rem;display:block; }
+  .req { color:#ef4444;margin-left:.1rem; }
+  .form-control {
+    border:1.5px solid #e2e8f0;border-radius:10px;font-size:.88rem;
+    padding:.6rem .9rem .6rem 2.3rem;transition:.15s;width:100%;outline:none;
+    font-family:inherit;background:#fff;color:#1e293b;box-sizing:border-box;
+  }
+  .form-control:focus { border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,.1); }
+  .form-control.is-invalid { border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.1); }
+  .form-control.is-valid   { border-color:#10b981; }
+  .field-wrap { position:relative; }
+  .field-icon { position:absolute;left:.9rem;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:.8rem;pointer-events:none;z-index:1; }
+  textarea.form-control { padding-left:2.3rem;padding-top:.65rem;resize:vertical; }
+  textarea + .field-icon { top:.85rem;transform:none; }
+  .field-hint { font-size:.73rem;color:#94a3b8;margin-top:.3rem;display:block; }
+  .field-error-msg { font-size:.75rem;color:#dc2626;margin-top:.3rem;display:none; }
+  .field-error-msg.show { display:block; }
+  .char-count { font-size:.72rem;color:#94a3b8;text-align:right;margin-top:.25rem; }
+  .form-footer { display:flex;align-items:center;gap:.75rem;padding-top:.75rem;margin-top:.75rem;border-top:1px solid #f1f5f9;flex-wrap:wrap; }
+  .btn-submit { background:var(--grad);border:none;color:#fff;font-weight:700;padding:.7rem 1.5rem;border-radius:10px;font-size:.9rem;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:.45rem; }
+  .btn-submit:hover:not(:disabled) { opacity:.88; }
+  .btn-submit:disabled { opacity:.5;cursor:not-allowed; }
+  .btn-cancel { background:none;border:1.5px solid #e2e8f0;color:#64748b;font-weight:600;padding:.7rem 1.25rem;border-radius:10px;font-size:.9rem;cursor:pointer;transition:.15s;text-decoration:none;display:flex;align-items:center;gap:.4rem; }
+  .btn-cancel:hover { border-color:#94a3b8;color:#1e293b; }
+</style>
 
 <div class="row justify-content-center">
   <div class="col-lg-8">
@@ -88,26 +88,32 @@
       </div>
 
       <div class="form-card-body">
-        <form action="<%= editMode ? `/clients/${client.id}?_method=PUT` : '/clients' %>" method="POST" id="clientForm" novalidate>
+        <form action="<%= editMode ? `/clients/${client.id}?_method=PUT` : '/clients' %>"
+              method="POST" id="clientForm" novalidate autocomplete="off">
 
           <!-- ── IDENTITÉ ── -->
           <div class="section-label"><i class="fas fa-user"></i> Identité</div>
+
           <div class="row mb-3">
             <div class="col-md-6 mb-3 mb-md-0">
               <label class="form-label">Nom <span class="req">*</span></label>
               <div class="field-wrap">
-                <i class="fi fas fa-id-card"></i>
-                <input type="text" class="form-control" name="nom"
-                       value="<%= fd.nom || '' %>" required placeholder="Dupont">
+                <i class="field-icon fas fa-id-card"></i>
+                <input type="text" class="form-control" name="nom" id="nom"
+                       value="<%= fd.nom || '' %>" maxlength="100"
+                       placeholder="Dupont" autocomplete="family-name">
               </div>
+              <span class="field-error-msg" id="nom-err"></span>
             </div>
             <div class="col-md-6">
               <label class="form-label">Prénom <span class="req">*</span></label>
               <div class="field-wrap">
-                <i class="fi fas fa-id-card"></i>
-                <input type="text" class="form-control" name="prenom"
-                       value="<%= fd.prenom || '' %>" required placeholder="Marie">
+                <i class="field-icon fas fa-id-card"></i>
+                <input type="text" class="form-control" name="prenom" id="prenom"
+                       value="<%= fd.prenom || '' %>" maxlength="100"
+                       placeholder="Marie" autocomplete="given-name">
               </div>
+              <span class="field-error-msg" id="prenom-err"></span>
             </div>
           </div>
 
@@ -115,78 +121,92 @@
             <div class="col-md-6 mb-3 mb-md-0">
               <label class="form-label">Email</label>
               <div class="field-wrap">
-                <i class="fi fas fa-envelope"></i>
-                <input type="email" class="form-control" name="email"
-                       value="<%= fd.email || '' %>" placeholder="marie.dupont@email.fr">
+                <i class="field-icon fas fa-envelope"></i>
+                <input type="email" class="form-control" name="email" id="email"
+                       value="<%= fd.email || '' %>" maxlength="254"
+                       placeholder="marie.dupont@email.fr" autocomplete="email">
               </div>
+              <span class="field-error-msg" id="email-err"></span>
             </div>
             <div class="col-md-6">
               <label class="form-label">Téléphone <span class="req">*</span></label>
               <div class="field-wrap">
-                <i class="fi fas fa-phone"></i>
-                <input type="tel" class="form-control" name="telephone"
-                       value="<%= fd.telephone || '' %>" required placeholder="06 12 34 56 78">
+                <i class="field-icon fas fa-phone"></i>
+                <input type="tel" class="form-control" name="telephone" id="telephone"
+                       value="<%= fd.telephone || '' %>" maxlength="20"
+                       placeholder="06 12 34 56 78" autocomplete="tel">
               </div>
+              <span class="field-error-msg" id="telephone-err"></span>
             </div>
           </div>
 
           <!-- ── ADRESSE ── -->
           <div class="section-label"><i class="fas fa-map-marker-alt"></i> Adresse</div>
+
           <div class="mb-3">
             <label class="form-label">Adresse complète <span class="req">*</span></label>
             <div class="field-wrap">
-              <i class="fi fas fa-home"></i>
-              <input type="text" class="form-control" name="adresse"
-                     value="<%= fd.adresse || '' %>" required placeholder="12 rue des Lilas">
+              <i class="field-icon fas fa-home"></i>
+              <input type="text" class="form-control" name="adresse" id="adresse"
+                     value="<%= fd.adresse || '' %>" maxlength="255"
+                     placeholder="12 rue des Lilas" autocomplete="street-address">
             </div>
+            <span class="field-error-msg" id="adresse-err"></span>
           </div>
 
           <div class="row mb-4">
             <div class="col-md-8 mb-3 mb-md-0">
               <label class="form-label">Ville <span class="req">*</span></label>
               <div class="field-wrap">
-                <i class="fi fas fa-city"></i>
-                <input type="text" class="form-control" name="ville"
-                       value="<%= fd.ville || '' %>" required placeholder="Paris">
+                <i class="field-icon fas fa-city"></i>
+                <input type="text" class="form-control" name="ville" id="ville"
+                       value="<%= fd.ville || '' %>" maxlength="100"
+                       placeholder="Paris" autocomplete="address-level2">
               </div>
+              <span class="field-error-msg" id="ville-err"></span>
             </div>
             <div class="col-md-4">
               <label class="form-label">Code postal <span class="req">*</span></label>
-              <input type="text" class="form-control" name="code_postal"
-                     value="<%= fd.code_postal || '' %>"
-                     pattern="[0-9]{5}" maxlength="5" required placeholder="75001">
+              <div class="field-wrap">
+                <i class="field-icon fas fa-map-pin"></i>
+                <input type="text" class="form-control" name="code_postal" id="code_postal"
+                       value="<%= fd.code_postal || '' %>"
+                       maxlength="5" inputmode="numeric"
+                       placeholder="75001" autocomplete="postal-code">
+              </div>
+              <span class="field-error-msg" id="code_postal-err"></span>
             </div>
           </div>
 
           <!-- ── COMPLÉMENTAIRES ── -->
           <div class="section-label"><i class="fas fa-info-circle"></i> Informations complémentaires</div>
+
           <div class="mb-3">
             <label class="form-label">Code d'accès</label>
             <div class="field-wrap">
-              <i class="fi fas fa-key"></i>
-              <input type="text" class="form-control" name="code_acces"
-                     value="<%= fd.code_acces || '' %>"
+              <i class="field-icon fas fa-key"></i>
+              <input type="text" class="form-control" name="code_acces" id="code_acces"
+                     value="<%= fd.code_acces || '' %>" maxlength="100"
                      placeholder="Digicode A1234, clé sous le paillasson…">
             </div>
-            <span class="form-text">Digicode, badge ou instructions d'accès particulières</span>
+            <span class="field-hint">Digicode, badge ou instructions d'accès particulières</span>
+            <span class="field-error-msg" id="code_acces-err"></span>
           </div>
 
           <div class="mb-3">
             <label class="form-label">Notes</label>
             <div class="field-wrap">
-              <i class="fi fas fa-sticky-note" style="top:.85rem;transform:none;"></i>
+              <i class="field-icon fas fa-sticky-note" style="top:.85rem;transform:none;"></i>
               <textarea class="form-control" name="informations_complementaires"
                         id="notesTA" rows="4" maxlength="500"
                         placeholder="Informations utiles : allergies, animaux, préférences, difficultés particulières…"><%= fd.informations_complementaires || '' %></textarea>
             </div>
-            <div class="char-row">
-              <span class="char-count"><span id="charCount">0</span>/500</span>
-            </div>
+            <div class="char-count"><span id="charCount">0</span>/500</div>
           </div>
 
           <!-- ── BOUTONS ── -->
           <div class="form-footer">
-            <button type="submit" class="btn-submit">
+            <button type="submit" class="btn-submit" id="submitBtn">
               <i class="fas fa-save"></i>
               <%= editMode ? 'Enregistrer les modifications' : 'Créer le client' %>
             </button>
@@ -202,39 +222,146 @@
 </div>
 
 <script>
-// Compteur caractères notes
+// ════════════════════════════════════════════════════════════
+// VALIDATION CÔTÉ CLIENT — miroir exact de la validation serveur
+// ════════════════════════════════════════════════════════════
+
+// ── Helpers ──────────────────────────────────────────────────
+const trim = v => (v ? v.trim() : '');
+
+function hasLeadingTrailingSpace(v) {
+  return v !== trim(v);
+}
+function hasSpecialAtEdge(v) {
+  // Interdit char spécial ou espace en début ou en fin
+  return /^[\s\W]|[\s\W]$/.test(v);
+}
+function isValidEmail(v) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
+function isValidPhone(v) {
+  return /^(\+33|0)[1-9][\s.\-]?(\d{2}[\s.\-]?){4}$/.test(v.replace(/\s/g,''));
+}
+function isValidCP(v) {
+  return /^[0-9]{5}$/.test(v);
+}
+
+// ── Valider un champ texte ────────────────────────────────────
+function validateText(value, label, required = true, minLen = 2, maxLen = 100) {
+  const raw = value;            // valeur brute du champ
+  const v   = trim(value);
+
+  if (!v) return required ? `Le champ "${label}" est obligatoire.` : null;
+  if (hasLeadingTrailingSpace(raw)) return `"${label}" ne doit pas commencer ou finir par un espace.`;
+  if (v.length < minLen)            return `"${label}" doit contenir au moins ${minLen} caractères.`;
+  if (v.length > maxLen)            return `"${label}" ne doit pas dépasser ${maxLen} caractères.`;
+  if (hasSpecialAtEdge(v))          return `"${label}" ne doit pas commencer ou finir par un caractère spécial.`;
+  return null;
+}
+
+// ── Afficher / masquer une erreur inline ─────────────────────
+function showErr(fieldId, msg) {
+  const el    = document.getElementById(`${fieldId}-err`);
+  const input = document.getElementById(fieldId);
+  if (!el || !input) return;
+  if (msg) {
+    el.textContent = msg; el.classList.add('show');
+    input.classList.add('is-invalid'); input.classList.remove('is-valid');
+  } else {
+    el.textContent = ''; el.classList.remove('show');
+    input.classList.remove('is-invalid');
+    if (input.value.trim()) input.classList.add('is-valid');
+  }
+}
+
+// ── Validation champ par champ (feedback immédiat au blur) ───
+function validateField(id) {
+  const el  = document.getElementById(id);
+  if (!el) return true;
+  const val = el.value;
+  let err   = null;
+
+  switch (id) {
+    case 'nom':
+      err = validateText(val, 'Nom', true, 2, 100); break;
+    case 'prenom':
+      err = validateText(val, 'Prénom', true, 2, 100); break;
+    case 'email':
+      if (val && trim(val)) {
+        if (hasLeadingTrailingSpace(val))       err = "L'email ne doit pas commencer ou finir par un espace.";
+        else if (!isValidEmail(trim(val)))      err = "L'adresse email n'est pas valide.";
+      }
+      break;
+    case 'telephone': {
+      const v = trim(val);
+      if (!v)                                   err = 'Le téléphone est obligatoire.';
+      else if (hasLeadingTrailingSpace(val))    err = 'Le téléphone ne doit pas commencer ou finir par un espace.';
+      else if (!isValidPhone(v))                err = 'Numéro invalide (format français : 06 12 34 56 78).';
+      break;
+    }
+    case 'adresse':
+      err = validateText(val, 'Adresse', true, 2, 255); break;
+    case 'ville':
+      err = validateText(val, 'Ville', true, 2, 100); break;
+    case 'code_postal': {
+      const v = trim(val);
+      if (!v)             err = 'Le code postal est obligatoire.';
+      else if (!isValidCP(v)) err = 'Le code postal doit contenir exactement 5 chiffres.';
+      break;
+    }
+    case 'code_acces':
+      if (val && hasLeadingTrailingSpace(val))
+        err = "Le code d'accès ne doit pas commencer ou finir par un espace.";
+      break;
+  }
+
+  showErr(id, err);
+  return !err;
+}
+
+// ── Attacher la validation au blur sur chaque champ ──────────
+const fields = ['nom','prenom','email','telephone','adresse','ville','code_postal','code_acces'];
+fields.forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('blur',  () => validateField(id));
+  el.addEventListener('input', () => {
+    // Supprimer l'erreur dès que l'utilisateur recommence à saisir
+    const errEl = document.getElementById(`${id}-err`);
+    if (errEl && errEl.classList.contains('show')) validateField(id);
+  });
+});
+
+// ── Validation globale à la soumission ───────────────────────
+document.getElementById('clientForm').addEventListener('submit', function(e) {
+  let valid = true;
+  fields.forEach(id => { if (!validateField(id)) valid = false; });
+
+  // Notes max 500
+  const notes = document.getElementById('notesTA');
+  if (notes && notes.value.trim().length > 500) {
+    valid = false;
+    // pas de champ-error dédié, on peut afficher un alert ou juste bloquer
+  }
+
+  if (!valid) {
+    e.preventDefault();
+    // Faire défiler vers la première erreur
+    const firstErr = document.querySelector('.is-invalid');
+    if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+});
+
+// ── Compteur notes ───────────────────────────────────────────
 const ta = document.getElementById('notesTA');
 const cc = document.getElementById('charCount');
 function updateCount() { cc.textContent = ta.value.length; }
 ta.addEventListener('input', updateCount);
 updateCount();
 
-// Validation inline
-document.getElementById('clientForm').addEventListener('submit', function(e) {
-  const required = this.querySelectorAll('[required]');
-  let ok = true;
-  required.forEach(field => {
-    field.classList.remove('is-invalid');
-    if (!field.value.trim()) {
-      field.classList.add('is-invalid');
-      ok = false;
-    }
-  });
-  // Validation code postal
-  const cp = this.querySelector('[name="code_postal"]');
-  if (cp && cp.value && !/^[0-9]{5}$/.test(cp.value.trim())) {
-    cp.classList.add('is-invalid');
-    ok = false;
-  }
-  if (!ok) {
-    e.preventDefault();
-    const firstInvalid = this.querySelector('.is-invalid');
-    if (firstInvalid) firstInvalid.focus();
-    Swal.fire({
-      title: 'Champs manquants',
-      text: 'Veuillez remplir tous les champs obligatoires.',
-      icon: 'warning', confirmButtonColor: '#667eea'
-    });
-  }
-});
+// ── Pré-validation si données flash déjà en erreur ───────────
+// (déclenche le feedback visuel immédiatement au chargement)
+<% if (flashErrors.length > 0) { %>
+fields.forEach(id => validateField(id));
+<% } %>
 </script>

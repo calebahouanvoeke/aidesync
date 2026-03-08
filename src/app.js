@@ -15,69 +15,71 @@ const flash = require('express-flash');
 const methodOverride = require('method-override');
 const cookieParser = require('cookie-parser');
 
-const { apiLimiter, loginLimiter, createLimiter, emailLimiter, sanitizeInput, securityLogger } = require('./middlewares/security');
-
-
-const profilRoutes     = require('./routes/profil');
-const parametresRoutes = require('./routes/parametres');
-
+const { apiLimiter, sanitizeInput, securityLogger } = require('./middlewares/security');
+const profilRoutes = require('./routes/profil');
 const { pool } = require('./config/database');
 const expressLayouts = require('express-ejs-layouts');
 
-// Charger la configuration Passport
 require('./config/passport')(passport);
 
-const app = express();
+const app  = express();
 const PORT = process.env.PORT || 3000;
 
 // ============================================================
-// CONFIGURATION DES MIDDLEWARES
+// MIDDLEWARES
 // ============================================================
 
-// Sécurité avec Helmet
-app.use(helmet({ contentSecurityPolicy: false }));
+// ── Helmet sans CSP en développement, CSP souple en production ──
+if (process.env.NODE_ENV === 'production') {
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc:     ["'self'"],
+        scriptSrc:      ["'self'", "'unsafe-inline'", "'unsafe-eval'",
+                         "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com",
+                         "https://cdn.sweetalert2.com"],
+        scriptSrcAttr:  ["'unsafe-inline'"],   // ← autorise onclick= etc.
+        styleSrc:       ["'self'", "'unsafe-inline'",
+                         "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com",
+                         "https://cdn.sweetalert2.com"],
+        fontSrc:        ["'self'", "https://cdnjs.cloudflare.com", "data:"],
+        imgSrc:         ["'self'", "data:", "https:"],
+        connectSrc:     ["'self'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
+        frameSrc:       ["'none'"],
+        objectSrc:      ["'none'"],
+      }
+    },
+    crossOriginEmbedderPolicy: false,
+  }));
+} else {
+  // En développement : helmet sans CSP du tout — aucun blocage
+  app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
+}
 
-
-
-// Compression des réponses
 app.use(compression());
 
-// Logger les requêtes HTTP (en développement uniquement)
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Parser le corps des requêtes
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Cookies
 app.use(cookieParser());
-
-// Méthodes HTTP additionnelles (PUT, DELETE)
 app.use(methodOverride('_method'));
-
-// Fichiers statiques
 app.use(express.static(path.join(__dirname, '../public')));
 
 // ============================================================
-// CONFIGURATION DES SESSIONS
+// SESSIONS
 // ============================================================
 
 app.set('trust proxy', 1);
-
 app.use(sanitizeInput);
-
-// Logger sécurité
 app.use(securityLogger);
-
-// Rate limiting global sur les API
 app.use('/api', apiLimiter);
-
 
 app.use(session({
   store: new pgSession({
-    pool: pool,
+    pool,
     tableName: 'session',
     createTableIfMissing: true
   }),
@@ -85,44 +87,40 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 30 * 24 * 60 * 60 * 1000,
+    maxAge:   30 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure:   process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   }
 }));
 
-// Flash messages
 app.use(flash());
 
 // ============================================================
-// CONFIGURATION DE PASSPORT (Authentification)
+// PASSPORT
 // ============================================================
 
 app.use(passport.initialize());
 app.use(passport.session());
-// En haut du fichier avec les autres require :
-const unreadMessages = require('./middlewares/unreadMessages');
 
-// Juste après app.use(passport.session()) :
+const unreadMessages = require('./middlewares/unreadMessages');
 app.use(unreadMessages);
 
 // ============================================================
-// CONFIGURATION DU MOTEUR DE TEMPLATES (EJS)
+// MOTEUR DE TEMPLATES EJS
 // ============================================================
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(expressLayouts);
-app.set('layout', 'layouts/main'); 
+app.set('layout', 'layouts/main');
 
-// Variables globales pour toutes les vues
 app.use((req, res, next) => {
-  res.locals.user = req.user || null;
-  res.locals.success = req.flash('success');
-  res.locals.error = req.flash('error');
+  res.locals.user        = req.user || null;
+  res.locals.success     = req.flash('success');
+  res.locals.error       = req.flash('error');
   res.locals.currentPath = req.path;
-  res.locals.currentPage = ''; 
+  res.locals.currentPage = '';
   next();
 });
 
@@ -130,49 +128,26 @@ app.use((req, res, next) => {
 // ROUTES
 // ============================================================
 
+// Silencer la requête automatique de Chrome DevTools
+app.get('/.well-known/appspecific/com.chrome.devtools.json', (req, res) => res.status(204).end());
 
-
-// Routes principales
-app.use('/', require('./routes/index'));
-
-// Routes d'authentification
-app.use('/auth', require('./routes/auth'));
-
-// Routes du tableau de bord
-app.use('/dashboard', require('./routes/dashboard'));
-
-app.use('/profil',     profilRoutes);
-app.use('/parametres', parametresRoutes);
-
-// Routes clients
-app.use('/clients', require('./routes/clients'));
-
-// Routes interventions
+app.use('/',              require('./routes/index'));
+app.use('/auth',          require('./routes/auth'));
+app.use('/dashboard',     require('./routes/dashboard'));
+app.use('/profil',        profilRoutes);
+app.use('/clients',       require('./routes/clients'));
 app.use('/interventions', require('./routes/interventions'));
+app.use('/factures',      require('./routes/factures'));
+app.use('/messages',      require('./routes/messages'));
+app.use('/client',        require('./routes/clientPortal'));
 
-// Routes factures
-app.use('/factures', require('./routes/factures'));
-
-// Routes messages
-app.use('/messages', require('./routes/messages'));
-
-// Routes portail client (AVANT les middlewares d'erreur)
-app.use('/client', require('./routes/clientPortal'));
 // ============================================================
 // GESTION DES ERREURS
 // ============================================================
 
 const { notFound, errorHandler } = require('./middlewares/errorHandler');
-
-// Route non trouvée (404)
 app.use(notFound);
-
-// Gestionnaire d'erreurs global
 app.use(errorHandler);
-
-// ============================================================
-// DÉMARRAGE DU SERVEUR
-// ============================================================
 
 // ============================================================
 // TÂCHES PLANIFIÉES
@@ -181,42 +156,28 @@ app.use(errorHandler);
 const cron = require('node-cron');
 const { dailyTasks } = require('./scripts/cron');
 
-// Exécuter les tâches quotidiennes tous les jours à 8h00
 cron.schedule('0 8 * * *', () => {
-  console.log('⏰ Déclenchement des tâches quotidiennes automatiques...');
+  console.log('⏰ Déclenchement des tâches quotidiennes...');
   dailyTasks();
 });
-
 console.log('✅ Tâches planifiées configurées (tous les jours à 8h00)');
 
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-eval'", "'unsafe-inline'", 
-                  "https://cdn.jsdelivr.net", 
-                  "https://cdnjs.cloudflare.com"],
-      styleSrc: ["'self'", "'unsafe-inline'", 
-                 "https://cdn.jsdelivr.net", 
-                 "https://cdnjs.cloudflare.com"],
-      fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "data:"],
-      imgSrc: ["'self'", "data:"],
-    }
-  }
-}));
+// ============================================================
+// DÉMARRAGE
+// ============================================================
 
 app.listen(PORT, () => {
   console.log('');
   console.log('========================================');
   console.log('  🚀 AIDESYNC DÉMARRÉ');
   console.log('========================================');
-  console.log('  Port: ' + PORT);
-  console.log('  URL:  http://localhost:' + PORT);
+  console.log(`  Port: ${PORT}`);
+  console.log(`  URL:  http://localhost:${PORT}`);
+  console.log(`  Env:  ${process.env.NODE_ENV || 'development'}`);
   console.log('========================================');
   console.log('');
 });
 
-// Gestion propre de l'arrêt du serveur
 process.on('SIGINT', () => {
   pool.end(() => {
     console.log('\nServeur arrêté');

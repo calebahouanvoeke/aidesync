@@ -1,88 +1,144 @@
 // ============================================================
-// CONTRÔLEUR PROFIL & PARAMÈTRES — avec sauvegarde notifications
-// src/controllers/profileController.js
+// src/controllers/profileController.js  — VERSION COMPLÈTE
 // ============================================================
 
+const bcrypt      = require('bcrypt');
 const Prestataire = require('../models/Prestataire');
 
-exports.show = async (req, res) => {
+// ─────────────────────────────────────────────────────────────
+// GET /profil
+// ─────────────────────────────────────────────────────────────
+exports.showProfil = async (req, res) => {
   try {
     const prestataire = await Prestataire.findById(req.user.id);
+    if (!prestataire) {
+      req.flash('error', 'Profil introuvable');
+      return res.redirect('/dashboard');
+    }
     res.render('pages/profil/show', {
       title: 'Mon profil - AideSync',
-      prestataire, currentPage: 'profil',
-      success: req.flash('success'),
-      error:   req.flash('error')
+      prestataire,
+      success: req.flash('success')[0] || null,
+      error:   req.flash('error')[0]   || null,
+      currentPage: 'profil'
     });
-  } catch (error) {
-    console.error('Erreur profil:', error);
+  } catch (err) {
+    console.error('Erreur showProfil:', err);
     req.flash('error', 'Erreur lors du chargement du profil');
     res.redirect('/dashboard');
   }
 };
 
-exports.update = async (req, res) => {
+// ─────────────────────────────────────────────────────────────
+// POST /profil  →  Mettre à jour les infos personnelles
+// ─────────────────────────────────────────────────────────────
+exports.updateProfil = async (req, res) => {
   try {
-    const { nom, prenom, telephone, siret, adresse, ville, code_postal } = req.body;
-    await Prestataire.update(req.user.id, { nom, prenom, telephone, siret, adresse, ville, code_postal });
-    req.user.nom    = nom;
-    req.user.prenom = prenom;
+    const { prenom, nom, telephone, adresse, ville, code_postal } = req.body;
+
+    if (!prenom || !nom || !prenom.trim() || !nom.trim()) {
+      req.flash('error', 'Le prénom et le nom sont obligatoires');
+      return res.redirect('/profil');
+    }
+
+    await Prestataire.update(req.user.id, {
+      prenom:      prenom.trim().slice(0, 100),
+      nom:         nom.trim().slice(0, 100),
+      telephone:   telephone   ? telephone.trim().slice(0, 20)   : null,
+      adresse:     adresse     ? adresse.trim().slice(0, 255)    : null,
+      ville:       ville       ? ville.trim().slice(0, 100)      : null,
+      code_postal: code_postal ? code_postal.trim().slice(0, 10) : null
+    });
+
     req.flash('success', 'Profil mis à jour avec succès');
     res.redirect('/profil');
-  } catch (error) {
-    console.error('Erreur mise à jour profil:', error);
-    req.flash('error', 'Erreur lors de la mise à jour');
+  } catch (err) {
+    console.error('Erreur updateProfil:', err);
+    req.flash('error', 'Erreur lors de la mise à jour du profil');
     res.redirect('/profil');
   }
 };
 
-exports.settings = async (req, res) => {
+// ─────────────────────────────────────────────────────────────
+// GET /profil/parametres
+// ─────────────────────────────────────────────────────────────
+exports.showParametres = async (req, res) => {
   try {
     const prestataire = await Prestataire.findById(req.user.id);
+    if (!prestataire) {
+      req.flash('error', 'Profil introuvable');
+      return res.redirect('/dashboard');
+    }
     res.render('pages/profil/parametres', {
       title: 'Paramètres - AideSync',
-      prestataire, currentPage: 'parametres',
-      success: req.flash('success'),
-      error:   req.flash('error')
+      prestataire,
+      success:         req.flash('success')[0]         || null,
+      error:           req.flash('error')[0]           || null,
+      passwordSuccess: req.flash('passwordSuccess')[0] || null,
+      passwordError:   req.flash('passwordError')[0]   || null,
+      currentPage: 'parametres'
     });
-  } catch (error) {
-    console.error('Erreur paramètres:', error);
+  } catch (err) {
+    console.error('Erreur showParametres:', err);
     req.flash('error', 'Erreur lors du chargement des paramètres');
     res.redirect('/dashboard');
   }
 };
 
+// ─────────────────────────────────────────────────────────────
+// POST /profil/parametres/password  →  Changer le mot de passe
+// ─────────────────────────────────────────────────────────────
 exports.updatePassword = async (req, res) => {
   try {
-    const { ancien_mot_de_passe, nouveau_mot_de_passe, confirmation_mot_de_passe } = req.body;
+    const { current_password, new_password, confirm_password } = req.body;
 
-    if (!ancien_mot_de_passe || !nouveau_mot_de_passe || !confirmation_mot_de_passe) {
-      req.flash('error', 'Tous les champs sont obligatoires');
-      return res.redirect('/parametres');
+    if (!current_password || !new_password || !confirm_password) {
+      req.flash('passwordError', 'Tous les champs sont obligatoires');
+      return res.redirect('/profil/parametres');
     }
-    if (nouveau_mot_de_passe !== confirmation_mot_de_passe) {
-      req.flash('error', 'Les nouveaux mots de passe ne correspondent pas');
-      return res.redirect('/parametres');
+    if (new_password.length < 8) {
+      req.flash('passwordError', 'Le nouveau mot de passe doit contenir au moins 8 caractères');
+      return res.redirect('/profil/parametres');
     }
-    if (nouveau_mot_de_passe.length < 8) {
-      req.flash('error', 'Le nouveau mot de passe doit contenir au moins 8 caractères');
-      return res.redirect('/parametres');
+    if (new_password !== confirm_password) {
+      req.flash('passwordError', 'Les nouveaux mots de passe ne correspondent pas');
+      return res.redirect('/profil/parametres');
     }
 
-    await Prestataire.updatePassword(req.user.id, ancien_mot_de_passe, nouveau_mot_de_passe);
-    req.flash('success', 'Mot de passe modifié avec succès');
-    res.redirect('/parametres');
-  } catch (error) {
-    console.error('Erreur changement mot de passe:', error);
-    req.flash('error', error.message || 'Erreur lors du changement de mot de passe');
-    res.redirect('/parametres');
+    const prestataire = await Prestataire.findByIdWithPassword(req.user.id);
+    if (!prestataire) {
+      req.flash('passwordError', 'Utilisateur introuvable');
+      return res.redirect('/profil/parametres');
+    }
+
+    const motDePasseField = prestataire.mot_de_passe || prestataire.password;
+    if (!motDePasseField) {
+      req.flash('passwordError', 'Impossible de vérifier votre mot de passe actuel');
+      return res.redirect('/profil/parametres');
+    }
+
+    const isValid = await bcrypt.compare(current_password, motDePasseField);
+    if (!isValid) {
+      req.flash('passwordError', 'Le mot de passe actuel est incorrect');
+      return res.redirect('/profil/parametres');
+    }
+
+    const rounds  = parseInt(process.env.BCRYPT_ROUNDS) || 10;
+    const newHash = await bcrypt.hash(new_password, rounds);
+    await Prestataire.updatePassword(req.user.id, newHash);
+
+    req.flash('passwordSuccess', 'Mot de passe modifié avec succès');
+    res.redirect('/profil/parametres');
+
+  } catch (err) {
+    console.error('Erreur updatePassword:', err);
+    req.flash('passwordError', 'Erreur lors du changement de mot de passe');
+    res.redirect('/profil/parametres');
   }
 };
 
 // ─────────────────────────────────────────────────────────────
-// POST /parametres/notifications
-// Les checkboxes non cochées ne sont PAS envoyées en POST →
-// on les considère comme false si absentes du body.
+// POST /profil/parametres/notifications  →  Préférences notifs
 // ─────────────────────────────────────────────────────────────
 exports.updateNotifications = async (req, res) => {
   try {
@@ -90,15 +146,16 @@ exports.updateNotifications = async (req, res) => {
       notif_intervention: req.body.notif_intervention === '1',
       notif_rappel:       req.body.notif_rappel       === '1',
       notif_paiement:     req.body.notif_paiement     === '1',
-      notif_retard:       req.body.notif_retard       === '1',
+      notif_retard:       req.body.notif_retard        === '1'
     };
 
     await Prestataire.updateNotifications(req.user.id, prefs);
-    req.flash('success', 'Préférences de notifications enregistrées');
-    res.redirect('/parametres');
-  } catch (error) {
-    console.error('Erreur notifications:', error);
-    req.flash('error', 'Erreur lors de la sauvegarde des préférences');
-    res.redirect('/parametres');
+
+    req.flash('success', 'Préférences de notification enregistrées');
+    res.redirect('/profil/parametres');
+  } catch (err) {
+    console.error('Erreur updateNotifications:', err);
+    req.flash('error', 'Erreur lors de la mise à jour des préférences');
+    res.redirect('/profil/parametres');
   }
 };
