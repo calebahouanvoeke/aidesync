@@ -90,9 +90,10 @@ exports.sanitizeInput = (req, res, next) => {
 // Vérifier que l'ID en param est un entier positif
 // ─────────────────────────────────────────────────────────────
 exports.validateParamId = (req, res, next) => {
-  const id = req.params.id;
+  
+  const id = req.params.id || req.params.clientId;
   if (!id || !/^\d+$/.test(id) || parseInt(id) <= 0) {
-    if (req.xhr || req.headers.accept?.includes('application/json')) {
+     if (req.xhr || req.headers.accept?.includes('application/json')) {
       return res.status(400).json({ success: false, message: 'ID invalide' });
     }
     req.flash('error', 'Ressource introuvable');
